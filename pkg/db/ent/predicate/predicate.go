@@ -8,3 +8,6 @@ import (
 
 // CoinGas is the predicate function for coingas builders.
 type CoinGas func(*sql.Selector)
+
+// Deposit is the predicate function for deposit builders.
+type Deposit func(*sql.Selector)

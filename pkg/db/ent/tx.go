@@ -14,6 +14,8 @@ type Tx struct {
 	config
 	// CoinGas is the client for interacting with the CoinGas builders.
 	CoinGas *CoinGasClient
+	// Deposit is the client for interacting with the Deposit builders.
+	Deposit *DepositClient
 
 	// lazily loaded.
 	client     *Client
@@ -150,6 +152,7 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.CoinGas = NewCoinGasClient(tx.config)
+	tx.Deposit = NewDepositClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.

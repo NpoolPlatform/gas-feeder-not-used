@@ -14,6 +14,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/NpoolPlatform/gas-feeder/pkg/db/ent/coingas"
 	"github.com/NpoolPlatform/gas-feeder/pkg/db/ent/predicate"
+	"github.com/google/uuid"
 )
 
 // CoinGasQuery is the builder for querying CoinGas entities.
@@ -86,8 +87,8 @@ func (cgq *CoinGasQuery) FirstX(ctx context.Context) *CoinGas {
 
 // FirstID returns the first CoinGas ID from the query.
 // Returns a *NotFoundError when no CoinGas ID was found.
-func (cgq *CoinGasQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (cgq *CoinGasQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = cgq.Limit(1).IDs(ctx); err != nil {
 		return
 	}
@@ -99,7 +100,7 @@ func (cgq *CoinGasQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (cgq *CoinGasQuery) FirstIDX(ctx context.Context) int {
+func (cgq *CoinGasQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := cgq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -137,8 +138,8 @@ func (cgq *CoinGasQuery) OnlyX(ctx context.Context) *CoinGas {
 // OnlyID is like Only, but returns the only CoinGas ID in the query.
 // Returns a *NotSingularError when more than one CoinGas ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (cgq *CoinGasQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (cgq *CoinGasQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = cgq.Limit(2).IDs(ctx); err != nil {
 		return
 	}
@@ -154,7 +155,7 @@ func (cgq *CoinGasQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (cgq *CoinGasQuery) OnlyIDX(ctx context.Context) int {
+func (cgq *CoinGasQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := cgq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -180,8 +181,8 @@ func (cgq *CoinGasQuery) AllX(ctx context.Context) []*CoinGas {
 }
 
 // IDs executes the query and returns a list of CoinGas IDs.
-func (cgq *CoinGasQuery) IDs(ctx context.Context) ([]int, error) {
-	var ids []int
+func (cgq *CoinGasQuery) IDs(ctx context.Context) ([]uuid.UUID, error) {
+	var ids []uuid.UUID
 	if err := cgq.Select(coingas.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
@@ -189,7 +190,7 @@ func (cgq *CoinGasQuery) IDs(ctx context.Context) ([]int, error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (cgq *CoinGasQuery) IDsX(ctx context.Context) []int {
+func (cgq *CoinGasQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := cgq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -252,6 +253,19 @@ func (cgq *CoinGasQuery) Clone() *CoinGasQuery {
 
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
+//
+// Example:
+//
+//	var v []struct {
+//		CreatedAt uint32 `json:"created_at,omitempty"`
+//		Count int `json:"count,omitempty"`
+//	}
+//
+//	client.CoinGas.Query().
+//		GroupBy(coingas.FieldCreatedAt).
+//		Aggregate(ent.Count()).
+//		Scan(ctx, &v)
+//
 func (cgq *CoinGasQuery) GroupBy(field string, fields ...string) *CoinGasGroupBy {
 	group := &CoinGasGroupBy{config: cgq.config}
 	group.fields = append([]string{field}, fields...)
@@ -266,6 +280,17 @@ func (cgq *CoinGasQuery) GroupBy(field string, fields ...string) *CoinGasGroupBy
 
 // Select allows the selection one or more fields/columns for the given query,
 // instead of selecting all fields in the entity.
+//
+// Example:
+//
+//	var v []struct {
+//		CreatedAt uint32 `json:"created_at,omitempty"`
+//	}
+//
+//	client.CoinGas.Query().
+//		Select(coingas.FieldCreatedAt).
+//		Scan(ctx, &v)
+//
 func (cgq *CoinGasQuery) Select(fields ...string) *CoinGasSelect {
 	cgq.fields = append(cgq.fields, fields...)
 	return &CoinGasSelect{CoinGasQuery: cgq}
@@ -283,6 +308,12 @@ func (cgq *CoinGasQuery) prepareQuery(ctx context.Context) error {
 			return err
 		}
 		cgq.sql = prev
+	}
+	if coingas.Policy == nil {
+		return errors.New("ent: uninitialized coingas.Policy (forgotten import ent/runtime?)")
+	}
+	if err := coingas.Policy.EvalQuery(ctx, cgq); err != nil {
+		return err
 	}
 	return nil
 }
@@ -342,7 +373,7 @@ func (cgq *CoinGasQuery) querySpec() *sqlgraph.QuerySpec {
 			Table:   coingas.Table,
 			Columns: coingas.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
+				Type:   field.TypeUUID,
 				Column: coingas.FieldID,
 			},
 		},

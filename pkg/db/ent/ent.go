@@ -9,6 +9,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/NpoolPlatform/gas-feeder/pkg/db/ent/coingas"
+	"github.com/NpoolPlatform/gas-feeder/pkg/db/ent/deposit"
 )
 
 // ent aliases to avoid import conflicts in user's code.
@@ -30,6 +31,7 @@ type OrderFunc func(*sql.Selector)
 func columnChecker(table string) func(string) error {
 	checks := map[string]func(string) bool{
 		coingas.Table: coingas.ValidColumn,
+		deposit.Table: deposit.ValidColumn,
 	}
 	check, ok := checks[table]
 	if !ok {

@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/NpoolPlatform/gas-feeder/pkg/db/ent/coingas"
 	"github.com/NpoolPlatform/gas-feeder/pkg/db/ent/predicate"
+	"github.com/google/uuid"
 )
 
 // CoinGasUpdate is the builder for updating CoinGas entities.
@@ -27,6 +28,86 @@ func (cgu *CoinGasUpdate) Where(ps ...predicate.CoinGas) *CoinGasUpdate {
 	return cgu
 }
 
+// SetCreatedAt sets the "created_at" field.
+func (cgu *CoinGasUpdate) SetCreatedAt(u uint32) *CoinGasUpdate {
+	cgu.mutation.ResetCreatedAt()
+	cgu.mutation.SetCreatedAt(u)
+	return cgu
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (cgu *CoinGasUpdate) SetNillableCreatedAt(u *uint32) *CoinGasUpdate {
+	if u != nil {
+		cgu.SetCreatedAt(*u)
+	}
+	return cgu
+}
+
+// AddCreatedAt adds u to the "created_at" field.
+func (cgu *CoinGasUpdate) AddCreatedAt(u int32) *CoinGasUpdate {
+	cgu.mutation.AddCreatedAt(u)
+	return cgu
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (cgu *CoinGasUpdate) SetUpdatedAt(u uint32) *CoinGasUpdate {
+	cgu.mutation.ResetUpdatedAt()
+	cgu.mutation.SetUpdatedAt(u)
+	return cgu
+}
+
+// AddUpdatedAt adds u to the "updated_at" field.
+func (cgu *CoinGasUpdate) AddUpdatedAt(u int32) *CoinGasUpdate {
+	cgu.mutation.AddUpdatedAt(u)
+	return cgu
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (cgu *CoinGasUpdate) SetDeletedAt(u uint32) *CoinGasUpdate {
+	cgu.mutation.ResetDeletedAt()
+	cgu.mutation.SetDeletedAt(u)
+	return cgu
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (cgu *CoinGasUpdate) SetNillableDeletedAt(u *uint32) *CoinGasUpdate {
+	if u != nil {
+		cgu.SetDeletedAt(*u)
+	}
+	return cgu
+}
+
+// AddDeletedAt adds u to the "deleted_at" field.
+func (cgu *CoinGasUpdate) AddDeletedAt(u int32) *CoinGasUpdate {
+	cgu.mutation.AddDeletedAt(u)
+	return cgu
+}
+
+// SetCoinTypeID sets the "coin_type_id" field.
+func (cgu *CoinGasUpdate) SetCoinTypeID(u uuid.UUID) *CoinGasUpdate {
+	cgu.mutation.SetCoinTypeID(u)
+	return cgu
+}
+
+// SetGasCoinTypeID sets the "gas_coin_type_id" field.
+func (cgu *CoinGasUpdate) SetGasCoinTypeID(u uuid.UUID) *CoinGasUpdate {
+	cgu.mutation.SetGasCoinTypeID(u)
+	return cgu
+}
+
+// SetDepositThreshold sets the "deposit_threshold" field.
+func (cgu *CoinGasUpdate) SetDepositThreshold(u uint64) *CoinGasUpdate {
+	cgu.mutation.ResetDepositThreshold()
+	cgu.mutation.SetDepositThreshold(u)
+	return cgu
+}
+
+// AddDepositThreshold adds u to the "deposit_threshold" field.
+func (cgu *CoinGasUpdate) AddDepositThreshold(u int64) *CoinGasUpdate {
+	cgu.mutation.AddDepositThreshold(u)
+	return cgu
+}
+
 // Mutation returns the CoinGasMutation object of the builder.
 func (cgu *CoinGasUpdate) Mutation() *CoinGasMutation {
 	return cgu.mutation
@@ -38,6 +119,9 @@ func (cgu *CoinGasUpdate) Save(ctx context.Context) (int, error) {
 		err      error
 		affected int
 	)
+	if err := cgu.defaults(); err != nil {
+		return 0, err
+	}
 	if len(cgu.hooks) == 0 {
 		affected, err = cgu.sqlSave(ctx)
 	} else {
@@ -86,13 +170,25 @@ func (cgu *CoinGasUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (cgu *CoinGasUpdate) defaults() error {
+	if _, ok := cgu.mutation.UpdatedAt(); !ok {
+		if coingas.UpdateDefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized coingas.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
+		v := coingas.UpdateDefaultUpdatedAt()
+		cgu.mutation.SetUpdatedAt(v)
+	}
+	return nil
+}
+
 func (cgu *CoinGasUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	_spec := &sqlgraph.UpdateSpec{
 		Node: &sqlgraph.NodeSpec{
 			Table:   coingas.Table,
 			Columns: coingas.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
+				Type:   field.TypeUUID,
 				Column: coingas.FieldID,
 			},
 		},
@@ -103,6 +199,76 @@ func (cgu *CoinGasUpdate) sqlSave(ctx context.Context) (n int, err error) {
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := cgu.mutation.CreatedAt(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeUint32,
+			Value:  value,
+			Column: coingas.FieldCreatedAt,
+		})
+	}
+	if value, ok := cgu.mutation.AddedCreatedAt(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeUint32,
+			Value:  value,
+			Column: coingas.FieldCreatedAt,
+		})
+	}
+	if value, ok := cgu.mutation.UpdatedAt(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeUint32,
+			Value:  value,
+			Column: coingas.FieldUpdatedAt,
+		})
+	}
+	if value, ok := cgu.mutation.AddedUpdatedAt(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeUint32,
+			Value:  value,
+			Column: coingas.FieldUpdatedAt,
+		})
+	}
+	if value, ok := cgu.mutation.DeletedAt(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeUint32,
+			Value:  value,
+			Column: coingas.FieldDeletedAt,
+		})
+	}
+	if value, ok := cgu.mutation.AddedDeletedAt(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeUint32,
+			Value:  value,
+			Column: coingas.FieldDeletedAt,
+		})
+	}
+	if value, ok := cgu.mutation.CoinTypeID(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
+			Value:  value,
+			Column: coingas.FieldCoinTypeID,
+		})
+	}
+	if value, ok := cgu.mutation.GasCoinTypeID(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
+			Value:  value,
+			Column: coingas.FieldGasCoinTypeID,
+		})
+	}
+	if value, ok := cgu.mutation.DepositThreshold(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeUint64,
+			Value:  value,
+			Column: coingas.FieldDepositThreshold,
+		})
+	}
+	if value, ok := cgu.mutation.AddedDepositThreshold(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeUint64,
+			Value:  value,
+			Column: coingas.FieldDepositThreshold,
+		})
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, cgu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -123,6 +289,86 @@ type CoinGasUpdateOne struct {
 	mutation *CoinGasMutation
 }
 
+// SetCreatedAt sets the "created_at" field.
+func (cguo *CoinGasUpdateOne) SetCreatedAt(u uint32) *CoinGasUpdateOne {
+	cguo.mutation.ResetCreatedAt()
+	cguo.mutation.SetCreatedAt(u)
+	return cguo
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (cguo *CoinGasUpdateOne) SetNillableCreatedAt(u *uint32) *CoinGasUpdateOne {
+	if u != nil {
+		cguo.SetCreatedAt(*u)
+	}
+	return cguo
+}
+
+// AddCreatedAt adds u to the "created_at" field.
+func (cguo *CoinGasUpdateOne) AddCreatedAt(u int32) *CoinGasUpdateOne {
+	cguo.mutation.AddCreatedAt(u)
+	return cguo
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (cguo *CoinGasUpdateOne) SetUpdatedAt(u uint32) *CoinGasUpdateOne {
+	cguo.mutation.ResetUpdatedAt()
+	cguo.mutation.SetUpdatedAt(u)
+	return cguo
+}
+
+// AddUpdatedAt adds u to the "updated_at" field.
+func (cguo *CoinGasUpdateOne) AddUpdatedAt(u int32) *CoinGasUpdateOne {
+	cguo.mutation.AddUpdatedAt(u)
+	return cguo
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (cguo *CoinGasUpdateOne) SetDeletedAt(u uint32) *CoinGasUpdateOne {
+	cguo.mutation.ResetDeletedAt()
+	cguo.mutation.SetDeletedAt(u)
+	return cguo
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (cguo *CoinGasUpdateOne) SetNillableDeletedAt(u *uint32) *CoinGasUpdateOne {
+	if u != nil {
+		cguo.SetDeletedAt(*u)
+	}
+	return cguo
+}
+
+// AddDeletedAt adds u to the "deleted_at" field.
+func (cguo *CoinGasUpdateOne) AddDeletedAt(u int32) *CoinGasUpdateOne {
+	cguo.mutation.AddDeletedAt(u)
+	return cguo
+}
+
+// SetCoinTypeID sets the "coin_type_id" field.
+func (cguo *CoinGasUpdateOne) SetCoinTypeID(u uuid.UUID) *CoinGasUpdateOne {
+	cguo.mutation.SetCoinTypeID(u)
+	return cguo
+}
+
+// SetGasCoinTypeID sets the "gas_coin_type_id" field.
+func (cguo *CoinGasUpdateOne) SetGasCoinTypeID(u uuid.UUID) *CoinGasUpdateOne {
+	cguo.mutation.SetGasCoinTypeID(u)
+	return cguo
+}
+
+// SetDepositThreshold sets the "deposit_threshold" field.
+func (cguo *CoinGasUpdateOne) SetDepositThreshold(u uint64) *CoinGasUpdateOne {
+	cguo.mutation.ResetDepositThreshold()
+	cguo.mutation.SetDepositThreshold(u)
+	return cguo
+}
+
+// AddDepositThreshold adds u to the "deposit_threshold" field.
+func (cguo *CoinGasUpdateOne) AddDepositThreshold(u int64) *CoinGasUpdateOne {
+	cguo.mutation.AddDepositThreshold(u)
+	return cguo
+}
+
 // Mutation returns the CoinGasMutation object of the builder.
 func (cguo *CoinGasUpdateOne) Mutation() *CoinGasMutation {
 	return cguo.mutation
@@ -141,6 +387,9 @@ func (cguo *CoinGasUpdateOne) Save(ctx context.Context) (*CoinGas, error) {
 		err  error
 		node *CoinGas
 	)
+	if err := cguo.defaults(); err != nil {
+		return nil, err
+	}
 	if len(cguo.hooks) == 0 {
 		node, err = cguo.sqlSave(ctx)
 	} else {
@@ -189,13 +438,25 @@ func (cguo *CoinGasUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (cguo *CoinGasUpdateOne) defaults() error {
+	if _, ok := cguo.mutation.UpdatedAt(); !ok {
+		if coingas.UpdateDefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized coingas.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
+		v := coingas.UpdateDefaultUpdatedAt()
+		cguo.mutation.SetUpdatedAt(v)
+	}
+	return nil
+}
+
 func (cguo *CoinGasUpdateOne) sqlSave(ctx context.Context) (_node *CoinGas, err error) {
 	_spec := &sqlgraph.UpdateSpec{
 		Node: &sqlgraph.NodeSpec{
 			Table:   coingas.Table,
 			Columns: coingas.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
+				Type:   field.TypeUUID,
 				Column: coingas.FieldID,
 			},
 		},
@@ -223,6 +484,76 @@ func (cguo *CoinGasUpdateOne) sqlSave(ctx context.Context) (_node *CoinGas, err 
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := cguo.mutation.CreatedAt(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeUint32,
+			Value:  value,
+			Column: coingas.FieldCreatedAt,
+		})
+	}
+	if value, ok := cguo.mutation.AddedCreatedAt(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeUint32,
+			Value:  value,
+			Column: coingas.FieldCreatedAt,
+		})
+	}
+	if value, ok := cguo.mutation.UpdatedAt(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeUint32,
+			Value:  value,
+			Column: coingas.FieldUpdatedAt,
+		})
+	}
+	if value, ok := cguo.mutation.AddedUpdatedAt(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeUint32,
+			Value:  value,
+			Column: coingas.FieldUpdatedAt,
+		})
+	}
+	if value, ok := cguo.mutation.DeletedAt(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeUint32,
+			Value:  value,
+			Column: coingas.FieldDeletedAt,
+		})
+	}
+	if value, ok := cguo.mutation.AddedDeletedAt(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeUint32,
+			Value:  value,
+			Column: coingas.FieldDeletedAt,
+		})
+	}
+	if value, ok := cguo.mutation.CoinTypeID(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
+			Value:  value,
+			Column: coingas.FieldCoinTypeID,
+		})
+	}
+	if value, ok := cguo.mutation.GasCoinTypeID(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
+			Value:  value,
+			Column: coingas.FieldGasCoinTypeID,
+		})
+	}
+	if value, ok := cguo.mutation.DepositThreshold(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeUint64,
+			Value:  value,
+			Column: coingas.FieldDepositThreshold,
+		})
+	}
+	if value, ok := cguo.mutation.AddedDepositThreshold(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeUint64,
+			Value:  value,
+			Column: coingas.FieldDepositThreshold,
+		})
 	}
 	_node = &CoinGas{config: cguo.config}
 	_spec.Assign = _node.assignValues

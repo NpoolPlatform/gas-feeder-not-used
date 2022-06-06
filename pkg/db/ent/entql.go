@@ -4,6 +4,7 @@ package ent
 
 import (
 	"github.com/NpoolPlatform/gas-feeder/pkg/db/ent/coingas"
+	"github.com/NpoolPlatform/gas-feeder/pkg/db/ent/deposit"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -13,18 +14,43 @@ import (
 
 // schemaGraph holds a representation of ent/schema at runtime.
 var schemaGraph = func() *sqlgraph.Schema {
-	graph := &sqlgraph.Schema{Nodes: make([]*sqlgraph.Node, 1)}
+	graph := &sqlgraph.Schema{Nodes: make([]*sqlgraph.Node, 2)}
 	graph.Nodes[0] = &sqlgraph.Node{
 		NodeSpec: sqlgraph.NodeSpec{
 			Table:   coingas.Table,
 			Columns: coingas.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
+				Type:   field.TypeUUID,
 				Column: coingas.FieldID,
 			},
 		},
-		Type:   "CoinGas",
-		Fields: map[string]*sqlgraph.FieldSpec{},
+		Type: "CoinGas",
+		Fields: map[string]*sqlgraph.FieldSpec{
+			coingas.FieldCreatedAt:        {Type: field.TypeUint32, Column: coingas.FieldCreatedAt},
+			coingas.FieldUpdatedAt:        {Type: field.TypeUint32, Column: coingas.FieldUpdatedAt},
+			coingas.FieldDeletedAt:        {Type: field.TypeUint32, Column: coingas.FieldDeletedAt},
+			coingas.FieldCoinTypeID:       {Type: field.TypeUUID, Column: coingas.FieldCoinTypeID},
+			coingas.FieldGasCoinTypeID:    {Type: field.TypeUUID, Column: coingas.FieldGasCoinTypeID},
+			coingas.FieldDepositThreshold: {Type: field.TypeUint64, Column: coingas.FieldDepositThreshold},
+		},
+	}
+	graph.Nodes[1] = &sqlgraph.Node{
+		NodeSpec: sqlgraph.NodeSpec{
+			Table:   deposit.Table,
+			Columns: deposit.Columns,
+			ID: &sqlgraph.FieldSpec{
+				Type:   field.TypeUUID,
+				Column: deposit.FieldID,
+			},
+		},
+		Type: "Deposit",
+		Fields: map[string]*sqlgraph.FieldSpec{
+			deposit.FieldCreatedAt:     {Type: field.TypeUint32, Column: deposit.FieldCreatedAt},
+			deposit.FieldUpdatedAt:     {Type: field.TypeUint32, Column: deposit.FieldUpdatedAt},
+			deposit.FieldDeletedAt:     {Type: field.TypeUint32, Column: deposit.FieldDeletedAt},
+			deposit.FieldAccountID:     {Type: field.TypeUUID, Column: deposit.FieldAccountID},
+			deposit.FieldDepositAmount: {Type: field.TypeUint64, Column: deposit.FieldDepositAmount},
+		},
 	}
 	return graph
 }()
@@ -69,7 +95,101 @@ func (f *CoinGasFilter) Where(p entql.P) {
 	})
 }
 
-// WhereID applies the entql int predicate on the id field.
-func (f *CoinGasFilter) WhereID(p entql.IntP) {
+// WhereID applies the entql [16]byte predicate on the id field.
+func (f *CoinGasFilter) WhereID(p entql.ValueP) {
 	f.Where(p.Field(coingas.FieldID))
+}
+
+// WhereCreatedAt applies the entql uint32 predicate on the created_at field.
+func (f *CoinGasFilter) WhereCreatedAt(p entql.Uint32P) {
+	f.Where(p.Field(coingas.FieldCreatedAt))
+}
+
+// WhereUpdatedAt applies the entql uint32 predicate on the updated_at field.
+func (f *CoinGasFilter) WhereUpdatedAt(p entql.Uint32P) {
+	f.Where(p.Field(coingas.FieldUpdatedAt))
+}
+
+// WhereDeletedAt applies the entql uint32 predicate on the deleted_at field.
+func (f *CoinGasFilter) WhereDeletedAt(p entql.Uint32P) {
+	f.Where(p.Field(coingas.FieldDeletedAt))
+}
+
+// WhereCoinTypeID applies the entql [16]byte predicate on the coin_type_id field.
+func (f *CoinGasFilter) WhereCoinTypeID(p entql.ValueP) {
+	f.Where(p.Field(coingas.FieldCoinTypeID))
+}
+
+// WhereGasCoinTypeID applies the entql [16]byte predicate on the gas_coin_type_id field.
+func (f *CoinGasFilter) WhereGasCoinTypeID(p entql.ValueP) {
+	f.Where(p.Field(coingas.FieldGasCoinTypeID))
+}
+
+// WhereDepositThreshold applies the entql uint64 predicate on the deposit_threshold field.
+func (f *CoinGasFilter) WhereDepositThreshold(p entql.Uint64P) {
+	f.Where(p.Field(coingas.FieldDepositThreshold))
+}
+
+// addPredicate implements the predicateAdder interface.
+func (dq *DepositQuery) addPredicate(pred func(s *sql.Selector)) {
+	dq.predicates = append(dq.predicates, pred)
+}
+
+// Filter returns a Filter implementation to apply filters on the DepositQuery builder.
+func (dq *DepositQuery) Filter() *DepositFilter {
+	return &DepositFilter{dq}
+}
+
+// addPredicate implements the predicateAdder interface.
+func (m *DepositMutation) addPredicate(pred func(s *sql.Selector)) {
+	m.predicates = append(m.predicates, pred)
+}
+
+// Filter returns an entql.Where implementation to apply filters on the DepositMutation builder.
+func (m *DepositMutation) Filter() *DepositFilter {
+	return &DepositFilter{m}
+}
+
+// DepositFilter provides a generic filtering capability at runtime for DepositQuery.
+type DepositFilter struct {
+	predicateAdder
+}
+
+// Where applies the entql predicate on the query filter.
+func (f *DepositFilter) Where(p entql.P) {
+	f.addPredicate(func(s *sql.Selector) {
+		if err := schemaGraph.EvalP(schemaGraph.Nodes[1].Type, p, s); err != nil {
+			s.AddError(err)
+		}
+	})
+}
+
+// WhereID applies the entql [16]byte predicate on the id field.
+func (f *DepositFilter) WhereID(p entql.ValueP) {
+	f.Where(p.Field(deposit.FieldID))
+}
+
+// WhereCreatedAt applies the entql uint32 predicate on the created_at field.
+func (f *DepositFilter) WhereCreatedAt(p entql.Uint32P) {
+	f.Where(p.Field(deposit.FieldCreatedAt))
+}
+
+// WhereUpdatedAt applies the entql uint32 predicate on the updated_at field.
+func (f *DepositFilter) WhereUpdatedAt(p entql.Uint32P) {
+	f.Where(p.Field(deposit.FieldUpdatedAt))
+}
+
+// WhereDeletedAt applies the entql uint32 predicate on the deleted_at field.
+func (f *DepositFilter) WhereDeletedAt(p entql.Uint32P) {
+	f.Where(p.Field(deposit.FieldDeletedAt))
+}
+
+// WhereAccountID applies the entql [16]byte predicate on the account_id field.
+func (f *DepositFilter) WhereAccountID(p entql.ValueP) {
+	f.Where(p.Field(deposit.FieldAccountID))
+}
+
+// WhereDepositAmount applies the entql uint64 predicate on the deposit_amount field.
+func (f *DepositFilter) WhereDepositAmount(p entql.Uint64P) {
+	f.Where(p.Field(deposit.FieldDepositAmount))
 }

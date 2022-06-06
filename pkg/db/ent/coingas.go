@@ -8,13 +8,26 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"github.com/NpoolPlatform/gas-feeder/pkg/db/ent/coingas"
+	"github.com/google/uuid"
 )
 
 // CoinGas is the model entity for the CoinGas schema.
 type CoinGas struct {
-	config
+	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
+	// CreatedAt holds the value of the "created_at" field.
+	CreatedAt uint32 `json:"created_at,omitempty"`
+	// UpdatedAt holds the value of the "updated_at" field.
+	UpdatedAt uint32 `json:"updated_at,omitempty"`
+	// DeletedAt holds the value of the "deleted_at" field.
+	DeletedAt uint32 `json:"deleted_at,omitempty"`
+	// CoinTypeID holds the value of the "coin_type_id" field.
+	CoinTypeID uuid.UUID `json:"coin_type_id,omitempty"`
+	// GasCoinTypeID holds the value of the "gas_coin_type_id" field.
+	GasCoinTypeID uuid.UUID `json:"gas_coin_type_id,omitempty"`
+	// DepositThreshold holds the value of the "deposit_threshold" field.
+	DepositThreshold uint64 `json:"deposit_threshold,omitempty"`
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -22,8 +35,10 @@ func (*CoinGas) scanValues(columns []string) ([]interface{}, error) {
 	values := make([]interface{}, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case coingas.FieldID:
+		case coingas.FieldCreatedAt, coingas.FieldUpdatedAt, coingas.FieldDeletedAt, coingas.FieldDepositThreshold:
 			values[i] = new(sql.NullInt64)
+		case coingas.FieldID, coingas.FieldCoinTypeID, coingas.FieldGasCoinTypeID:
+			values[i] = new(uuid.UUID)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type CoinGas", columns[i])
 		}
@@ -40,11 +55,47 @@ func (cg *CoinGas) assignValues(columns []string, values []interface{}) error {
 	for i := range columns {
 		switch columns[i] {
 		case coingas.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				cg.ID = *value
 			}
-			cg.ID = int(value.Int64)
+		case coingas.FieldCreatedAt:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field created_at", values[i])
+			} else if value.Valid {
+				cg.CreatedAt = uint32(value.Int64)
+			}
+		case coingas.FieldUpdatedAt:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
+			} else if value.Valid {
+				cg.UpdatedAt = uint32(value.Int64)
+			}
+		case coingas.FieldDeletedAt:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
+			} else if value.Valid {
+				cg.DeletedAt = uint32(value.Int64)
+			}
+		case coingas.FieldCoinTypeID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field coin_type_id", values[i])
+			} else if value != nil {
+				cg.CoinTypeID = *value
+			}
+		case coingas.FieldGasCoinTypeID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field gas_coin_type_id", values[i])
+			} else if value != nil {
+				cg.GasCoinTypeID = *value
+			}
+		case coingas.FieldDepositThreshold:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field deposit_threshold", values[i])
+			} else if value.Valid {
+				cg.DepositThreshold = uint64(value.Int64)
+			}
 		}
 	}
 	return nil
@@ -73,6 +124,18 @@ func (cg *CoinGas) String() string {
 	var builder strings.Builder
 	builder.WriteString("CoinGas(")
 	builder.WriteString(fmt.Sprintf("id=%v", cg.ID))
+	builder.WriteString(", created_at=")
+	builder.WriteString(fmt.Sprintf("%v", cg.CreatedAt))
+	builder.WriteString(", updated_at=")
+	builder.WriteString(fmt.Sprintf("%v", cg.UpdatedAt))
+	builder.WriteString(", deleted_at=")
+	builder.WriteString(fmt.Sprintf("%v", cg.DeletedAt))
+	builder.WriteString(", coin_type_id=")
+	builder.WriteString(fmt.Sprintf("%v", cg.CoinTypeID))
+	builder.WriteString(", gas_coin_type_id=")
+	builder.WriteString(fmt.Sprintf("%v", cg.GasCoinTypeID))
+	builder.WriteString(", deposit_threshold=")
+	builder.WriteString(fmt.Sprintf("%v", cg.DepositThreshold))
 	builder.WriteByte(')')
 	return builder.String()
 }

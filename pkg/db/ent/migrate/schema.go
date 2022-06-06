@@ -10,7 +10,13 @@ import (
 var (
 	// CoinGasColumns holds the columns for the "coin_gas" table.
 	CoinGasColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "id", Type: field.TypeUUID, Unique: true},
+		{Name: "created_at", Type: field.TypeUint32},
+		{Name: "updated_at", Type: field.TypeUint32},
+		{Name: "deleted_at", Type: field.TypeUint32},
+		{Name: "coin_type_id", Type: field.TypeUUID, Unique: true},
+		{Name: "gas_coin_type_id", Type: field.TypeUUID},
+		{Name: "deposit_threshold", Type: field.TypeUint64},
 	}
 	// CoinGasTable holds the schema information for the "coin_gas" table.
 	CoinGasTable = &schema.Table{
@@ -18,9 +24,25 @@ var (
 		Columns:    CoinGasColumns,
 		PrimaryKey: []*schema.Column{CoinGasColumns[0]},
 	}
+	// DepositsColumns holds the columns for the "deposits" table.
+	DepositsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID, Unique: true},
+		{Name: "created_at", Type: field.TypeUint32},
+		{Name: "updated_at", Type: field.TypeUint32},
+		{Name: "deleted_at", Type: field.TypeUint32},
+		{Name: "account_id", Type: field.TypeUUID},
+		{Name: "deposit_amount", Type: field.TypeUint64},
+	}
+	// DepositsTable holds the schema information for the "deposits" table.
+	DepositsTable = &schema.Table{
+		Name:       "deposits",
+		Columns:    DepositsColumns,
+		PrimaryKey: []*schema.Column{DepositsColumns[0]},
+	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		CoinGasTable,
+		DepositsTable,
 	}
 )
 

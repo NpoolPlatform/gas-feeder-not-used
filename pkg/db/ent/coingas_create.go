@@ -7,10 +7,12 @@ import (
 	"errors"
 	"fmt"
 
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/NpoolPlatform/gas-feeder/pkg/db/ent/coingas"
+	"github.com/google/uuid"
 )
 
 // CoinGasCreate is the builder for creating a CoinGas entity.
@@ -19,6 +21,80 @@ type CoinGasCreate struct {
 	mutation *CoinGasMutation
 	hooks    []Hook
 	conflict []sql.ConflictOption
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (cgc *CoinGasCreate) SetCreatedAt(u uint32) *CoinGasCreate {
+	cgc.mutation.SetCreatedAt(u)
+	return cgc
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (cgc *CoinGasCreate) SetNillableCreatedAt(u *uint32) *CoinGasCreate {
+	if u != nil {
+		cgc.SetCreatedAt(*u)
+	}
+	return cgc
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (cgc *CoinGasCreate) SetUpdatedAt(u uint32) *CoinGasCreate {
+	cgc.mutation.SetUpdatedAt(u)
+	return cgc
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (cgc *CoinGasCreate) SetNillableUpdatedAt(u *uint32) *CoinGasCreate {
+	if u != nil {
+		cgc.SetUpdatedAt(*u)
+	}
+	return cgc
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (cgc *CoinGasCreate) SetDeletedAt(u uint32) *CoinGasCreate {
+	cgc.mutation.SetDeletedAt(u)
+	return cgc
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (cgc *CoinGasCreate) SetNillableDeletedAt(u *uint32) *CoinGasCreate {
+	if u != nil {
+		cgc.SetDeletedAt(*u)
+	}
+	return cgc
+}
+
+// SetCoinTypeID sets the "coin_type_id" field.
+func (cgc *CoinGasCreate) SetCoinTypeID(u uuid.UUID) *CoinGasCreate {
+	cgc.mutation.SetCoinTypeID(u)
+	return cgc
+}
+
+// SetGasCoinTypeID sets the "gas_coin_type_id" field.
+func (cgc *CoinGasCreate) SetGasCoinTypeID(u uuid.UUID) *CoinGasCreate {
+	cgc.mutation.SetGasCoinTypeID(u)
+	return cgc
+}
+
+// SetDepositThreshold sets the "deposit_threshold" field.
+func (cgc *CoinGasCreate) SetDepositThreshold(u uint64) *CoinGasCreate {
+	cgc.mutation.SetDepositThreshold(u)
+	return cgc
+}
+
+// SetID sets the "id" field.
+func (cgc *CoinGasCreate) SetID(u uuid.UUID) *CoinGasCreate {
+	cgc.mutation.SetID(u)
+	return cgc
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (cgc *CoinGasCreate) SetNillableID(u *uuid.UUID) *CoinGasCreate {
+	if u != nil {
+		cgc.SetID(*u)
+	}
+	return cgc
 }
 
 // Mutation returns the CoinGasMutation object of the builder.
@@ -32,6 +108,9 @@ func (cgc *CoinGasCreate) Save(ctx context.Context) (*CoinGas, error) {
 		err  error
 		node *CoinGas
 	)
+	if err := cgc.defaults(); err != nil {
+		return nil, err
+	}
 	if len(cgc.hooks) == 0 {
 		if err = cgc.check(); err != nil {
 			return nil, err
@@ -89,8 +168,59 @@ func (cgc *CoinGasCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (cgc *CoinGasCreate) defaults() error {
+	if _, ok := cgc.mutation.CreatedAt(); !ok {
+		if coingas.DefaultCreatedAt == nil {
+			return fmt.Errorf("ent: uninitialized coingas.DefaultCreatedAt (forgotten import ent/runtime?)")
+		}
+		v := coingas.DefaultCreatedAt()
+		cgc.mutation.SetCreatedAt(v)
+	}
+	if _, ok := cgc.mutation.UpdatedAt(); !ok {
+		if coingas.DefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized coingas.DefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
+		v := coingas.DefaultUpdatedAt()
+		cgc.mutation.SetUpdatedAt(v)
+	}
+	if _, ok := cgc.mutation.DeletedAt(); !ok {
+		if coingas.DefaultDeletedAt == nil {
+			return fmt.Errorf("ent: uninitialized coingas.DefaultDeletedAt (forgotten import ent/runtime?)")
+		}
+		v := coingas.DefaultDeletedAt()
+		cgc.mutation.SetDeletedAt(v)
+	}
+	if _, ok := cgc.mutation.ID(); !ok {
+		if coingas.DefaultID == nil {
+			return fmt.Errorf("ent: uninitialized coingas.DefaultID (forgotten import ent/runtime?)")
+		}
+		v := coingas.DefaultID()
+		cgc.mutation.SetID(v)
+	}
+	return nil
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (cgc *CoinGasCreate) check() error {
+	if _, ok := cgc.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "CoinGas.created_at"`)}
+	}
+	if _, ok := cgc.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "CoinGas.updated_at"`)}
+	}
+	if _, ok := cgc.mutation.DeletedAt(); !ok {
+		return &ValidationError{Name: "deleted_at", err: errors.New(`ent: missing required field "CoinGas.deleted_at"`)}
+	}
+	if _, ok := cgc.mutation.CoinTypeID(); !ok {
+		return &ValidationError{Name: "coin_type_id", err: errors.New(`ent: missing required field "CoinGas.coin_type_id"`)}
+	}
+	if _, ok := cgc.mutation.GasCoinTypeID(); !ok {
+		return &ValidationError{Name: "gas_coin_type_id", err: errors.New(`ent: missing required field "CoinGas.gas_coin_type_id"`)}
+	}
+	if _, ok := cgc.mutation.DepositThreshold(); !ok {
+		return &ValidationError{Name: "deposit_threshold", err: errors.New(`ent: missing required field "CoinGas.deposit_threshold"`)}
+	}
 	return nil
 }
 
@@ -102,8 +232,13 @@ func (cgc *CoinGasCreate) sqlSave(ctx context.Context) (*CoinGas, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
+	}
 	return _node, nil
 }
 
@@ -113,12 +248,64 @@ func (cgc *CoinGasCreate) createSpec() (*CoinGas, *sqlgraph.CreateSpec) {
 		_spec = &sqlgraph.CreateSpec{
 			Table: coingas.Table,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
+				Type:   field.TypeUUID,
 				Column: coingas.FieldID,
 			},
 		}
 	)
 	_spec.OnConflict = cgc.conflict
+	if id, ok := cgc.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = &id
+	}
+	if value, ok := cgc.mutation.CreatedAt(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeUint32,
+			Value:  value,
+			Column: coingas.FieldCreatedAt,
+		})
+		_node.CreatedAt = value
+	}
+	if value, ok := cgc.mutation.UpdatedAt(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeUint32,
+			Value:  value,
+			Column: coingas.FieldUpdatedAt,
+		})
+		_node.UpdatedAt = value
+	}
+	if value, ok := cgc.mutation.DeletedAt(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeUint32,
+			Value:  value,
+			Column: coingas.FieldDeletedAt,
+		})
+		_node.DeletedAt = value
+	}
+	if value, ok := cgc.mutation.CoinTypeID(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
+			Value:  value,
+			Column: coingas.FieldCoinTypeID,
+		})
+		_node.CoinTypeID = value
+	}
+	if value, ok := cgc.mutation.GasCoinTypeID(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
+			Value:  value,
+			Column: coingas.FieldGasCoinTypeID,
+		})
+		_node.GasCoinTypeID = value
+	}
+	if value, ok := cgc.mutation.DepositThreshold(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeUint64,
+			Value:  value,
+			Column: coingas.FieldDepositThreshold,
+		})
+		_node.DepositThreshold = value
+	}
 	return _node, _spec
 }
 
@@ -126,11 +313,17 @@ func (cgc *CoinGasCreate) createSpec() (*CoinGas, *sqlgraph.CreateSpec) {
 // of the `INSERT` statement. For example:
 //
 //	client.CoinGas.Create().
+//		SetCreatedAt(v).
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
 //			sql.ResolveWithNewValues(),
 //		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.CoinGasUpsert) {
+//			SetCreatedAt(v+v).
+//		}).
 //		Exec(ctx)
 //
 func (cgc *CoinGasCreate) OnConflict(opts ...sql.ConflictOption) *CoinGasUpsertOne {
@@ -167,17 +360,121 @@ type (
 	}
 )
 
-// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// SetCreatedAt sets the "created_at" field.
+func (u *CoinGasUpsert) SetCreatedAt(v uint32) *CoinGasUpsert {
+	u.Set(coingas.FieldCreatedAt, v)
+	return u
+}
+
+// UpdateCreatedAt sets the "created_at" field to the value that was provided on create.
+func (u *CoinGasUpsert) UpdateCreatedAt() *CoinGasUpsert {
+	u.SetExcluded(coingas.FieldCreatedAt)
+	return u
+}
+
+// AddCreatedAt adds v to the "created_at" field.
+func (u *CoinGasUpsert) AddCreatedAt(v uint32) *CoinGasUpsert {
+	u.Add(coingas.FieldCreatedAt, v)
+	return u
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *CoinGasUpsert) SetUpdatedAt(v uint32) *CoinGasUpsert {
+	u.Set(coingas.FieldUpdatedAt, v)
+	return u
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *CoinGasUpsert) UpdateUpdatedAt() *CoinGasUpsert {
+	u.SetExcluded(coingas.FieldUpdatedAt)
+	return u
+}
+
+// AddUpdatedAt adds v to the "updated_at" field.
+func (u *CoinGasUpsert) AddUpdatedAt(v uint32) *CoinGasUpsert {
+	u.Add(coingas.FieldUpdatedAt, v)
+	return u
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (u *CoinGasUpsert) SetDeletedAt(v uint32) *CoinGasUpsert {
+	u.Set(coingas.FieldDeletedAt, v)
+	return u
+}
+
+// UpdateDeletedAt sets the "deleted_at" field to the value that was provided on create.
+func (u *CoinGasUpsert) UpdateDeletedAt() *CoinGasUpsert {
+	u.SetExcluded(coingas.FieldDeletedAt)
+	return u
+}
+
+// AddDeletedAt adds v to the "deleted_at" field.
+func (u *CoinGasUpsert) AddDeletedAt(v uint32) *CoinGasUpsert {
+	u.Add(coingas.FieldDeletedAt, v)
+	return u
+}
+
+// SetCoinTypeID sets the "coin_type_id" field.
+func (u *CoinGasUpsert) SetCoinTypeID(v uuid.UUID) *CoinGasUpsert {
+	u.Set(coingas.FieldCoinTypeID, v)
+	return u
+}
+
+// UpdateCoinTypeID sets the "coin_type_id" field to the value that was provided on create.
+func (u *CoinGasUpsert) UpdateCoinTypeID() *CoinGasUpsert {
+	u.SetExcluded(coingas.FieldCoinTypeID)
+	return u
+}
+
+// SetGasCoinTypeID sets the "gas_coin_type_id" field.
+func (u *CoinGasUpsert) SetGasCoinTypeID(v uuid.UUID) *CoinGasUpsert {
+	u.Set(coingas.FieldGasCoinTypeID, v)
+	return u
+}
+
+// UpdateGasCoinTypeID sets the "gas_coin_type_id" field to the value that was provided on create.
+func (u *CoinGasUpsert) UpdateGasCoinTypeID() *CoinGasUpsert {
+	u.SetExcluded(coingas.FieldGasCoinTypeID)
+	return u
+}
+
+// SetDepositThreshold sets the "deposit_threshold" field.
+func (u *CoinGasUpsert) SetDepositThreshold(v uint64) *CoinGasUpsert {
+	u.Set(coingas.FieldDepositThreshold, v)
+	return u
+}
+
+// UpdateDepositThreshold sets the "deposit_threshold" field to the value that was provided on create.
+func (u *CoinGasUpsert) UpdateDepositThreshold() *CoinGasUpsert {
+	u.SetExcluded(coingas.FieldDepositThreshold)
+	return u
+}
+
+// AddDepositThreshold adds v to the "deposit_threshold" field.
+func (u *CoinGasUpsert) AddDepositThreshold(v uint64) *CoinGasUpsert {
+	u.Add(coingas.FieldDepositThreshold, v)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
 //	client.CoinGas.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(coingas.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 //
 func (u *CoinGasUpsertOne) UpdateNewValues() *CoinGasUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(coingas.FieldID)
+		}
+	}))
 	return u
 }
 
@@ -209,6 +506,118 @@ func (u *CoinGasUpsertOne) Update(set func(*CoinGasUpsert)) *CoinGasUpsertOne {
 	return u
 }
 
+// SetCreatedAt sets the "created_at" field.
+func (u *CoinGasUpsertOne) SetCreatedAt(v uint32) *CoinGasUpsertOne {
+	return u.Update(func(s *CoinGasUpsert) {
+		s.SetCreatedAt(v)
+	})
+}
+
+// AddCreatedAt adds v to the "created_at" field.
+func (u *CoinGasUpsertOne) AddCreatedAt(v uint32) *CoinGasUpsertOne {
+	return u.Update(func(s *CoinGasUpsert) {
+		s.AddCreatedAt(v)
+	})
+}
+
+// UpdateCreatedAt sets the "created_at" field to the value that was provided on create.
+func (u *CoinGasUpsertOne) UpdateCreatedAt() *CoinGasUpsertOne {
+	return u.Update(func(s *CoinGasUpsert) {
+		s.UpdateCreatedAt()
+	})
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *CoinGasUpsertOne) SetUpdatedAt(v uint32) *CoinGasUpsertOne {
+	return u.Update(func(s *CoinGasUpsert) {
+		s.SetUpdatedAt(v)
+	})
+}
+
+// AddUpdatedAt adds v to the "updated_at" field.
+func (u *CoinGasUpsertOne) AddUpdatedAt(v uint32) *CoinGasUpsertOne {
+	return u.Update(func(s *CoinGasUpsert) {
+		s.AddUpdatedAt(v)
+	})
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *CoinGasUpsertOne) UpdateUpdatedAt() *CoinGasUpsertOne {
+	return u.Update(func(s *CoinGasUpsert) {
+		s.UpdateUpdatedAt()
+	})
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (u *CoinGasUpsertOne) SetDeletedAt(v uint32) *CoinGasUpsertOne {
+	return u.Update(func(s *CoinGasUpsert) {
+		s.SetDeletedAt(v)
+	})
+}
+
+// AddDeletedAt adds v to the "deleted_at" field.
+func (u *CoinGasUpsertOne) AddDeletedAt(v uint32) *CoinGasUpsertOne {
+	return u.Update(func(s *CoinGasUpsert) {
+		s.AddDeletedAt(v)
+	})
+}
+
+// UpdateDeletedAt sets the "deleted_at" field to the value that was provided on create.
+func (u *CoinGasUpsertOne) UpdateDeletedAt() *CoinGasUpsertOne {
+	return u.Update(func(s *CoinGasUpsert) {
+		s.UpdateDeletedAt()
+	})
+}
+
+// SetCoinTypeID sets the "coin_type_id" field.
+func (u *CoinGasUpsertOne) SetCoinTypeID(v uuid.UUID) *CoinGasUpsertOne {
+	return u.Update(func(s *CoinGasUpsert) {
+		s.SetCoinTypeID(v)
+	})
+}
+
+// UpdateCoinTypeID sets the "coin_type_id" field to the value that was provided on create.
+func (u *CoinGasUpsertOne) UpdateCoinTypeID() *CoinGasUpsertOne {
+	return u.Update(func(s *CoinGasUpsert) {
+		s.UpdateCoinTypeID()
+	})
+}
+
+// SetGasCoinTypeID sets the "gas_coin_type_id" field.
+func (u *CoinGasUpsertOne) SetGasCoinTypeID(v uuid.UUID) *CoinGasUpsertOne {
+	return u.Update(func(s *CoinGasUpsert) {
+		s.SetGasCoinTypeID(v)
+	})
+}
+
+// UpdateGasCoinTypeID sets the "gas_coin_type_id" field to the value that was provided on create.
+func (u *CoinGasUpsertOne) UpdateGasCoinTypeID() *CoinGasUpsertOne {
+	return u.Update(func(s *CoinGasUpsert) {
+		s.UpdateGasCoinTypeID()
+	})
+}
+
+// SetDepositThreshold sets the "deposit_threshold" field.
+func (u *CoinGasUpsertOne) SetDepositThreshold(v uint64) *CoinGasUpsertOne {
+	return u.Update(func(s *CoinGasUpsert) {
+		s.SetDepositThreshold(v)
+	})
+}
+
+// AddDepositThreshold adds v to the "deposit_threshold" field.
+func (u *CoinGasUpsertOne) AddDepositThreshold(v uint64) *CoinGasUpsertOne {
+	return u.Update(func(s *CoinGasUpsert) {
+		s.AddDepositThreshold(v)
+	})
+}
+
+// UpdateDepositThreshold sets the "deposit_threshold" field to the value that was provided on create.
+func (u *CoinGasUpsertOne) UpdateDepositThreshold() *CoinGasUpsertOne {
+	return u.Update(func(s *CoinGasUpsert) {
+		s.UpdateDepositThreshold()
+	})
+}
+
 // Exec executes the query.
 func (u *CoinGasUpsertOne) Exec(ctx context.Context) error {
 	if len(u.create.conflict) == 0 {
@@ -225,7 +634,12 @@ func (u *CoinGasUpsertOne) ExecX(ctx context.Context) {
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *CoinGasUpsertOne) ID(ctx context.Context) (id int, err error) {
+func (u *CoinGasUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("ent: CoinGasUpsertOne.ID is not supported by MySQL driver. Use CoinGasUpsertOne.Exec instead")
+	}
 	node, err := u.create.Save(ctx)
 	if err != nil {
 		return id, err
@@ -234,7 +648,7 @@ func (u *CoinGasUpsertOne) ID(ctx context.Context) (id int, err error) {
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *CoinGasUpsertOne) IDX(ctx context.Context) int {
+func (u *CoinGasUpsertOne) IDX(ctx context.Context) uuid.UUID {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
@@ -257,6 +671,7 @@ func (cgcb *CoinGasCreateBulk) Save(ctx context.Context) ([]*CoinGas, error) {
 	for i := range cgcb.builders {
 		func(i int, root context.Context) {
 			builder := cgcb.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*CoinGasMutation)
 				if !ok {
@@ -285,10 +700,6 @@ func (cgcb *CoinGasCreateBulk) Save(ctx context.Context) ([]*CoinGas, error) {
 				}
 				mutation.id = &nodes[i].ID
 				mutation.done = true
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				return nodes[i], nil
 			})
 			for i := len(builder.hooks) - 1; i >= 0; i-- {
@@ -336,6 +747,11 @@ func (cgcb *CoinGasCreateBulk) ExecX(ctx context.Context) {
 //			// the was proposed for insertion.
 //			sql.ResolveWithNewValues(),
 //		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.CoinGasUpsert) {
+//			SetCreatedAt(v+v).
+//		}).
 //		Exec(ctx)
 //
 func (cgcb *CoinGasCreateBulk) OnConflict(opts ...sql.ConflictOption) *CoinGasUpsertBulk {
@@ -371,11 +787,22 @@ type CoinGasUpsertBulk struct {
 //	client.CoinGas.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(coingas.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 //
 func (u *CoinGasUpsertBulk) UpdateNewValues() *CoinGasUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(coingas.FieldID)
+				return
+			}
+		}
+	}))
 	return u
 }
 
@@ -405,6 +832,118 @@ func (u *CoinGasUpsertBulk) Update(set func(*CoinGasUpsert)) *CoinGasUpsertBulk 
 		set(&CoinGasUpsert{UpdateSet: update})
 	}))
 	return u
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (u *CoinGasUpsertBulk) SetCreatedAt(v uint32) *CoinGasUpsertBulk {
+	return u.Update(func(s *CoinGasUpsert) {
+		s.SetCreatedAt(v)
+	})
+}
+
+// AddCreatedAt adds v to the "created_at" field.
+func (u *CoinGasUpsertBulk) AddCreatedAt(v uint32) *CoinGasUpsertBulk {
+	return u.Update(func(s *CoinGasUpsert) {
+		s.AddCreatedAt(v)
+	})
+}
+
+// UpdateCreatedAt sets the "created_at" field to the value that was provided on create.
+func (u *CoinGasUpsertBulk) UpdateCreatedAt() *CoinGasUpsertBulk {
+	return u.Update(func(s *CoinGasUpsert) {
+		s.UpdateCreatedAt()
+	})
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *CoinGasUpsertBulk) SetUpdatedAt(v uint32) *CoinGasUpsertBulk {
+	return u.Update(func(s *CoinGasUpsert) {
+		s.SetUpdatedAt(v)
+	})
+}
+
+// AddUpdatedAt adds v to the "updated_at" field.
+func (u *CoinGasUpsertBulk) AddUpdatedAt(v uint32) *CoinGasUpsertBulk {
+	return u.Update(func(s *CoinGasUpsert) {
+		s.AddUpdatedAt(v)
+	})
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *CoinGasUpsertBulk) UpdateUpdatedAt() *CoinGasUpsertBulk {
+	return u.Update(func(s *CoinGasUpsert) {
+		s.UpdateUpdatedAt()
+	})
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (u *CoinGasUpsertBulk) SetDeletedAt(v uint32) *CoinGasUpsertBulk {
+	return u.Update(func(s *CoinGasUpsert) {
+		s.SetDeletedAt(v)
+	})
+}
+
+// AddDeletedAt adds v to the "deleted_at" field.
+func (u *CoinGasUpsertBulk) AddDeletedAt(v uint32) *CoinGasUpsertBulk {
+	return u.Update(func(s *CoinGasUpsert) {
+		s.AddDeletedAt(v)
+	})
+}
+
+// UpdateDeletedAt sets the "deleted_at" field to the value that was provided on create.
+func (u *CoinGasUpsertBulk) UpdateDeletedAt() *CoinGasUpsertBulk {
+	return u.Update(func(s *CoinGasUpsert) {
+		s.UpdateDeletedAt()
+	})
+}
+
+// SetCoinTypeID sets the "coin_type_id" field.
+func (u *CoinGasUpsertBulk) SetCoinTypeID(v uuid.UUID) *CoinGasUpsertBulk {
+	return u.Update(func(s *CoinGasUpsert) {
+		s.SetCoinTypeID(v)
+	})
+}
+
+// UpdateCoinTypeID sets the "coin_type_id" field to the value that was provided on create.
+func (u *CoinGasUpsertBulk) UpdateCoinTypeID() *CoinGasUpsertBulk {
+	return u.Update(func(s *CoinGasUpsert) {
+		s.UpdateCoinTypeID()
+	})
+}
+
+// SetGasCoinTypeID sets the "gas_coin_type_id" field.
+func (u *CoinGasUpsertBulk) SetGasCoinTypeID(v uuid.UUID) *CoinGasUpsertBulk {
+	return u.Update(func(s *CoinGasUpsert) {
+		s.SetGasCoinTypeID(v)
+	})
+}
+
+// UpdateGasCoinTypeID sets the "gas_coin_type_id" field to the value that was provided on create.
+func (u *CoinGasUpsertBulk) UpdateGasCoinTypeID() *CoinGasUpsertBulk {
+	return u.Update(func(s *CoinGasUpsert) {
+		s.UpdateGasCoinTypeID()
+	})
+}
+
+// SetDepositThreshold sets the "deposit_threshold" field.
+func (u *CoinGasUpsertBulk) SetDepositThreshold(v uint64) *CoinGasUpsertBulk {
+	return u.Update(func(s *CoinGasUpsert) {
+		s.SetDepositThreshold(v)
+	})
+}
+
+// AddDepositThreshold adds v to the "deposit_threshold" field.
+func (u *CoinGasUpsertBulk) AddDepositThreshold(v uint64) *CoinGasUpsertBulk {
+	return u.Update(func(s *CoinGasUpsert) {
+		s.AddDepositThreshold(v)
+	})
+}
+
+// UpdateDepositThreshold sets the "deposit_threshold" field to the value that was provided on create.
+func (u *CoinGasUpsertBulk) UpdateDepositThreshold() *CoinGasUpsertBulk {
+	return u.Update(func(s *CoinGasUpsert) {
+		s.UpdateDepositThreshold()
+	})
 }
 
 // Exec executes the query.
