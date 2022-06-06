@@ -3,7 +3,7 @@
 package ent
 
 import (
-	"github.com/NpoolPlatform/service-template/pkg/db/ent/empty"
+	"github.com/NpoolPlatform/gas-feeder/pkg/db/ent/coingas"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -16,14 +16,14 @@ var schemaGraph = func() *sqlgraph.Schema {
 	graph := &sqlgraph.Schema{Nodes: make([]*sqlgraph.Node, 1)}
 	graph.Nodes[0] = &sqlgraph.Node{
 		NodeSpec: sqlgraph.NodeSpec{
-			Table:   empty.Table,
-			Columns: empty.Columns,
+			Table:   coingas.Table,
+			Columns: coingas.Columns,
 			ID: &sqlgraph.FieldSpec{
 				Type:   field.TypeInt,
-				Column: empty.FieldID,
+				Column: coingas.FieldID,
 			},
 		},
-		Type:   "Empty",
+		Type:   "CoinGas",
 		Fields: map[string]*sqlgraph.FieldSpec{},
 	}
 	return graph
@@ -36,32 +36,32 @@ type predicateAdder interface {
 }
 
 // addPredicate implements the predicateAdder interface.
-func (eq *EmptyQuery) addPredicate(pred func(s *sql.Selector)) {
-	eq.predicates = append(eq.predicates, pred)
+func (cgq *CoinGasQuery) addPredicate(pred func(s *sql.Selector)) {
+	cgq.predicates = append(cgq.predicates, pred)
 }
 
-// Filter returns a Filter implementation to apply filters on the EmptyQuery builder.
-func (eq *EmptyQuery) Filter() *EmptyFilter {
-	return &EmptyFilter{eq}
+// Filter returns a Filter implementation to apply filters on the CoinGasQuery builder.
+func (cgq *CoinGasQuery) Filter() *CoinGasFilter {
+	return &CoinGasFilter{cgq}
 }
 
 // addPredicate implements the predicateAdder interface.
-func (m *EmptyMutation) addPredicate(pred func(s *sql.Selector)) {
+func (m *CoinGasMutation) addPredicate(pred func(s *sql.Selector)) {
 	m.predicates = append(m.predicates, pred)
 }
 
-// Filter returns an entql.Where implementation to apply filters on the EmptyMutation builder.
-func (m *EmptyMutation) Filter() *EmptyFilter {
-	return &EmptyFilter{m}
+// Filter returns an entql.Where implementation to apply filters on the CoinGasMutation builder.
+func (m *CoinGasMutation) Filter() *CoinGasFilter {
+	return &CoinGasFilter{m}
 }
 
-// EmptyFilter provides a generic filtering capability at runtime for EmptyQuery.
-type EmptyFilter struct {
+// CoinGasFilter provides a generic filtering capability at runtime for CoinGasQuery.
+type CoinGasFilter struct {
 	predicateAdder
 }
 
 // Where applies the entql predicate on the query filter.
-func (f *EmptyFilter) Where(p entql.P) {
+func (f *CoinGasFilter) Where(p entql.P) {
 	f.addPredicate(func(s *sql.Selector) {
 		if err := schemaGraph.EvalP(schemaGraph.Nodes[0].Type, p, s); err != nil {
 			s.AddError(err)
@@ -70,6 +70,6 @@ func (f *EmptyFilter) Where(p entql.P) {
 }
 
 // WhereID applies the entql int predicate on the id field.
-func (f *EmptyFilter) WhereID(p entql.IntP) {
-	f.Where(p.Field(empty.FieldID))
+func (f *CoinGasFilter) WhereID(p entql.IntP) {
+	f.Where(p.Field(coingas.FieldID))
 }

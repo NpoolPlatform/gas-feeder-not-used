@@ -1,25 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: service-template
+  name: gas-feeder
   namespace: kube-system
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: service-template
+      app: gas-feeder
   template:
     metadata:
       labels:
-        app: service-template
+        app: gas-feeder
     spec:
       containers:
-        - name: service-template
-          image: uhub.service.ucloud.cn/entropypool/service-template:latest
+        - name: gas-feeder
+          image: uhub.service.ucloud.cn/entropypool/gas-feeder:latest
           imagePullPolicy: Always
           volumeMounts:
             - name: service-config
-              mountPath: /etc/ServiceTemplate
+              mountPath: /etc/GasFeeder
           env:
             - name: ENV_ENVIRONMENT_TARGET
               valueFrom:
@@ -43,26 +43,26 @@ spec:
       volumes:
         - name: service-config
           configMap:
-            name: service-template-config
+            name: gas-feeder-config
             items:
               - key: service-conf
-                path: ServiceTemplate.viper.yaml
+                path: GasFeeder.viper.yaml
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: service-template
+  name: gas-feeder
   namespace: kube-system
 spec:
   ports:
     - name: http
-      port: 32700
-      targetPort: 32700
+      port: 50320
+      targetPort: 50320
     - name: grpc
-      port: 32701
-      targetPort: 32701
+      port: 50321
+      targetPort: 50321
     - name: prometheus
-      port: 32702
-      targetPort: 32702
+      port: 50322
+      targetPort: 50322
   selector:
-    app: service-template
+    app: gas-feeder

@@ -5,9 +5,9 @@ package enttest
 import (
 	"context"
 
-	"github.com/NpoolPlatform/service-template/pkg/db/ent"
+	"github.com/NpoolPlatform/gas-feeder/pkg/db/ent"
 	// required by schema hooks.
-	_ "github.com/NpoolPlatform/service-template/pkg/db/ent/runtime"
+	_ "github.com/NpoolPlatform/gas-feeder/pkg/db/ent/runtime"
 
 	"entgo.io/ent/dialect/sql/schema"
 )

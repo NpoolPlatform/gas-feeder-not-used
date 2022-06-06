@@ -7,11 +7,11 @@ import (
 	"strconv"
 	"testing"
 
+	constant "github.com/NpoolPlatform/gas-feeder/pkg/const"
 	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
-	constant "github.com/NpoolPlatform/service-template/pkg/const"
 
 	// nolint:nolintlint
-	testinit "github.com/NpoolPlatform/service-template/pkg/test-init"
+	testinit "github.com/NpoolPlatform/gas-feeder/pkg/test-init"
 	"google.golang.org/protobuf/types/known/structpb"
 
 	"github.com/google/uuid"
@@ -27,7 +27,7 @@ func TestClient(t *testing.T) {
 		fmt.Printf("cannot init test stub: %v\n", err)
 	}
 
-	_, err = GetServiceTemplateInfoOnly(context.Background(),
+	_, err = GetGasFeederInfoOnly(context.Background(),
 		cruder.NewFilterConds().
 			WithCond(constant.FieldID, cruder.EQ, structpb.NewStringValue(uuid.UUID{}.String())))
 	if err != nil {

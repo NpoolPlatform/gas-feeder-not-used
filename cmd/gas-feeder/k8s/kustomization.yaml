@@ -1,6 +1,6 @@
 resources:
-  - 01-service-template.viper.yaml
-  - 02-service-template.yaml
+  - 01-gas-feeder.viper.yaml
+  - 02-gas-feeder.yaml
   - 03-strip-prefix.yaml
   - 04-traefik-ingress.yaml
   - 05-traefik-vpn-ingress.yaml

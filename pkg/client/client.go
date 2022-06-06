@@ -7,30 +7,30 @@ import (
 	grpc2 "github.com/NpoolPlatform/go-service-framework/pkg/grpc"
 
 	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
-	npool "github.com/NpoolPlatform/message/npool/servicetmpl"
+	npool "github.com/NpoolPlatform/message/npool/gasfeeder"
 
-	constant "github.com/NpoolPlatform/service-template/pkg/message/const"
+	constant "github.com/NpoolPlatform/gas-feeder/pkg/message/const"
 )
 
-func do(ctx context.Context, fn func(_ctx context.Context, cli npool.ServiceTemplateClient) (cruder.Any, error)) (cruder.Any, error) {
+func do(ctx context.Context, fn func(_ctx context.Context, cli npool.GasFeederClient) (cruder.Any, error)) (cruder.Any, error) {
 	conn, err := grpc2.GetGRPCConn(constant.ServiceName, grpc2.GRPCTAG)
 	if err != nil {
-		return nil, fmt.Errorf("fail get service template connection: %v", err)
+		return nil, fmt.Errorf("fail get gas feeder connection: %v", err)
 	}
 	defer conn.Close()
 
-	cli := npool.NewServiceTemplateClient(conn)
+	cli := npool.NewGasFeederClient(conn)
 
 	return fn(ctx, cli)
 }
 
-func GetServiceTemplateInfoOnly(ctx context.Context, conds cruder.FilterConds) (*npool.ServiceTemplateInfo, error) {
-	info, err := do(ctx, func(_ctx context.Context, cli npool.ServiceTemplateClient) (cruder.Any, error) {
+func GetGasFeederInfoOnly(ctx context.Context, conds cruder.FilterConds) (*npool.GasFeederInfo, error) {
+	info, err := do(ctx, func(_ctx context.Context, cli npool.GasFeederClient) (cruder.Any, error) {
 		// DO RPC CALL HERE WITH conds PARAMETER
-		return &npool.ServiceTemplateInfo{}, nil
+		return &npool.GasFeederInfo{}, nil
 	})
 	if err != nil {
-		return nil, fmt.Errorf("fail get service template: %v", err)
+		return nil, fmt.Errorf("fail get gas feeder: %v", err)
 	}
-	return info.(*npool.ServiceTemplateInfo), nil
+	return info.(*npool.GasFeederInfo), nil
 }

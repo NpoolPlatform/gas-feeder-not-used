@@ -10,57 +10,57 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/NpoolPlatform/service-template/pkg/db/ent/empty"
+	"github.com/NpoolPlatform/gas-feeder/pkg/db/ent/coingas"
 )
 
-// EmptyCreate is the builder for creating a Empty entity.
-type EmptyCreate struct {
+// CoinGasCreate is the builder for creating a CoinGas entity.
+type CoinGasCreate struct {
 	config
-	mutation *EmptyMutation
+	mutation *CoinGasMutation
 	hooks    []Hook
 	conflict []sql.ConflictOption
 }
 
-// Mutation returns the EmptyMutation object of the builder.
-func (ec *EmptyCreate) Mutation() *EmptyMutation {
-	return ec.mutation
+// Mutation returns the CoinGasMutation object of the builder.
+func (cgc *CoinGasCreate) Mutation() *CoinGasMutation {
+	return cgc.mutation
 }
 
-// Save creates the Empty in the database.
-func (ec *EmptyCreate) Save(ctx context.Context) (*Empty, error) {
+// Save creates the CoinGas in the database.
+func (cgc *CoinGasCreate) Save(ctx context.Context) (*CoinGas, error) {
 	var (
 		err  error
-		node *Empty
+		node *CoinGas
 	)
-	if len(ec.hooks) == 0 {
-		if err = ec.check(); err != nil {
+	if len(cgc.hooks) == 0 {
+		if err = cgc.check(); err != nil {
 			return nil, err
 		}
-		node, err = ec.sqlSave(ctx)
+		node, err = cgc.sqlSave(ctx)
 	} else {
 		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
-			mutation, ok := m.(*EmptyMutation)
+			mutation, ok := m.(*CoinGasMutation)
 			if !ok {
 				return nil, fmt.Errorf("unexpected mutation type %T", m)
 			}
-			if err = ec.check(); err != nil {
+			if err = cgc.check(); err != nil {
 				return nil, err
 			}
-			ec.mutation = mutation
-			if node, err = ec.sqlSave(ctx); err != nil {
+			cgc.mutation = mutation
+			if node, err = cgc.sqlSave(ctx); err != nil {
 				return nil, err
 			}
 			mutation.id = &node.ID
 			mutation.done = true
 			return node, err
 		})
-		for i := len(ec.hooks) - 1; i >= 0; i-- {
-			if ec.hooks[i] == nil {
+		for i := len(cgc.hooks) - 1; i >= 0; i-- {
+			if cgc.hooks[i] == nil {
 				return nil, fmt.Errorf("ent: uninitialized hook (forgotten import ent/runtime?)")
 			}
-			mut = ec.hooks[i](mut)
+			mut = cgc.hooks[i](mut)
 		}
-		if _, err := mut.Mutate(ctx, ec.mutation); err != nil {
+		if _, err := mut.Mutate(ctx, cgc.mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -68,8 +68,8 @@ func (ec *EmptyCreate) Save(ctx context.Context) (*Empty, error) {
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (ec *EmptyCreate) SaveX(ctx context.Context) *Empty {
-	v, err := ec.Save(ctx)
+func (cgc *CoinGasCreate) SaveX(ctx context.Context) *CoinGas {
+	v, err := cgc.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -77,26 +77,26 @@ func (ec *EmptyCreate) SaveX(ctx context.Context) *Empty {
 }
 
 // Exec executes the query.
-func (ec *EmptyCreate) Exec(ctx context.Context) error {
-	_, err := ec.Save(ctx)
+func (cgc *CoinGasCreate) Exec(ctx context.Context) error {
+	_, err := cgc.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (ec *EmptyCreate) ExecX(ctx context.Context) {
-	if err := ec.Exec(ctx); err != nil {
+func (cgc *CoinGasCreate) ExecX(ctx context.Context) {
+	if err := cgc.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (ec *EmptyCreate) check() error {
+func (cgc *CoinGasCreate) check() error {
 	return nil
 }
 
-func (ec *EmptyCreate) sqlSave(ctx context.Context) (*Empty, error) {
-	_node, _spec := ec.createSpec()
-	if err := sqlgraph.CreateNode(ctx, ec.driver, _spec); err != nil {
+func (cgc *CoinGasCreate) sqlSave(ctx context.Context) (*CoinGas, error) {
+	_node, _spec := cgc.createSpec()
+	if err := sqlgraph.CreateNode(ctx, cgc.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{err.Error(), err}
 		}
@@ -107,25 +107,25 @@ func (ec *EmptyCreate) sqlSave(ctx context.Context) (*Empty, error) {
 	return _node, nil
 }
 
-func (ec *EmptyCreate) createSpec() (*Empty, *sqlgraph.CreateSpec) {
+func (cgc *CoinGasCreate) createSpec() (*CoinGas, *sqlgraph.CreateSpec) {
 	var (
-		_node = &Empty{config: ec.config}
+		_node = &CoinGas{config: cgc.config}
 		_spec = &sqlgraph.CreateSpec{
-			Table: empty.Table,
+			Table: coingas.Table,
 			ID: &sqlgraph.FieldSpec{
 				Type:   field.TypeInt,
-				Column: empty.FieldID,
+				Column: coingas.FieldID,
 			},
 		}
 	)
-	_spec.OnConflict = ec.conflict
+	_spec.OnConflict = cgc.conflict
 	return _node, _spec
 }
 
 // OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
 // of the `INSERT` statement. For example:
 //
-//	client.Empty.Create().
+//	client.CoinGas.Create().
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
@@ -133,36 +133,36 @@ func (ec *EmptyCreate) createSpec() (*Empty, *sqlgraph.CreateSpec) {
 //		).
 //		Exec(ctx)
 //
-func (ec *EmptyCreate) OnConflict(opts ...sql.ConflictOption) *EmptyUpsertOne {
-	ec.conflict = opts
-	return &EmptyUpsertOne{
-		create: ec,
+func (cgc *CoinGasCreate) OnConflict(opts ...sql.ConflictOption) *CoinGasUpsertOne {
+	cgc.conflict = opts
+	return &CoinGasUpsertOne{
+		create: cgc,
 	}
 }
 
 // OnConflictColumns calls `OnConflict` and configures the columns
 // as conflict target. Using this option is equivalent to using:
 //
-//	client.Empty.Create().
+//	client.CoinGas.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
 //
-func (ec *EmptyCreate) OnConflictColumns(columns ...string) *EmptyUpsertOne {
-	ec.conflict = append(ec.conflict, sql.ConflictColumns(columns...))
-	return &EmptyUpsertOne{
-		create: ec,
+func (cgc *CoinGasCreate) OnConflictColumns(columns ...string) *CoinGasUpsertOne {
+	cgc.conflict = append(cgc.conflict, sql.ConflictColumns(columns...))
+	return &CoinGasUpsertOne{
+		create: cgc,
 	}
 }
 
 type (
-	// EmptyUpsertOne is the builder for "upsert"-ing
-	//  one Empty node.
-	EmptyUpsertOne struct {
-		create *EmptyCreate
+	// CoinGasUpsertOne is the builder for "upsert"-ing
+	//  one CoinGas node.
+	CoinGasUpsertOne struct {
+		create *CoinGasCreate
 	}
 
-	// EmptyUpsert is the "OnConflict" setter.
-	EmptyUpsert struct {
+	// CoinGasUpsert is the "OnConflict" setter.
+	CoinGasUpsert struct {
 		*sql.UpdateSet
 	}
 )
@@ -170,13 +170,13 @@ type (
 // UpdateNewValues updates the mutable fields using the new values that were set on create.
 // Using this option is equivalent to using:
 //
-//	client.Empty.Create().
+//	client.CoinGas.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
 //		).
 //		Exec(ctx)
 //
-func (u *EmptyUpsertOne) UpdateNewValues() *EmptyUpsertOne {
+func (u *CoinGasUpsertOne) UpdateNewValues() *CoinGasUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	return u
 }
@@ -184,48 +184,48 @@ func (u *EmptyUpsertOne) UpdateNewValues() *EmptyUpsertOne {
 // Ignore sets each column to itself in case of conflict.
 // Using this option is equivalent to using:
 //
-//  client.Empty.Create().
+//  client.CoinGas.Create().
 //      OnConflict(sql.ResolveWithIgnore()).
 //      Exec(ctx)
 //
-func (u *EmptyUpsertOne) Ignore() *EmptyUpsertOne {
+func (u *CoinGasUpsertOne) Ignore() *CoinGasUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
 	return u
 }
 
 // DoNothing configures the conflict_action to `DO NOTHING`.
 // Supported only by SQLite and PostgreSQL.
-func (u *EmptyUpsertOne) DoNothing() *EmptyUpsertOne {
+func (u *CoinGasUpsertOne) DoNothing() *CoinGasUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.DoNothing())
 	return u
 }
 
-// Update allows overriding fields `UPDATE` values. See the EmptyCreate.OnConflict
+// Update allows overriding fields `UPDATE` values. See the CoinGasCreate.OnConflict
 // documentation for more info.
-func (u *EmptyUpsertOne) Update(set func(*EmptyUpsert)) *EmptyUpsertOne {
+func (u *CoinGasUpsertOne) Update(set func(*CoinGasUpsert)) *CoinGasUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
-		set(&EmptyUpsert{UpdateSet: update})
+		set(&CoinGasUpsert{UpdateSet: update})
 	}))
 	return u
 }
 
 // Exec executes the query.
-func (u *EmptyUpsertOne) Exec(ctx context.Context) error {
+func (u *CoinGasUpsertOne) Exec(ctx context.Context) error {
 	if len(u.create.conflict) == 0 {
-		return errors.New("ent: missing options for EmptyCreate.OnConflict")
+		return errors.New("ent: missing options for CoinGasCreate.OnConflict")
 	}
 	return u.create.Exec(ctx)
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (u *EmptyUpsertOne) ExecX(ctx context.Context) {
+func (u *CoinGasUpsertOne) ExecX(ctx context.Context) {
 	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *EmptyUpsertOne) ID(ctx context.Context) (id int, err error) {
+func (u *CoinGasUpsertOne) ID(ctx context.Context) (id int, err error) {
 	node, err := u.create.Save(ctx)
 	if err != nil {
 		return id, err
@@ -234,7 +234,7 @@ func (u *EmptyUpsertOne) ID(ctx context.Context) (id int, err error) {
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *EmptyUpsertOne) IDX(ctx context.Context) int {
+func (u *CoinGasUpsertOne) IDX(ctx context.Context) int {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
@@ -242,23 +242,23 @@ func (u *EmptyUpsertOne) IDX(ctx context.Context) int {
 	return id
 }
 
-// EmptyCreateBulk is the builder for creating many Empty entities in bulk.
-type EmptyCreateBulk struct {
+// CoinGasCreateBulk is the builder for creating many CoinGas entities in bulk.
+type CoinGasCreateBulk struct {
 	config
-	builders []*EmptyCreate
+	builders []*CoinGasCreate
 	conflict []sql.ConflictOption
 }
 
-// Save creates the Empty entities in the database.
-func (ecb *EmptyCreateBulk) Save(ctx context.Context) ([]*Empty, error) {
-	specs := make([]*sqlgraph.CreateSpec, len(ecb.builders))
-	nodes := make([]*Empty, len(ecb.builders))
-	mutators := make([]Mutator, len(ecb.builders))
-	for i := range ecb.builders {
+// Save creates the CoinGas entities in the database.
+func (cgcb *CoinGasCreateBulk) Save(ctx context.Context) ([]*CoinGas, error) {
+	specs := make([]*sqlgraph.CreateSpec, len(cgcb.builders))
+	nodes := make([]*CoinGas, len(cgcb.builders))
+	mutators := make([]Mutator, len(cgcb.builders))
+	for i := range cgcb.builders {
 		func(i int, root context.Context) {
-			builder := ecb.builders[i]
+			builder := cgcb.builders[i]
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
-				mutation, ok := m.(*EmptyMutation)
+				mutation, ok := m.(*CoinGasMutation)
 				if !ok {
 					return nil, fmt.Errorf("unexpected mutation type %T", m)
 				}
@@ -269,12 +269,12 @@ func (ecb *EmptyCreateBulk) Save(ctx context.Context) ([]*Empty, error) {
 				nodes[i], specs[i] = builder.createSpec()
 				var err error
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, ecb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, cgcb.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
-					spec.OnConflict = ecb.conflict
+					spec.OnConflict = cgcb.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, ecb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, cgcb.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{err.Error(), err}
 						}
@@ -298,7 +298,7 @@ func (ecb *EmptyCreateBulk) Save(ctx context.Context) ([]*Empty, error) {
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, ecb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, cgcb.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -306,8 +306,8 @@ func (ecb *EmptyCreateBulk) Save(ctx context.Context) ([]*Empty, error) {
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (ecb *EmptyCreateBulk) SaveX(ctx context.Context) []*Empty {
-	v, err := ecb.Save(ctx)
+func (cgcb *CoinGasCreateBulk) SaveX(ctx context.Context) []*CoinGas {
+	v, err := cgcb.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -315,14 +315,14 @@ func (ecb *EmptyCreateBulk) SaveX(ctx context.Context) []*Empty {
 }
 
 // Exec executes the query.
-func (ecb *EmptyCreateBulk) Exec(ctx context.Context) error {
-	_, err := ecb.Save(ctx)
+func (cgcb *CoinGasCreateBulk) Exec(ctx context.Context) error {
+	_, err := cgcb.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (ecb *EmptyCreateBulk) ExecX(ctx context.Context) {
-	if err := ecb.Exec(ctx); err != nil {
+func (cgcb *CoinGasCreateBulk) ExecX(ctx context.Context) {
+	if err := cgcb.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
@@ -330,7 +330,7 @@ func (ecb *EmptyCreateBulk) ExecX(ctx context.Context) {
 // OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
 // of the `INSERT` statement. For example:
 //
-//	client.Empty.CreateBulk(builders...).
+//	client.CoinGas.CreateBulk(builders...).
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
@@ -338,43 +338,43 @@ func (ecb *EmptyCreateBulk) ExecX(ctx context.Context) {
 //		).
 //		Exec(ctx)
 //
-func (ecb *EmptyCreateBulk) OnConflict(opts ...sql.ConflictOption) *EmptyUpsertBulk {
-	ecb.conflict = opts
-	return &EmptyUpsertBulk{
-		create: ecb,
+func (cgcb *CoinGasCreateBulk) OnConflict(opts ...sql.ConflictOption) *CoinGasUpsertBulk {
+	cgcb.conflict = opts
+	return &CoinGasUpsertBulk{
+		create: cgcb,
 	}
 }
 
 // OnConflictColumns calls `OnConflict` and configures the columns
 // as conflict target. Using this option is equivalent to using:
 //
-//	client.Empty.Create().
+//	client.CoinGas.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
 //
-func (ecb *EmptyCreateBulk) OnConflictColumns(columns ...string) *EmptyUpsertBulk {
-	ecb.conflict = append(ecb.conflict, sql.ConflictColumns(columns...))
-	return &EmptyUpsertBulk{
-		create: ecb,
+func (cgcb *CoinGasCreateBulk) OnConflictColumns(columns ...string) *CoinGasUpsertBulk {
+	cgcb.conflict = append(cgcb.conflict, sql.ConflictColumns(columns...))
+	return &CoinGasUpsertBulk{
+		create: cgcb,
 	}
 }
 
-// EmptyUpsertBulk is the builder for "upsert"-ing
-// a bulk of Empty nodes.
-type EmptyUpsertBulk struct {
-	create *EmptyCreateBulk
+// CoinGasUpsertBulk is the builder for "upsert"-ing
+// a bulk of CoinGas nodes.
+type CoinGasUpsertBulk struct {
+	create *CoinGasCreateBulk
 }
 
 // UpdateNewValues updates the mutable fields using the new values that
 // were set on create. Using this option is equivalent to using:
 //
-//	client.Empty.Create().
+//	client.CoinGas.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
 //		).
 //		Exec(ctx)
 //
-func (u *EmptyUpsertBulk) UpdateNewValues() *EmptyUpsertBulk {
+func (u *CoinGasUpsertBulk) UpdateNewValues() *CoinGasUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	return u
 }
@@ -382,46 +382,46 @@ func (u *EmptyUpsertBulk) UpdateNewValues() *EmptyUpsertBulk {
 // Ignore sets each column to itself in case of conflict.
 // Using this option is equivalent to using:
 //
-//	client.Empty.Create().
+//	client.CoinGas.Create().
 //		OnConflict(sql.ResolveWithIgnore()).
 //		Exec(ctx)
 //
-func (u *EmptyUpsertBulk) Ignore() *EmptyUpsertBulk {
+func (u *CoinGasUpsertBulk) Ignore() *CoinGasUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
 	return u
 }
 
 // DoNothing configures the conflict_action to `DO NOTHING`.
 // Supported only by SQLite and PostgreSQL.
-func (u *EmptyUpsertBulk) DoNothing() *EmptyUpsertBulk {
+func (u *CoinGasUpsertBulk) DoNothing() *CoinGasUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.DoNothing())
 	return u
 }
 
-// Update allows overriding fields `UPDATE` values. See the EmptyCreateBulk.OnConflict
+// Update allows overriding fields `UPDATE` values. See the CoinGasCreateBulk.OnConflict
 // documentation for more info.
-func (u *EmptyUpsertBulk) Update(set func(*EmptyUpsert)) *EmptyUpsertBulk {
+func (u *CoinGasUpsertBulk) Update(set func(*CoinGasUpsert)) *CoinGasUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
-		set(&EmptyUpsert{UpdateSet: update})
+		set(&CoinGasUpsert{UpdateSet: update})
 	}))
 	return u
 }
 
 // Exec executes the query.
-func (u *EmptyUpsertBulk) Exec(ctx context.Context) error {
+func (u *CoinGasUpsertBulk) Exec(ctx context.Context) error {
 	for i, b := range u.create.builders {
 		if len(b.conflict) != 0 {
-			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the EmptyCreateBulk instead", i)
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the CoinGasCreateBulk instead", i)
 		}
 	}
 	if len(u.create.conflict) == 0 {
-		return errors.New("ent: missing options for EmptyCreateBulk.OnConflict")
+		return errors.New("ent: missing options for CoinGasCreateBulk.OnConflict")
 	}
 	return u.create.Exec(ctx)
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (u *EmptyUpsertBulk) ExecX(ctx context.Context) {
+func (u *CoinGasUpsertBulk) ExecX(ctx context.Context) {
 	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}

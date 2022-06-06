@@ -8,19 +8,19 @@ import (
 )
 
 var (
-	// EmptiesColumns holds the columns for the "empties" table.
-	EmptiesColumns = []*schema.Column{
+	// CoinGasColumns holds the columns for the "coin_gas" table.
+	CoinGasColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 	}
-	// EmptiesTable holds the schema information for the "empties" table.
-	EmptiesTable = &schema.Table{
-		Name:       "empties",
-		Columns:    EmptiesColumns,
-		PrimaryKey: []*schema.Column{EmptiesColumns[0]},
+	// CoinGasTable holds the schema information for the "coin_gas" table.
+	CoinGasTable = &schema.Table{
+		Name:       "coin_gas",
+		Columns:    CoinGasColumns,
+		PrimaryKey: []*schema.Column{CoinGasColumns[0]},
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
-		EmptiesTable,
+		CoinGasTable,
 	}
 )
 

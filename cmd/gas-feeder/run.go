@@ -3,12 +3,12 @@ package main
 import (
 	"time"
 
-	"github.com/NpoolPlatform/service-template/api"
-	db "github.com/NpoolPlatform/service-template/pkg/db"
-	msgcli "github.com/NpoolPlatform/service-template/pkg/message/client"
-	msglistener "github.com/NpoolPlatform/service-template/pkg/message/listener"
-	msg "github.com/NpoolPlatform/service-template/pkg/message/message"
-	msgsrv "github.com/NpoolPlatform/service-template/pkg/message/server"
+	"github.com/NpoolPlatform/gas-feeder/api"
+	db "github.com/NpoolPlatform/gas-feeder/pkg/db"
+	msgcli "github.com/NpoolPlatform/gas-feeder/pkg/message/client"
+	msglistener "github.com/NpoolPlatform/gas-feeder/pkg/message/listener"
+	msg "github.com/NpoolPlatform/gas-feeder/pkg/message/message"
+	msgsrv "github.com/NpoolPlatform/gas-feeder/pkg/message/server"
 
 	grpc2 "github.com/NpoolPlatform/go-service-framework/pkg/grpc"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"

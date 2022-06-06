@@ -1,0 +1,10 @@
+---
+config:
+  hostname: "gas-feeder.npool.top"
+  http_port: 50320
+  grpc_port: 50321
+  healthz_port: 50322
+  appid: "89089012783789789719823798127398"
+  serviceid: "e6967762-e52f-11ec-9d64-361644556ed1"
+  logdir: "./"
+  apolloAccessKey: "0147fb70b815403790e8634b899fac07"
