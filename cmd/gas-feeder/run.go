@@ -1,13 +1,9 @@
 package main
 
 import (
-	"time"
-
 	"github.com/NpoolPlatform/gas-feeder/api"
 	db "github.com/NpoolPlatform/gas-feeder/pkg/db"
 	msgcli "github.com/NpoolPlatform/gas-feeder/pkg/message/client"
-	msglistener "github.com/NpoolPlatform/gas-feeder/pkg/message/listener"
-	msg "github.com/NpoolPlatform/gas-feeder/pkg/message/message"
 	msgsrv "github.com/NpoolPlatform/gas-feeder/pkg/message/server"
 
 	grpc2 "github.com/NpoolPlatform/go-service-framework/pkg/grpc"
@@ -21,8 +17,6 @@ import (
 
 	"google.golang.org/grpc"
 )
-
-const MsgInterval = 3 * time.Second
 
 var runCmd = &cli.Command{
 	Name:    "run",
@@ -46,8 +40,8 @@ var runCmd = &cli.Command{
 			return err
 		}
 
-		go msglistener.Listen()
-		go msgSender()
+		// go msglistener.Listen()
+		// go msgSender()
 
 		return grpc2.RunGRPCGateWay(rpcGatewayRegister)
 	},
@@ -70,21 +64,4 @@ func rpcGatewayRegister(mux *runtime.ServeMux, endpoint string, opts []grpc.Dial
 	apimgrcli.Register(mux)
 
 	return nil
-}
-
-func msgSender() {
-	id := 0
-	for {
-		logger.Sugar().Infof("send example")
-		err := msgsrv.PublishExample(&msg.Example{
-			ID:      id,
-			Example: "hello world",
-		})
-		if err != nil {
-			logger.Sugar().Errorf("fail to send example: %v", err)
-			return
-		}
-		id++
-		time.Sleep(MsgInterval)
-	}
 }
