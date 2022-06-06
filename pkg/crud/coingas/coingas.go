@@ -5,7 +5,10 @@ import (
 	"fmt"
 	"time"
 
+<<<<<<< HEAD
 	constant "github.com/NpoolPlatform/gas-feeder/pkg/const"
+=======
+>>>>>>> api done
 	"github.com/NpoolPlatform/gas-feeder/pkg/db"
 	"github.com/NpoolPlatform/gas-feeder/pkg/db/ent"
 	"github.com/NpoolPlatform/gas-feeder/pkg/db/ent/coingas"
@@ -159,25 +162,41 @@ func (s *CoinGas) queryFromConds(conds cruder.Conds) (*ent.CoinGasQuery, error) 
 	stm := s.Tx.CoinGas.Query()
 	for k, v := range conds {
 		switch k {
+<<<<<<< HEAD
 		case constant.FieldID:
+=======
+		case coingas.FieldID:
+>>>>>>> api done
 			id, err := cruder.AnyTypeUUID(v.Val)
 			if err != nil {
 				return nil, fmt.Errorf("invalid ID: %v", err)
 			}
 			stm = stm.Where(coingas.ID(id))
+<<<<<<< HEAD
 		case constant.FieldGasCoinTypeID:
+=======
+		case coingas.FieldGasCoinTypeID:
+>>>>>>> api done
 			id, err := cruder.AnyTypeUUID(v.Val)
 			if err != nil {
 				return nil, fmt.Errorf("invalid GasCoinTypeID: %v", err)
 			}
 			stm = stm.Where(coingas.GasCoinTypeID(id))
+<<<<<<< HEAD
 		case constant.FieldCoinTypeID:
+=======
+		case coingas.FieldCoinTypeID:
+>>>>>>> api done
 			cointypeid, err := cruder.AnyTypeUUID(v.Val)
 			if err != nil {
 				return nil, fmt.Errorf("invalid CoinTypeID: %v", err)
 			}
 			stm = stm.Where(coingas.CoinTypeID(cointypeid))
+<<<<<<< HEAD
 		case constant.FieldDepositThreshold:
+=======
+		case coingas.FieldDepositThreshold:
+>>>>>>> api done
 			depositThreshold, err := cruder.AnyTypeUint64(v.Val)
 			if err != nil {
 				return nil, fmt.Errorf("invalid DepositThreshold: %v", err)
