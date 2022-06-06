@@ -27,7 +27,7 @@ func TestClient(t *testing.T) {
 		fmt.Printf("cannot init test stub: %v\n", err)
 	}
 
-	_, err = GetGasFeederInfoOnly(context.Background(),
+	_, err = GetCoinGasOnly(context.Background(),
 		cruder.NewFilterConds().
 			WithCond(constant.FieldID, cruder.EQ, structpb.NewStringValue(uuid.UUID{}.String())))
 	if err != nil {

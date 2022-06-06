@@ -24,13 +24,13 @@ func do(ctx context.Context, fn func(_ctx context.Context, cli npool.GasFeederCl
 	return fn(ctx, cli)
 }
 
-func GetGasFeederInfoOnly(ctx context.Context, conds cruder.FilterConds) (*npool.GasFeederInfo, error) {
+func GetCoinGasOnly(ctx context.Context, conds cruder.FilterConds) (*npool.CoinGas, error) {
 	info, err := do(ctx, func(_ctx context.Context, cli npool.GasFeederClient) (cruder.Any, error) {
 		// DO RPC CALL HERE WITH conds PARAMETER
-		return &npool.GasFeederInfo{}, nil
+		return &npool.CoinGas{}, nil
 	})
 	if err != nil {
 		return nil, fmt.Errorf("fail get gas feeder: %v", err)
 	}
-	return info.(*npool.GasFeederInfo), nil
+	return info.(*npool.CoinGas), nil
 }
