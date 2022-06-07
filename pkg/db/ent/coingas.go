@@ -26,8 +26,10 @@ type CoinGas struct {
 	CoinTypeID uuid.UUID `json:"coin_type_id,omitempty"`
 	// GasCoinTypeID holds the value of the "gas_coin_type_id" field.
 	GasCoinTypeID uuid.UUID `json:"gas_coin_type_id,omitempty"`
-	// DepositThreshold holds the value of the "deposit_threshold" field.
-	DepositThreshold uint64 `json:"deposit_threshold,omitempty"`
+	// DepositThresholdLow holds the value of the "deposit_threshold_low" field.
+	DepositThresholdLow uint64 `json:"deposit_threshold_low,omitempty"`
+	// DepositAmount holds the value of the "deposit_amount" field.
+	DepositAmount uint64 `json:"deposit_amount,omitempty"`
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -35,7 +37,7 @@ func (*CoinGas) scanValues(columns []string) ([]interface{}, error) {
 	values := make([]interface{}, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case coingas.FieldCreatedAt, coingas.FieldUpdatedAt, coingas.FieldDeletedAt, coingas.FieldDepositThreshold:
+		case coingas.FieldCreatedAt, coingas.FieldUpdatedAt, coingas.FieldDeletedAt, coingas.FieldDepositThresholdLow, coingas.FieldDepositAmount:
 			values[i] = new(sql.NullInt64)
 		case coingas.FieldID, coingas.FieldCoinTypeID, coingas.FieldGasCoinTypeID:
 			values[i] = new(uuid.UUID)
@@ -90,11 +92,17 @@ func (cg *CoinGas) assignValues(columns []string, values []interface{}) error {
 			} else if value != nil {
 				cg.GasCoinTypeID = *value
 			}
-		case coingas.FieldDepositThreshold:
+		case coingas.FieldDepositThresholdLow:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field deposit_threshold", values[i])
+				return fmt.Errorf("unexpected type %T for field deposit_threshold_low", values[i])
 			} else if value.Valid {
-				cg.DepositThreshold = uint64(value.Int64)
+				cg.DepositThresholdLow = uint64(value.Int64)
+			}
+		case coingas.FieldDepositAmount:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field deposit_amount", values[i])
+			} else if value.Valid {
+				cg.DepositAmount = uint64(value.Int64)
 			}
 		}
 	}
@@ -134,8 +142,10 @@ func (cg *CoinGas) String() string {
 	builder.WriteString(fmt.Sprintf("%v", cg.CoinTypeID))
 	builder.WriteString(", gas_coin_type_id=")
 	builder.WriteString(fmt.Sprintf("%v", cg.GasCoinTypeID))
-	builder.WriteString(", deposit_threshold=")
-	builder.WriteString(fmt.Sprintf("%v", cg.DepositThreshold))
+	builder.WriteString(", deposit_threshold_low=")
+	builder.WriteString(fmt.Sprintf("%v", cg.DepositThresholdLow))
+	builder.WriteString(", deposit_amount=")
+	builder.WriteString(fmt.Sprintf("%v", cg.DepositAmount))
 	builder.WriteByte(')')
 	return builder.String()
 }

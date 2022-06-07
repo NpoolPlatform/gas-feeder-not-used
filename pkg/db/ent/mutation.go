@@ -32,23 +32,25 @@ const (
 // CoinGasMutation represents an operation that mutates the CoinGas nodes in the graph.
 type CoinGasMutation struct {
 	config
-	op                   Op
-	typ                  string
-	id                   *uuid.UUID
-	created_at           *uint32
-	addcreated_at        *int32
-	updated_at           *uint32
-	addupdated_at        *int32
-	deleted_at           *uint32
-	adddeleted_at        *int32
-	coin_type_id         *uuid.UUID
-	gas_coin_type_id     *uuid.UUID
-	deposit_threshold    *uint64
-	adddeposit_threshold *int64
-	clearedFields        map[string]struct{}
-	done                 bool
-	oldValue             func(context.Context) (*CoinGas, error)
-	predicates           []predicate.CoinGas
+	op                       Op
+	typ                      string
+	id                       *uuid.UUID
+	created_at               *uint32
+	addcreated_at            *int32
+	updated_at               *uint32
+	addupdated_at            *int32
+	deleted_at               *uint32
+	adddeleted_at            *int32
+	coin_type_id             *uuid.UUID
+	gas_coin_type_id         *uuid.UUID
+	deposit_threshold_low    *uint64
+	adddeposit_threshold_low *int64
+	deposit_amount           *uint64
+	adddeposit_amount        *int64
+	clearedFields            map[string]struct{}
+	done                     bool
+	oldValue                 func(context.Context) (*CoinGas, error)
+	predicates               []predicate.CoinGas
 }
 
 var _ ent.Mutation = (*CoinGasMutation)(nil)
@@ -395,60 +397,116 @@ func (m *CoinGasMutation) ResetGasCoinTypeID() {
 	m.gas_coin_type_id = nil
 }
 
-// SetDepositThreshold sets the "deposit_threshold" field.
-func (m *CoinGasMutation) SetDepositThreshold(u uint64) {
-	m.deposit_threshold = &u
-	m.adddeposit_threshold = nil
+// SetDepositThresholdLow sets the "deposit_threshold_low" field.
+func (m *CoinGasMutation) SetDepositThresholdLow(u uint64) {
+	m.deposit_threshold_low = &u
+	m.adddeposit_threshold_low = nil
 }
 
-// DepositThreshold returns the value of the "deposit_threshold" field in the mutation.
-func (m *CoinGasMutation) DepositThreshold() (r uint64, exists bool) {
-	v := m.deposit_threshold
+// DepositThresholdLow returns the value of the "deposit_threshold_low" field in the mutation.
+func (m *CoinGasMutation) DepositThresholdLow() (r uint64, exists bool) {
+	v := m.deposit_threshold_low
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldDepositThreshold returns the old "deposit_threshold" field's value of the CoinGas entity.
+// OldDepositThresholdLow returns the old "deposit_threshold_low" field's value of the CoinGas entity.
 // If the CoinGas object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *CoinGasMutation) OldDepositThreshold(ctx context.Context) (v uint64, err error) {
+func (m *CoinGasMutation) OldDepositThresholdLow(ctx context.Context) (v uint64, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldDepositThreshold is only allowed on UpdateOne operations")
+		return v, errors.New("OldDepositThresholdLow is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldDepositThreshold requires an ID field in the mutation")
+		return v, errors.New("OldDepositThresholdLow requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldDepositThreshold: %w", err)
+		return v, fmt.Errorf("querying old value for OldDepositThresholdLow: %w", err)
 	}
-	return oldValue.DepositThreshold, nil
+	return oldValue.DepositThresholdLow, nil
 }
 
-// AddDepositThreshold adds u to the "deposit_threshold" field.
-func (m *CoinGasMutation) AddDepositThreshold(u int64) {
-	if m.adddeposit_threshold != nil {
-		*m.adddeposit_threshold += u
+// AddDepositThresholdLow adds u to the "deposit_threshold_low" field.
+func (m *CoinGasMutation) AddDepositThresholdLow(u int64) {
+	if m.adddeposit_threshold_low != nil {
+		*m.adddeposit_threshold_low += u
 	} else {
-		m.adddeposit_threshold = &u
+		m.adddeposit_threshold_low = &u
 	}
 }
 
-// AddedDepositThreshold returns the value that was added to the "deposit_threshold" field in this mutation.
-func (m *CoinGasMutation) AddedDepositThreshold() (r int64, exists bool) {
-	v := m.adddeposit_threshold
+// AddedDepositThresholdLow returns the value that was added to the "deposit_threshold_low" field in this mutation.
+func (m *CoinGasMutation) AddedDepositThresholdLow() (r int64, exists bool) {
+	v := m.adddeposit_threshold_low
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// ResetDepositThreshold resets all changes to the "deposit_threshold" field.
-func (m *CoinGasMutation) ResetDepositThreshold() {
-	m.deposit_threshold = nil
-	m.adddeposit_threshold = nil
+// ResetDepositThresholdLow resets all changes to the "deposit_threshold_low" field.
+func (m *CoinGasMutation) ResetDepositThresholdLow() {
+	m.deposit_threshold_low = nil
+	m.adddeposit_threshold_low = nil
+}
+
+// SetDepositAmount sets the "deposit_amount" field.
+func (m *CoinGasMutation) SetDepositAmount(u uint64) {
+	m.deposit_amount = &u
+	m.adddeposit_amount = nil
+}
+
+// DepositAmount returns the value of the "deposit_amount" field in the mutation.
+func (m *CoinGasMutation) DepositAmount() (r uint64, exists bool) {
+	v := m.deposit_amount
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDepositAmount returns the old "deposit_amount" field's value of the CoinGas entity.
+// If the CoinGas object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CoinGasMutation) OldDepositAmount(ctx context.Context) (v uint64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDepositAmount is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDepositAmount requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDepositAmount: %w", err)
+	}
+	return oldValue.DepositAmount, nil
+}
+
+// AddDepositAmount adds u to the "deposit_amount" field.
+func (m *CoinGasMutation) AddDepositAmount(u int64) {
+	if m.adddeposit_amount != nil {
+		*m.adddeposit_amount += u
+	} else {
+		m.adddeposit_amount = &u
+	}
+}
+
+// AddedDepositAmount returns the value that was added to the "deposit_amount" field in this mutation.
+func (m *CoinGasMutation) AddedDepositAmount() (r int64, exists bool) {
+	v := m.adddeposit_amount
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetDepositAmount resets all changes to the "deposit_amount" field.
+func (m *CoinGasMutation) ResetDepositAmount() {
+	m.deposit_amount = nil
+	m.adddeposit_amount = nil
 }
 
 // Where appends a list predicates to the CoinGasMutation builder.
@@ -470,7 +528,7 @@ func (m *CoinGasMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *CoinGasMutation) Fields() []string {
-	fields := make([]string, 0, 6)
+	fields := make([]string, 0, 7)
 	if m.created_at != nil {
 		fields = append(fields, coingas.FieldCreatedAt)
 	}
@@ -486,8 +544,11 @@ func (m *CoinGasMutation) Fields() []string {
 	if m.gas_coin_type_id != nil {
 		fields = append(fields, coingas.FieldGasCoinTypeID)
 	}
-	if m.deposit_threshold != nil {
-		fields = append(fields, coingas.FieldDepositThreshold)
+	if m.deposit_threshold_low != nil {
+		fields = append(fields, coingas.FieldDepositThresholdLow)
+	}
+	if m.deposit_amount != nil {
+		fields = append(fields, coingas.FieldDepositAmount)
 	}
 	return fields
 }
@@ -507,8 +568,10 @@ func (m *CoinGasMutation) Field(name string) (ent.Value, bool) {
 		return m.CoinTypeID()
 	case coingas.FieldGasCoinTypeID:
 		return m.GasCoinTypeID()
-	case coingas.FieldDepositThreshold:
-		return m.DepositThreshold()
+	case coingas.FieldDepositThresholdLow:
+		return m.DepositThresholdLow()
+	case coingas.FieldDepositAmount:
+		return m.DepositAmount()
 	}
 	return nil, false
 }
@@ -528,8 +591,10 @@ func (m *CoinGasMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldCoinTypeID(ctx)
 	case coingas.FieldGasCoinTypeID:
 		return m.OldGasCoinTypeID(ctx)
-	case coingas.FieldDepositThreshold:
-		return m.OldDepositThreshold(ctx)
+	case coingas.FieldDepositThresholdLow:
+		return m.OldDepositThresholdLow(ctx)
+	case coingas.FieldDepositAmount:
+		return m.OldDepositAmount(ctx)
 	}
 	return nil, fmt.Errorf("unknown CoinGas field %s", name)
 }
@@ -574,12 +639,19 @@ func (m *CoinGasMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetGasCoinTypeID(v)
 		return nil
-	case coingas.FieldDepositThreshold:
+	case coingas.FieldDepositThresholdLow:
 		v, ok := value.(uint64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetDepositThreshold(v)
+		m.SetDepositThresholdLow(v)
+		return nil
+	case coingas.FieldDepositAmount:
+		v, ok := value.(uint64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDepositAmount(v)
 		return nil
 	}
 	return fmt.Errorf("unknown CoinGas field %s", name)
@@ -598,8 +670,11 @@ func (m *CoinGasMutation) AddedFields() []string {
 	if m.adddeleted_at != nil {
 		fields = append(fields, coingas.FieldDeletedAt)
 	}
-	if m.adddeposit_threshold != nil {
-		fields = append(fields, coingas.FieldDepositThreshold)
+	if m.adddeposit_threshold_low != nil {
+		fields = append(fields, coingas.FieldDepositThresholdLow)
+	}
+	if m.adddeposit_amount != nil {
+		fields = append(fields, coingas.FieldDepositAmount)
 	}
 	return fields
 }
@@ -615,8 +690,10 @@ func (m *CoinGasMutation) AddedField(name string) (ent.Value, bool) {
 		return m.AddedUpdatedAt()
 	case coingas.FieldDeletedAt:
 		return m.AddedDeletedAt()
-	case coingas.FieldDepositThreshold:
-		return m.AddedDepositThreshold()
+	case coingas.FieldDepositThresholdLow:
+		return m.AddedDepositThresholdLow()
+	case coingas.FieldDepositAmount:
+		return m.AddedDepositAmount()
 	}
 	return nil, false
 }
@@ -647,12 +724,19 @@ func (m *CoinGasMutation) AddField(name string, value ent.Value) error {
 		}
 		m.AddDeletedAt(v)
 		return nil
-	case coingas.FieldDepositThreshold:
+	case coingas.FieldDepositThresholdLow:
 		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.AddDepositThreshold(v)
+		m.AddDepositThresholdLow(v)
+		return nil
+	case coingas.FieldDepositAmount:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddDepositAmount(v)
 		return nil
 	}
 	return fmt.Errorf("unknown CoinGas numeric field %s", name)
@@ -696,8 +780,11 @@ func (m *CoinGasMutation) ResetField(name string) error {
 	case coingas.FieldGasCoinTypeID:
 		m.ResetGasCoinTypeID()
 		return nil
-	case coingas.FieldDepositThreshold:
-		m.ResetDepositThreshold()
+	case coingas.FieldDepositThresholdLow:
+		m.ResetDepositThresholdLow()
+		return nil
+	case coingas.FieldDepositAmount:
+		m.ResetDepositAmount()
 		return nil
 	}
 	return fmt.Errorf("unknown CoinGas field %s", name)

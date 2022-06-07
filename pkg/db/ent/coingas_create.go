@@ -77,9 +77,15 @@ func (cgc *CoinGasCreate) SetGasCoinTypeID(u uuid.UUID) *CoinGasCreate {
 	return cgc
 }
 
-// SetDepositThreshold sets the "deposit_threshold" field.
-func (cgc *CoinGasCreate) SetDepositThreshold(u uint64) *CoinGasCreate {
-	cgc.mutation.SetDepositThreshold(u)
+// SetDepositThresholdLow sets the "deposit_threshold_low" field.
+func (cgc *CoinGasCreate) SetDepositThresholdLow(u uint64) *CoinGasCreate {
+	cgc.mutation.SetDepositThresholdLow(u)
+	return cgc
+}
+
+// SetDepositAmount sets the "deposit_amount" field.
+func (cgc *CoinGasCreate) SetDepositAmount(u uint64) *CoinGasCreate {
+	cgc.mutation.SetDepositAmount(u)
 	return cgc
 }
 
@@ -218,8 +224,11 @@ func (cgc *CoinGasCreate) check() error {
 	if _, ok := cgc.mutation.GasCoinTypeID(); !ok {
 		return &ValidationError{Name: "gas_coin_type_id", err: errors.New(`ent: missing required field "CoinGas.gas_coin_type_id"`)}
 	}
-	if _, ok := cgc.mutation.DepositThreshold(); !ok {
-		return &ValidationError{Name: "deposit_threshold", err: errors.New(`ent: missing required field "CoinGas.deposit_threshold"`)}
+	if _, ok := cgc.mutation.DepositThresholdLow(); !ok {
+		return &ValidationError{Name: "deposit_threshold_low", err: errors.New(`ent: missing required field "CoinGas.deposit_threshold_low"`)}
+	}
+	if _, ok := cgc.mutation.DepositAmount(); !ok {
+		return &ValidationError{Name: "deposit_amount", err: errors.New(`ent: missing required field "CoinGas.deposit_amount"`)}
 	}
 	return nil
 }
@@ -298,13 +307,21 @@ func (cgc *CoinGasCreate) createSpec() (*CoinGas, *sqlgraph.CreateSpec) {
 		})
 		_node.GasCoinTypeID = value
 	}
-	if value, ok := cgc.mutation.DepositThreshold(); ok {
+	if value, ok := cgc.mutation.DepositThresholdLow(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeUint64,
 			Value:  value,
-			Column: coingas.FieldDepositThreshold,
+			Column: coingas.FieldDepositThresholdLow,
 		})
-		_node.DepositThreshold = value
+		_node.DepositThresholdLow = value
+	}
+	if value, ok := cgc.mutation.DepositAmount(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeUint64,
+			Value:  value,
+			Column: coingas.FieldDepositAmount,
+		})
+		_node.DepositAmount = value
 	}
 	return _node, _spec
 }
@@ -438,21 +455,39 @@ func (u *CoinGasUpsert) UpdateGasCoinTypeID() *CoinGasUpsert {
 	return u
 }
 
-// SetDepositThreshold sets the "deposit_threshold" field.
-func (u *CoinGasUpsert) SetDepositThreshold(v uint64) *CoinGasUpsert {
-	u.Set(coingas.FieldDepositThreshold, v)
+// SetDepositThresholdLow sets the "deposit_threshold_low" field.
+func (u *CoinGasUpsert) SetDepositThresholdLow(v uint64) *CoinGasUpsert {
+	u.Set(coingas.FieldDepositThresholdLow, v)
 	return u
 }
 
-// UpdateDepositThreshold sets the "deposit_threshold" field to the value that was provided on create.
-func (u *CoinGasUpsert) UpdateDepositThreshold() *CoinGasUpsert {
-	u.SetExcluded(coingas.FieldDepositThreshold)
+// UpdateDepositThresholdLow sets the "deposit_threshold_low" field to the value that was provided on create.
+func (u *CoinGasUpsert) UpdateDepositThresholdLow() *CoinGasUpsert {
+	u.SetExcluded(coingas.FieldDepositThresholdLow)
 	return u
 }
 
-// AddDepositThreshold adds v to the "deposit_threshold" field.
-func (u *CoinGasUpsert) AddDepositThreshold(v uint64) *CoinGasUpsert {
-	u.Add(coingas.FieldDepositThreshold, v)
+// AddDepositThresholdLow adds v to the "deposit_threshold_low" field.
+func (u *CoinGasUpsert) AddDepositThresholdLow(v uint64) *CoinGasUpsert {
+	u.Add(coingas.FieldDepositThresholdLow, v)
+	return u
+}
+
+// SetDepositAmount sets the "deposit_amount" field.
+func (u *CoinGasUpsert) SetDepositAmount(v uint64) *CoinGasUpsert {
+	u.Set(coingas.FieldDepositAmount, v)
+	return u
+}
+
+// UpdateDepositAmount sets the "deposit_amount" field to the value that was provided on create.
+func (u *CoinGasUpsert) UpdateDepositAmount() *CoinGasUpsert {
+	u.SetExcluded(coingas.FieldDepositAmount)
+	return u
+}
+
+// AddDepositAmount adds v to the "deposit_amount" field.
+func (u *CoinGasUpsert) AddDepositAmount(v uint64) *CoinGasUpsert {
+	u.Add(coingas.FieldDepositAmount, v)
 	return u
 }
 
@@ -597,24 +632,45 @@ func (u *CoinGasUpsertOne) UpdateGasCoinTypeID() *CoinGasUpsertOne {
 	})
 }
 
-// SetDepositThreshold sets the "deposit_threshold" field.
-func (u *CoinGasUpsertOne) SetDepositThreshold(v uint64) *CoinGasUpsertOne {
+// SetDepositThresholdLow sets the "deposit_threshold_low" field.
+func (u *CoinGasUpsertOne) SetDepositThresholdLow(v uint64) *CoinGasUpsertOne {
 	return u.Update(func(s *CoinGasUpsert) {
-		s.SetDepositThreshold(v)
+		s.SetDepositThresholdLow(v)
 	})
 }
 
-// AddDepositThreshold adds v to the "deposit_threshold" field.
-func (u *CoinGasUpsertOne) AddDepositThreshold(v uint64) *CoinGasUpsertOne {
+// AddDepositThresholdLow adds v to the "deposit_threshold_low" field.
+func (u *CoinGasUpsertOne) AddDepositThresholdLow(v uint64) *CoinGasUpsertOne {
 	return u.Update(func(s *CoinGasUpsert) {
-		s.AddDepositThreshold(v)
+		s.AddDepositThresholdLow(v)
 	})
 }
 
-// UpdateDepositThreshold sets the "deposit_threshold" field to the value that was provided on create.
-func (u *CoinGasUpsertOne) UpdateDepositThreshold() *CoinGasUpsertOne {
+// UpdateDepositThresholdLow sets the "deposit_threshold_low" field to the value that was provided on create.
+func (u *CoinGasUpsertOne) UpdateDepositThresholdLow() *CoinGasUpsertOne {
 	return u.Update(func(s *CoinGasUpsert) {
-		s.UpdateDepositThreshold()
+		s.UpdateDepositThresholdLow()
+	})
+}
+
+// SetDepositAmount sets the "deposit_amount" field.
+func (u *CoinGasUpsertOne) SetDepositAmount(v uint64) *CoinGasUpsertOne {
+	return u.Update(func(s *CoinGasUpsert) {
+		s.SetDepositAmount(v)
+	})
+}
+
+// AddDepositAmount adds v to the "deposit_amount" field.
+func (u *CoinGasUpsertOne) AddDepositAmount(v uint64) *CoinGasUpsertOne {
+	return u.Update(func(s *CoinGasUpsert) {
+		s.AddDepositAmount(v)
+	})
+}
+
+// UpdateDepositAmount sets the "deposit_amount" field to the value that was provided on create.
+func (u *CoinGasUpsertOne) UpdateDepositAmount() *CoinGasUpsertOne {
+	return u.Update(func(s *CoinGasUpsert) {
+		s.UpdateDepositAmount()
 	})
 }
 
@@ -925,24 +981,45 @@ func (u *CoinGasUpsertBulk) UpdateGasCoinTypeID() *CoinGasUpsertBulk {
 	})
 }
 
-// SetDepositThreshold sets the "deposit_threshold" field.
-func (u *CoinGasUpsertBulk) SetDepositThreshold(v uint64) *CoinGasUpsertBulk {
+// SetDepositThresholdLow sets the "deposit_threshold_low" field.
+func (u *CoinGasUpsertBulk) SetDepositThresholdLow(v uint64) *CoinGasUpsertBulk {
 	return u.Update(func(s *CoinGasUpsert) {
-		s.SetDepositThreshold(v)
+		s.SetDepositThresholdLow(v)
 	})
 }
 
-// AddDepositThreshold adds v to the "deposit_threshold" field.
-func (u *CoinGasUpsertBulk) AddDepositThreshold(v uint64) *CoinGasUpsertBulk {
+// AddDepositThresholdLow adds v to the "deposit_threshold_low" field.
+func (u *CoinGasUpsertBulk) AddDepositThresholdLow(v uint64) *CoinGasUpsertBulk {
 	return u.Update(func(s *CoinGasUpsert) {
-		s.AddDepositThreshold(v)
+		s.AddDepositThresholdLow(v)
 	})
 }
 
-// UpdateDepositThreshold sets the "deposit_threshold" field to the value that was provided on create.
-func (u *CoinGasUpsertBulk) UpdateDepositThreshold() *CoinGasUpsertBulk {
+// UpdateDepositThresholdLow sets the "deposit_threshold_low" field to the value that was provided on create.
+func (u *CoinGasUpsertBulk) UpdateDepositThresholdLow() *CoinGasUpsertBulk {
 	return u.Update(func(s *CoinGasUpsert) {
-		s.UpdateDepositThreshold()
+		s.UpdateDepositThresholdLow()
+	})
+}
+
+// SetDepositAmount sets the "deposit_amount" field.
+func (u *CoinGasUpsertBulk) SetDepositAmount(v uint64) *CoinGasUpsertBulk {
+	return u.Update(func(s *CoinGasUpsert) {
+		s.SetDepositAmount(v)
+	})
+}
+
+// AddDepositAmount adds v to the "deposit_amount" field.
+func (u *CoinGasUpsertBulk) AddDepositAmount(v uint64) *CoinGasUpsertBulk {
+	return u.Update(func(s *CoinGasUpsert) {
+		s.AddDepositAmount(v)
+	})
+}
+
+// UpdateDepositAmount sets the "deposit_amount" field to the value that was provided on create.
+func (u *CoinGasUpsertBulk) UpdateDepositAmount() *CoinGasUpsertBulk {
+	return u.Update(func(s *CoinGasUpsert) {
+		s.UpdateDepositAmount()
 	})
 }
 

@@ -34,10 +34,10 @@ func New(ctx context.Context, tx *ent.Tx) (*CoinGas, error) {
 
 func (s *CoinGas) rowToObject(row *ent.CoinGas) *npool.CoinGas {
 	return &npool.CoinGas{
-		ID:               row.ID.String(),
-		GasCoinTypeID:    row.GasCoinTypeID.String(),
-		CoinTypeID:       row.CoinTypeID.String(),
-		DepositThreshold: row.DepositThreshold,
+		ID:                  row.ID.String(),
+		GasCoinTypeID:       row.GasCoinTypeID.String(),
+		CoinTypeID:          row.CoinTypeID.String(),
+		DepositThresholdLow: row.DepositThresholdLow,
 	}
 }
 
@@ -49,7 +49,7 @@ func (s *CoinGas) Create(ctx context.Context, in *npool.CoinGas) (*npool.CoinGas
 		info, err = s.Tx.CoinGas.Create().
 			SetCoinTypeID(uuid.MustParse(in.CoinTypeID)).
 			SetGasCoinTypeID(uuid.MustParse(in.GasCoinTypeID)).
-			SetDepositThreshold(in.DepositThreshold).
+			SetDepositThresholdLow(in.DepositThresholdLow).
 			Save(_ctx)
 		return err
 	})
@@ -70,7 +70,7 @@ func (s *CoinGas) CreateBulk(ctx context.Context, in []*npool.CoinGas) ([]*npool
 			bulk[i] = s.Tx.CoinGas.Create().
 				SetCoinTypeID(uuid.MustParse(info.CoinTypeID)).
 				SetGasCoinTypeID(uuid.MustParse(info.GasCoinTypeID)).
-				SetDepositThreshold(info.DepositThreshold)
+				SetDepositThresholdLow(info.DepositThresholdLow)
 		}
 		rows, err = s.Tx.CoinGas.CreateBulk(bulk...).Save(_ctx)
 		return err
@@ -111,7 +111,7 @@ func (s *CoinGas) Update(ctx context.Context, in *npool.CoinGas) (*npool.CoinGas
 		info, err = s.Tx.CoinGas.UpdateOneID(uuid.MustParse(in.GetID())).
 			SetCoinTypeID(uuid.MustParse(in.GetCoinTypeID())).
 			SetGasCoinTypeID(uuid.MustParse(in.GetGasCoinTypeID())).
-			SetDepositThreshold(in.GetDepositThreshold()).
+			SetDepositThresholdLow(in.GetDepositThresholdLow()).
 			Save(_ctx)
 		return err
 	})
@@ -178,18 +178,18 @@ func (s *CoinGas) queryFromConds(conds cruder.Conds) (*ent.CoinGasQuery, error) 
 				return nil, fmt.Errorf("invalid CoinTypeID: %v", err)
 			}
 			stm = stm.Where(coingas.CoinTypeID(cointypeid))
-		case constant.FieldDepositThreshold:
+		case constant.FieldDepositThresholdLow:
 			depositThreshold, err := cruder.AnyTypeUint64(v.Val)
 			if err != nil {
-				return nil, fmt.Errorf("invalid DepositThreshold: %v", err)
+				return nil, fmt.Errorf("invalid DepositThresholdLow: %v", err)
 			}
 			switch v.Op {
 			case cruder.EQ:
-				stm = stm.Where(coingas.DepositThresholdEQ(depositThreshold))
+				stm = stm.Where(coingas.DepositThresholdLowEQ(depositThreshold))
 			case cruder.GT:
-				stm = stm.Where(coingas.DepositThresholdGT(depositThreshold))
+				stm = stm.Where(coingas.DepositThresholdLowGT(depositThreshold))
 			case cruder.LT:
-				stm = stm.Where(coingas.DepositThresholdLT(depositThreshold))
+				stm = stm.Where(coingas.DepositThresholdLowLT(depositThreshold))
 			}
 		default:
 			return nil, fmt.Errorf("invalid CoinGas field")

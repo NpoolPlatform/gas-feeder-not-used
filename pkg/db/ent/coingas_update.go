@@ -95,16 +95,29 @@ func (cgu *CoinGasUpdate) SetGasCoinTypeID(u uuid.UUID) *CoinGasUpdate {
 	return cgu
 }
 
-// SetDepositThreshold sets the "deposit_threshold" field.
-func (cgu *CoinGasUpdate) SetDepositThreshold(u uint64) *CoinGasUpdate {
-	cgu.mutation.ResetDepositThreshold()
-	cgu.mutation.SetDepositThreshold(u)
+// SetDepositThresholdLow sets the "deposit_threshold_low" field.
+func (cgu *CoinGasUpdate) SetDepositThresholdLow(u uint64) *CoinGasUpdate {
+	cgu.mutation.ResetDepositThresholdLow()
+	cgu.mutation.SetDepositThresholdLow(u)
 	return cgu
 }
 
-// AddDepositThreshold adds u to the "deposit_threshold" field.
-func (cgu *CoinGasUpdate) AddDepositThreshold(u int64) *CoinGasUpdate {
-	cgu.mutation.AddDepositThreshold(u)
+// AddDepositThresholdLow adds u to the "deposit_threshold_low" field.
+func (cgu *CoinGasUpdate) AddDepositThresholdLow(u int64) *CoinGasUpdate {
+	cgu.mutation.AddDepositThresholdLow(u)
+	return cgu
+}
+
+// SetDepositAmount sets the "deposit_amount" field.
+func (cgu *CoinGasUpdate) SetDepositAmount(u uint64) *CoinGasUpdate {
+	cgu.mutation.ResetDepositAmount()
+	cgu.mutation.SetDepositAmount(u)
+	return cgu
+}
+
+// AddDepositAmount adds u to the "deposit_amount" field.
+func (cgu *CoinGasUpdate) AddDepositAmount(u int64) *CoinGasUpdate {
+	cgu.mutation.AddDepositAmount(u)
 	return cgu
 }
 
@@ -256,18 +269,32 @@ func (cgu *CoinGasUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: coingas.FieldGasCoinTypeID,
 		})
 	}
-	if value, ok := cgu.mutation.DepositThreshold(); ok {
+	if value, ok := cgu.mutation.DepositThresholdLow(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeUint64,
 			Value:  value,
-			Column: coingas.FieldDepositThreshold,
+			Column: coingas.FieldDepositThresholdLow,
 		})
 	}
-	if value, ok := cgu.mutation.AddedDepositThreshold(); ok {
+	if value, ok := cgu.mutation.AddedDepositThresholdLow(); ok {
 		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
 			Type:   field.TypeUint64,
 			Value:  value,
-			Column: coingas.FieldDepositThreshold,
+			Column: coingas.FieldDepositThresholdLow,
+		})
+	}
+	if value, ok := cgu.mutation.DepositAmount(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeUint64,
+			Value:  value,
+			Column: coingas.FieldDepositAmount,
+		})
+	}
+	if value, ok := cgu.mutation.AddedDepositAmount(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeUint64,
+			Value:  value,
+			Column: coingas.FieldDepositAmount,
 		})
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, cgu.driver, _spec); err != nil {
@@ -356,16 +383,29 @@ func (cguo *CoinGasUpdateOne) SetGasCoinTypeID(u uuid.UUID) *CoinGasUpdateOne {
 	return cguo
 }
 
-// SetDepositThreshold sets the "deposit_threshold" field.
-func (cguo *CoinGasUpdateOne) SetDepositThreshold(u uint64) *CoinGasUpdateOne {
-	cguo.mutation.ResetDepositThreshold()
-	cguo.mutation.SetDepositThreshold(u)
+// SetDepositThresholdLow sets the "deposit_threshold_low" field.
+func (cguo *CoinGasUpdateOne) SetDepositThresholdLow(u uint64) *CoinGasUpdateOne {
+	cguo.mutation.ResetDepositThresholdLow()
+	cguo.mutation.SetDepositThresholdLow(u)
 	return cguo
 }
 
-// AddDepositThreshold adds u to the "deposit_threshold" field.
-func (cguo *CoinGasUpdateOne) AddDepositThreshold(u int64) *CoinGasUpdateOne {
-	cguo.mutation.AddDepositThreshold(u)
+// AddDepositThresholdLow adds u to the "deposit_threshold_low" field.
+func (cguo *CoinGasUpdateOne) AddDepositThresholdLow(u int64) *CoinGasUpdateOne {
+	cguo.mutation.AddDepositThresholdLow(u)
+	return cguo
+}
+
+// SetDepositAmount sets the "deposit_amount" field.
+func (cguo *CoinGasUpdateOne) SetDepositAmount(u uint64) *CoinGasUpdateOne {
+	cguo.mutation.ResetDepositAmount()
+	cguo.mutation.SetDepositAmount(u)
+	return cguo
+}
+
+// AddDepositAmount adds u to the "deposit_amount" field.
+func (cguo *CoinGasUpdateOne) AddDepositAmount(u int64) *CoinGasUpdateOne {
+	cguo.mutation.AddDepositAmount(u)
 	return cguo
 }
 
@@ -541,18 +581,32 @@ func (cguo *CoinGasUpdateOne) sqlSave(ctx context.Context) (_node *CoinGas, err 
 			Column: coingas.FieldGasCoinTypeID,
 		})
 	}
-	if value, ok := cguo.mutation.DepositThreshold(); ok {
+	if value, ok := cguo.mutation.DepositThresholdLow(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeUint64,
 			Value:  value,
-			Column: coingas.FieldDepositThreshold,
+			Column: coingas.FieldDepositThresholdLow,
 		})
 	}
-	if value, ok := cguo.mutation.AddedDepositThreshold(); ok {
+	if value, ok := cguo.mutation.AddedDepositThresholdLow(); ok {
 		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
 			Type:   field.TypeUint64,
 			Value:  value,
-			Column: coingas.FieldDepositThreshold,
+			Column: coingas.FieldDepositThresholdLow,
+		})
+	}
+	if value, ok := cguo.mutation.DepositAmount(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeUint64,
+			Value:  value,
+			Column: coingas.FieldDepositAmount,
+		})
+	}
+	if value, ok := cguo.mutation.AddedDepositAmount(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeUint64,
+			Value:  value,
+			Column: coingas.FieldDepositAmount,
 		})
 	}
 	_node = &CoinGas{config: cguo.config}
