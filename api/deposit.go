@@ -221,7 +221,7 @@ func (s *Server) ExistDepositConds(ctx context.Context, in *npool.ExistDepositCo
 
 	if len(conds) == 0 {
 		logger.Sugar().Errorf("empty deposit fields: %v", err)
-		return &npool.ExistDepositCondsResponse{}, status.Error(codes.Internal, "empty stock fields")
+		return &npool.ExistDepositCondsResponse{}, status.Error(codes.Internal, "empty deposit fields")
 	}
 
 	schema, err := crud.New(ctx, nil)
