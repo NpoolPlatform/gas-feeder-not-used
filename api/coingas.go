@@ -48,9 +48,10 @@ func (s *Server) CreateCoinGas(ctx context.Context, in *npool.CreateCoinGasReque
 		return &npool.CreateCoinGasResponse{}, status.Error(codes.Internal, err.Error())
 	}
 	cInfo, err := schema.Create(ctx, &npool.CoinGas{
-		CoinTypeID:       info.GetCoinTypeID(),
-		GasCoinTypeID:    info.GetGasCoinTypeID(),
-		DepositThreshold: info.GetDepositThreshold(),
+		CoinTypeID:          info.GetCoinTypeID(),
+		GasCoinTypeID:       info.GetGasCoinTypeID(),
+		DepositThresholdLow: info.GetDepositThresholdLow(),
+		DepositAmount:       info.GetDepositAmount(),
 	})
 	if err != nil {
 		logger.Sugar().Errorf("fail create CoinGas error %v", err)
@@ -66,6 +67,12 @@ func (s *Server) UpdateCoinGas(ctx context.Context, in *npool.UpdateCoinGasReque
 	info := in.GetInfo()
 	if err := checkFeildsInCoinGas(info); err != nil {
 		return nil, err
+	}
+
+	_, err := uuid.Parse(info.GetID())
+	if err != nil {
+		logger.Sugar().Errorf("parse ID: %s invalid", info.GetID())
+		return nil, status.Error(codes.InvalidArgument, "ID invalid")
 	}
 
 	ctx, cancel := context.WithTimeout(ctx, ccoin.GrpcTimeout)
@@ -135,7 +142,9 @@ func coinGasCondsToConds(conds cruder.FilterConds) (cruder.Conds, error) {
 			newConds = newConds.WithCond(k, v.Op, v.Val.GetStringValue())
 		case constant.FieldGasCoinTypeID:
 			newConds = newConds.WithCond(k, v.Op, v.Val.GetStringValue())
-		case constant.FieldDepositThreshold:
+		case constant.FieldDepositThresholdLow:
+			newConds = newConds.WithCond(k, v.Op, v.Val.GetNumberValue())
+		case constant.FieldDepositAmount:
 			newConds = newConds.WithCond(k, v.Op, v.Val.GetNumberValue())
 		default:
 			return nil, fmt.Errorf("invalid CoinGas field")

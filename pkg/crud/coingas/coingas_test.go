@@ -30,9 +30,10 @@ func init() {
 //nolint
 func TestCRUD(t *testing.T) {
 	coingas := npool.CoinGas{
-		CoinTypeID:       uuid.New().String(),
-		GasCoinTypeID:    uuid.New().String(),
-		DepositThreshold: uint64(1000),
+		CoinTypeID:          uuid.New().String(),
+		GasCoinTypeID:       uuid.New().String(),
+		DepositThresholdLow: float64(100.1),
+		DepositAmount:       float64(1.1),
 	}
 
 	schema, err := New(context.Background(), nil)
@@ -46,10 +47,9 @@ func TestCRUD(t *testing.T) {
 		assert.Equal(t, info, &coingas)
 	}
 
-	coingas.ID = info.ID
-
 	schema, err = New(context.Background(), nil)
 	assert.Nil(t, err)
+	coingas.DepositAmount = float64(9.9)
 
 	info, err = schema.Update(context.Background(), &coingas)
 	if assert.Nil(t, err) {
@@ -97,7 +97,7 @@ func TestCRUD(t *testing.T) {
 	schema, err = New(context.Background(), nil)
 	assert.Nil(t, err)
 
-	coingas.DepositThreshold = 99999
+	coingas.DepositThresholdLow = 888.88
 
 	info, err = schema.Update(context.Background(), &coingas)
 
@@ -109,14 +109,16 @@ func TestCRUD(t *testing.T) {
 	assert.Nil(t, err)
 
 	coingas1 := &npool.CoinGas{
-		CoinTypeID:       uuid.New().String(),
-		GasCoinTypeID:    uuid.New().String(),
-		DepositThreshold: uint64(1000),
+		CoinTypeID:          uuid.New().String(),
+		GasCoinTypeID:       uuid.New().String(),
+		DepositThresholdLow: float64(11111),
+		DepositAmount:       float64(11111),
 	}
 	coingas2 := &npool.CoinGas{
-		CoinTypeID:       uuid.New().String(),
-		GasCoinTypeID:    uuid.New().String(),
-		DepositThreshold: uint64(1000),
+		CoinTypeID:          uuid.New().String(),
+		GasCoinTypeID:       uuid.New().String(),
+		DepositThresholdLow: float64(22222),
+		DepositAmount:       float64(222),
 	}
 
 	infos, err = schema.CreateBulk(context.Background(), []*npool.CoinGas{coingas1, coingas2})

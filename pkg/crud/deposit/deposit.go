@@ -9,6 +9,7 @@ import (
 	"github.com/NpoolPlatform/gas-feeder/pkg/db"
 	"github.com/NpoolPlatform/gas-feeder/pkg/db/ent"
 	"github.com/NpoolPlatform/gas-feeder/pkg/db/ent/deposit"
+	"github.com/NpoolPlatform/go-service-framework/pkg/price"
 
 	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 	npool "github.com/NpoolPlatform/message/npool/gasfeeder"
@@ -35,7 +36,8 @@ func (s *Deposit) rowToObject(row *ent.Deposit) *npool.Deposit {
 	return &npool.Deposit{
 		ID:            row.ID.String(),
 		AccountID:     row.AccountID.String(),
-		DepositAmount: row.DepositAmount,
+		DepositAmount: price.DBPriceToVisualPrice(row.DepositAmount),
+		CreatedAt:     row.CreatedAt,
 	}
 }
 
@@ -46,7 +48,7 @@ func (s *Deposit) Create(ctx context.Context, in *npool.Deposit) (*npool.Deposit
 	err = db.WithTx(ctx, s.Tx, func(_ctx context.Context) error {
 		info, err = s.Tx.Deposit.Create().
 			SetAccountID(uuid.MustParse(in.AccountID)).
-			SetDepositAmount(in.DepositAmount).
+			SetDepositAmount(price.VisualPriceToDBPrice(in.DepositAmount)).
 			Save(_ctx)
 		return err
 	})
@@ -66,7 +68,7 @@ func (s *Deposit) CreateBulk(ctx context.Context, in []*npool.Deposit) ([]*npool
 		for i, info := range in {
 			bulk[i] = s.Tx.Deposit.Create().
 				SetAccountID(uuid.MustParse(info.AccountID)).
-				SetDepositAmount(info.DepositAmount)
+				SetDepositAmount(price.VisualPriceToDBPrice(info.DepositAmount))
 		}
 		rows, err = s.Tx.Deposit.CreateBulk(bulk...).Save(_ctx)
 		return err
@@ -106,7 +108,7 @@ func (s *Deposit) Update(ctx context.Context, in *npool.Deposit) (*npool.Deposit
 	err = db.WithTx(ctx, s.Tx, func(_ctx context.Context) error {
 		info, err = s.Tx.Deposit.UpdateOneID(uuid.MustParse(in.GetID())).
 			SetAccountID(uuid.MustParse(in.GetAccountID())).
-			SetDepositAmount(in.GetDepositAmount()).
+			SetDepositAmount(price.VisualPriceToDBPrice(in.GetDepositAmount())).
 			Save(_ctx)
 		return err
 	})
@@ -151,70 +153,49 @@ func (s *Deposit) Rows(ctx context.Context, conds cruder.Conds, offset, limit in
 	return infos, total, nil
 }
 
+//nolint
 func (s *Deposit) queryFromConds(conds cruder.Conds) (*ent.DepositQuery, error) {
 	stm := s.Tx.Deposit.Query()
 	for k, v := range conds {
 		switch k {
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 		case constant.FieldID:
-=======
-		case deposit.FieldID:
->>>>>>> api done
-=======
-		case constant.FieldID:
->>>>>>> current constant
-=======
-		case constant.FieldID:
->>>>>>> 11e61bed5f1d2b6773ea1788f35a53bcf5437b45
 			id, err := cruder.AnyTypeUUID(v.Val)
 			if err != nil {
 				return nil, fmt.Errorf("invalid ID: %v", err)
 			}
 			stm = stm.Where(deposit.ID(id))
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 		case constant.FieldAccountID:
-=======
-		case deposit.FieldAccountID:
->>>>>>> api done
-=======
-		case constant.FieldAccountID:
->>>>>>> current constant
-=======
-		case constant.FieldAccountID:
->>>>>>> 11e61bed5f1d2b6773ea1788f35a53bcf5437b45
 			id, err := cruder.AnyTypeUUID(v.Val)
 			if err != nil {
 				return nil, fmt.Errorf("invalid AccountID: %v", err)
 			}
 			stm = stm.Where(deposit.AccountID(id))
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 		case constant.FieldDepositAmount:
-=======
-		case deposit.FieldDepositAmount:
->>>>>>> api done
-=======
-		case constant.FieldDepositAmount:
->>>>>>> current constant
-=======
-		case constant.FieldDepositAmount:
->>>>>>> 11e61bed5f1d2b6773ea1788f35a53bcf5437b45
-			depositThreshold, err := cruder.AnyTypeUint64(v.Val)
+			_depositAmount, err := cruder.AnyTypeFloat64(v.Val)
+			if err != nil {
+				return nil, fmt.Errorf("invalid DepositAmount: %v", err)
+			}
+			depositAmount := price.VisualPriceToDBPrice(_depositAmount)
+			switch v.Op {
+			case cruder.EQ:
+				stm = stm.Where(deposit.DepositAmountEQ(depositAmount))
+			case cruder.GT:
+				stm = stm.Where(deposit.DepositAmountGT(depositAmount))
+			case cruder.LT:
+				stm = stm.Where(deposit.DepositAmountLT(depositAmount))
+			}
+		case constant.FieldCreatedAt:
+			createdAt, err := cruder.AnyTypeUint32(v.Val)
 			if err != nil {
 				return nil, fmt.Errorf("invalid DepositAmount: %v", err)
 			}
 			switch v.Op {
 			case cruder.EQ:
-				stm = stm.Where(deposit.DepositAmountEQ(depositThreshold))
+				stm = stm.Where(deposit.CreatedAtEQ(createdAt))
 			case cruder.GT:
-				stm = stm.Where(deposit.DepositAmountGT(depositThreshold))
+				stm = stm.Where(deposit.CreatedAtGT(createdAt))
 			case cruder.LT:
-				stm = stm.Where(deposit.DepositAmountLT(depositThreshold))
+				stm = stm.Where(deposit.CreatedAtLT(createdAt))
 			}
 		default:
 			return nil, fmt.Errorf("invalid Deposit field")
@@ -298,13 +279,13 @@ func (s *Deposit) ExistConds(ctx context.Context, conds cruder.Conds) (bool, err
 
 		exist, err = stm.Exist(_ctx)
 		if err != nil {
-			return fmt.Errorf("fail check congases: %v", err)
+			return fmt.Errorf("fail check Deposit: %v", err)
 		}
 
 		return nil
 	})
 	if err != nil {
-		return false, fmt.Errorf("fail check congases: %v", err)
+		return false, fmt.Errorf("fail check Deposit: %v", err)
 	}
 
 	return exist, nil
