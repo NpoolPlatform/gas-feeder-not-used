@@ -26,12 +26,13 @@ var schemaGraph = func() *sqlgraph.Schema {
 		},
 		Type: "CoinGas",
 		Fields: map[string]*sqlgraph.FieldSpec{
-			coingas.FieldCreatedAt:        {Type: field.TypeUint32, Column: coingas.FieldCreatedAt},
-			coingas.FieldUpdatedAt:        {Type: field.TypeUint32, Column: coingas.FieldUpdatedAt},
-			coingas.FieldDeletedAt:        {Type: field.TypeUint32, Column: coingas.FieldDeletedAt},
-			coingas.FieldCoinTypeID:       {Type: field.TypeUUID, Column: coingas.FieldCoinTypeID},
-			coingas.FieldGasCoinTypeID:    {Type: field.TypeUUID, Column: coingas.FieldGasCoinTypeID},
-			coingas.FieldDepositThreshold: {Type: field.TypeUint64, Column: coingas.FieldDepositThreshold},
+			coingas.FieldCreatedAt:           {Type: field.TypeUint32, Column: coingas.FieldCreatedAt},
+			coingas.FieldUpdatedAt:           {Type: field.TypeUint32, Column: coingas.FieldUpdatedAt},
+			coingas.FieldDeletedAt:           {Type: field.TypeUint32, Column: coingas.FieldDeletedAt},
+			coingas.FieldCoinTypeID:          {Type: field.TypeUUID, Column: coingas.FieldCoinTypeID},
+			coingas.FieldGasCoinTypeID:       {Type: field.TypeUUID, Column: coingas.FieldGasCoinTypeID},
+			coingas.FieldDepositThresholdLow: {Type: field.TypeUint64, Column: coingas.FieldDepositThresholdLow},
+			coingas.FieldDepositAmount:       {Type: field.TypeUint64, Column: coingas.FieldDepositAmount},
 		},
 	}
 	graph.Nodes[1] = &sqlgraph.Node{
@@ -125,9 +126,14 @@ func (f *CoinGasFilter) WhereGasCoinTypeID(p entql.ValueP) {
 	f.Where(p.Field(coingas.FieldGasCoinTypeID))
 }
 
-// WhereDepositThreshold applies the entql uint64 predicate on the deposit_threshold field.
-func (f *CoinGasFilter) WhereDepositThreshold(p entql.Uint64P) {
-	f.Where(p.Field(coingas.FieldDepositThreshold))
+// WhereDepositThresholdLow applies the entql uint64 predicate on the deposit_threshold_low field.
+func (f *CoinGasFilter) WhereDepositThresholdLow(p entql.Uint64P) {
+	f.Where(p.Field(coingas.FieldDepositThresholdLow))
+}
+
+// WhereDepositAmount applies the entql uint64 predicate on the deposit_amount field.
+func (f *CoinGasFilter) WhereDepositAmount(p entql.Uint64P) {
+	f.Where(p.Field(coingas.FieldDepositAmount))
 }
 
 // addPredicate implements the predicateAdder interface.

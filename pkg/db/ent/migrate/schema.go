@@ -16,7 +16,8 @@ var (
 		{Name: "deleted_at", Type: field.TypeUint32},
 		{Name: "coin_type_id", Type: field.TypeUUID, Unique: true},
 		{Name: "gas_coin_type_id", Type: field.TypeUUID},
-		{Name: "deposit_threshold", Type: field.TypeUint64},
+		{Name: "deposit_threshold_low", Type: field.TypeUint64},
+		{Name: "deposit_amount", Type: field.TypeUint64},
 	}
 	// CoinGasTable holds the schema information for the "coin_gas" table.
 	CoinGasTable = &schema.Table{

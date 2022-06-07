@@ -22,8 +22,10 @@ const (
 	FieldCoinTypeID = "coin_type_id"
 	// FieldGasCoinTypeID holds the string denoting the gas_coin_type_id field in the database.
 	FieldGasCoinTypeID = "gas_coin_type_id"
-	// FieldDepositThreshold holds the string denoting the deposit_threshold field in the database.
-	FieldDepositThreshold = "deposit_threshold"
+	// FieldDepositThresholdLow holds the string denoting the deposit_threshold_low field in the database.
+	FieldDepositThresholdLow = "deposit_threshold_low"
+	// FieldDepositAmount holds the string denoting the deposit_amount field in the database.
+	FieldDepositAmount = "deposit_amount"
 	// Table holds the table name of the coingas in the database.
 	Table = "coin_gas"
 )
@@ -36,7 +38,8 @@ var Columns = []string{
 	FieldDeletedAt,
 	FieldCoinTypeID,
 	FieldGasCoinTypeID,
-	FieldDepositThreshold,
+	FieldDepositThresholdLow,
+	FieldDepositAmount,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).

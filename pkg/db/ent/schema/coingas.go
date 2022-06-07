@@ -24,6 +24,7 @@ func (CoinGas) Fields() []ent.Field {
 		field.UUID("id", uuid.UUID{}).Default(uuid.New).Unique(),
 		field.UUID("coin_type_id", uuid.UUID{}).Unique(),
 		field.UUID("gas_coin_type_id", uuid.UUID{}),
-		field.Uint64("deposit_threshold"),
+		field.Uint64("deposit_threshold_low"),
+		field.Uint64("deposit_amount"),
 	}
 }

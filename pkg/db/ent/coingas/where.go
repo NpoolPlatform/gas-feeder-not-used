@@ -126,10 +126,17 @@ func GasCoinTypeID(v uuid.UUID) predicate.CoinGas {
 	})
 }
 
-// DepositThreshold applies equality check predicate on the "deposit_threshold" field. It's identical to DepositThresholdEQ.
-func DepositThreshold(v uint64) predicate.CoinGas {
+// DepositThresholdLow applies equality check predicate on the "deposit_threshold_low" field. It's identical to DepositThresholdLowEQ.
+func DepositThresholdLow(v uint64) predicate.CoinGas {
 	return predicate.CoinGas(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldDepositThreshold), v))
+		s.Where(sql.EQ(s.C(FieldDepositThresholdLow), v))
+	})
+}
+
+// DepositAmount applies equality check predicate on the "deposit_amount" field. It's identical to DepositAmountEQ.
+func DepositAmount(v uint64) predicate.CoinGas {
+	return predicate.CoinGas(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldDepositAmount), v))
 	})
 }
 
@@ -513,22 +520,22 @@ func GasCoinTypeIDLTE(v uuid.UUID) predicate.CoinGas {
 	})
 }
 
-// DepositThresholdEQ applies the EQ predicate on the "deposit_threshold" field.
-func DepositThresholdEQ(v uint64) predicate.CoinGas {
+// DepositThresholdLowEQ applies the EQ predicate on the "deposit_threshold_low" field.
+func DepositThresholdLowEQ(v uint64) predicate.CoinGas {
 	return predicate.CoinGas(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldDepositThreshold), v))
+		s.Where(sql.EQ(s.C(FieldDepositThresholdLow), v))
 	})
 }
 
-// DepositThresholdNEQ applies the NEQ predicate on the "deposit_threshold" field.
-func DepositThresholdNEQ(v uint64) predicate.CoinGas {
+// DepositThresholdLowNEQ applies the NEQ predicate on the "deposit_threshold_low" field.
+func DepositThresholdLowNEQ(v uint64) predicate.CoinGas {
 	return predicate.CoinGas(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldDepositThreshold), v))
+		s.Where(sql.NEQ(s.C(FieldDepositThresholdLow), v))
 	})
 }
 
-// DepositThresholdIn applies the In predicate on the "deposit_threshold" field.
-func DepositThresholdIn(vs ...uint64) predicate.CoinGas {
+// DepositThresholdLowIn applies the In predicate on the "deposit_threshold_low" field.
+func DepositThresholdLowIn(vs ...uint64) predicate.CoinGas {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -540,12 +547,12 @@ func DepositThresholdIn(vs ...uint64) predicate.CoinGas {
 			s.Where(sql.False())
 			return
 		}
-		s.Where(sql.In(s.C(FieldDepositThreshold), v...))
+		s.Where(sql.In(s.C(FieldDepositThresholdLow), v...))
 	})
 }
 
-// DepositThresholdNotIn applies the NotIn predicate on the "deposit_threshold" field.
-func DepositThresholdNotIn(vs ...uint64) predicate.CoinGas {
+// DepositThresholdLowNotIn applies the NotIn predicate on the "deposit_threshold_low" field.
+func DepositThresholdLowNotIn(vs ...uint64) predicate.CoinGas {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -557,35 +564,111 @@ func DepositThresholdNotIn(vs ...uint64) predicate.CoinGas {
 			s.Where(sql.False())
 			return
 		}
-		s.Where(sql.NotIn(s.C(FieldDepositThreshold), v...))
+		s.Where(sql.NotIn(s.C(FieldDepositThresholdLow), v...))
 	})
 }
 
-// DepositThresholdGT applies the GT predicate on the "deposit_threshold" field.
-func DepositThresholdGT(v uint64) predicate.CoinGas {
+// DepositThresholdLowGT applies the GT predicate on the "deposit_threshold_low" field.
+func DepositThresholdLowGT(v uint64) predicate.CoinGas {
 	return predicate.CoinGas(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldDepositThreshold), v))
+		s.Where(sql.GT(s.C(FieldDepositThresholdLow), v))
 	})
 }
 
-// DepositThresholdGTE applies the GTE predicate on the "deposit_threshold" field.
-func DepositThresholdGTE(v uint64) predicate.CoinGas {
+// DepositThresholdLowGTE applies the GTE predicate on the "deposit_threshold_low" field.
+func DepositThresholdLowGTE(v uint64) predicate.CoinGas {
 	return predicate.CoinGas(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldDepositThreshold), v))
+		s.Where(sql.GTE(s.C(FieldDepositThresholdLow), v))
 	})
 }
 
-// DepositThresholdLT applies the LT predicate on the "deposit_threshold" field.
-func DepositThresholdLT(v uint64) predicate.CoinGas {
+// DepositThresholdLowLT applies the LT predicate on the "deposit_threshold_low" field.
+func DepositThresholdLowLT(v uint64) predicate.CoinGas {
 	return predicate.CoinGas(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldDepositThreshold), v))
+		s.Where(sql.LT(s.C(FieldDepositThresholdLow), v))
 	})
 }
 
-// DepositThresholdLTE applies the LTE predicate on the "deposit_threshold" field.
-func DepositThresholdLTE(v uint64) predicate.CoinGas {
+// DepositThresholdLowLTE applies the LTE predicate on the "deposit_threshold_low" field.
+func DepositThresholdLowLTE(v uint64) predicate.CoinGas {
 	return predicate.CoinGas(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldDepositThreshold), v))
+		s.Where(sql.LTE(s.C(FieldDepositThresholdLow), v))
+	})
+}
+
+// DepositAmountEQ applies the EQ predicate on the "deposit_amount" field.
+func DepositAmountEQ(v uint64) predicate.CoinGas {
+	return predicate.CoinGas(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldDepositAmount), v))
+	})
+}
+
+// DepositAmountNEQ applies the NEQ predicate on the "deposit_amount" field.
+func DepositAmountNEQ(v uint64) predicate.CoinGas {
+	return predicate.CoinGas(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldDepositAmount), v))
+	})
+}
+
+// DepositAmountIn applies the In predicate on the "deposit_amount" field.
+func DepositAmountIn(vs ...uint64) predicate.CoinGas {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.CoinGas(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldDepositAmount), v...))
+	})
+}
+
+// DepositAmountNotIn applies the NotIn predicate on the "deposit_amount" field.
+func DepositAmountNotIn(vs ...uint64) predicate.CoinGas {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.CoinGas(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldDepositAmount), v...))
+	})
+}
+
+// DepositAmountGT applies the GT predicate on the "deposit_amount" field.
+func DepositAmountGT(v uint64) predicate.CoinGas {
+	return predicate.CoinGas(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldDepositAmount), v))
+	})
+}
+
+// DepositAmountGTE applies the GTE predicate on the "deposit_amount" field.
+func DepositAmountGTE(v uint64) predicate.CoinGas {
+	return predicate.CoinGas(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldDepositAmount), v))
+	})
+}
+
+// DepositAmountLT applies the LT predicate on the "deposit_amount" field.
+func DepositAmountLT(v uint64) predicate.CoinGas {
+	return predicate.CoinGas(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldDepositAmount), v))
+	})
+}
+
+// DepositAmountLTE applies the LTE predicate on the "deposit_amount" field.
+func DepositAmountLTE(v uint64) predicate.CoinGas {
+	return predicate.CoinGas(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldDepositAmount), v))
 	})
 }
 
