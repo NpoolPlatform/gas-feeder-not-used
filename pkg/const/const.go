@@ -5,4 +5,7 @@ const (
 	FieldCoinTypeID       = "CoinTypeID"
 	FieldGasCoinTypeID    = "GasCoinTypeID"
 	FieldDepositThreshold = "DepositThreshold"
+
+	FieldAccountID     = "AccountID"
+	FieldDepositAmount = "DepositAmount"
 )

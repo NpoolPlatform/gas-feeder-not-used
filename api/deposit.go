@@ -5,8 +5,8 @@ import (
 	"context"
 	"fmt"
 
+	constant "github.com/NpoolPlatform/gas-feeder/pkg/const"
 	crud "github.com/NpoolPlatform/gas-feeder/pkg/crud/deposit"
-	constant "github.com/NpoolPlatform/gas-feeder/pkg/db/ent/deposit"
 	ccoin "github.com/NpoolPlatform/gas-feeder/pkg/message/const"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
