@@ -11,6 +11,8 @@ import (
 
 	apimgrcli "github.com/NpoolPlatform/api-manager/pkg/client"
 
+	feeder "github.com/NpoolPlatform/gas-feeder/pkg/middleware/feeder"
+
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 
 	cli "github.com/urfave/cli/v2"
@@ -42,6 +44,7 @@ var runCmd = &cli.Command{
 
 		// go msglistener.Listen()
 		// go msgSender()
+		go feeder.Run(c.Context)
 
 		return grpc2.RunGRPCGateWay(rpcGatewayRegister)
 	},
