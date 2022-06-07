@@ -6,6 +6,7 @@ import (
 	"time"
 
 	constant "github.com/NpoolPlatform/gas-feeder/pkg/const"
+	"github.com/NpoolPlatform/go-service-framework/pkg/price"
 
 	"github.com/NpoolPlatform/gas-feeder/pkg/db"
 	"github.com/NpoolPlatform/gas-feeder/pkg/db/ent"
@@ -37,7 +38,8 @@ func (s *CoinGas) rowToObject(row *ent.CoinGas) *npool.CoinGas {
 		ID:                  row.ID.String(),
 		GasCoinTypeID:       row.GasCoinTypeID.String(),
 		CoinTypeID:          row.CoinTypeID.String(),
-		DepositThresholdLow: row.DepositThresholdLow,
+		DepositThresholdLow: price.DBPriceToVisualPrice(row.DepositThresholdLow),
+		DepositAmount:       price.DBPriceToVisualPrice(row.DepositAmount),
 	}
 }
 
@@ -49,7 +51,8 @@ func (s *CoinGas) Create(ctx context.Context, in *npool.CoinGas) (*npool.CoinGas
 		info, err = s.Tx.CoinGas.Create().
 			SetCoinTypeID(uuid.MustParse(in.CoinTypeID)).
 			SetGasCoinTypeID(uuid.MustParse(in.GasCoinTypeID)).
-			SetDepositThresholdLow(in.DepositThresholdLow).
+			SetDepositThresholdLow(price.VisualPriceToDBPrice(in.GetDepositThresholdLow())).
+			SetDepositAmount(price.VisualPriceToDBPrice(in.GetDepositAmount())).
 			Save(_ctx)
 		return err
 	})
@@ -70,7 +73,8 @@ func (s *CoinGas) CreateBulk(ctx context.Context, in []*npool.CoinGas) ([]*npool
 			bulk[i] = s.Tx.CoinGas.Create().
 				SetCoinTypeID(uuid.MustParse(info.CoinTypeID)).
 				SetGasCoinTypeID(uuid.MustParse(info.GasCoinTypeID)).
-				SetDepositThresholdLow(info.DepositThresholdLow)
+				SetDepositThresholdLow(price.VisualPriceToDBPrice(info.DepositThresholdLow)).
+				SetDepositAmount(price.VisualPriceToDBPrice(info.DepositAmount))
 		}
 		rows, err = s.Tx.CoinGas.CreateBulk(bulk...).Save(_ctx)
 		return err
@@ -111,7 +115,8 @@ func (s *CoinGas) Update(ctx context.Context, in *npool.CoinGas) (*npool.CoinGas
 		info, err = s.Tx.CoinGas.UpdateOneID(uuid.MustParse(in.GetID())).
 			SetCoinTypeID(uuid.MustParse(in.GetCoinTypeID())).
 			SetGasCoinTypeID(uuid.MustParse(in.GetGasCoinTypeID())).
-			SetDepositThresholdLow(in.GetDepositThresholdLow()).
+			SetDepositThresholdLow(price.VisualPriceToDBPrice(in.GetDepositThresholdLow())).
+			SetDepositAmount(price.VisualPriceToDBPrice(in.GetDepositAmount())).
 			Save(_ctx)
 		return err
 	})
@@ -156,6 +161,7 @@ func (s *CoinGas) Rows(ctx context.Context, conds cruder.Conds, offset, limit in
 	return infos, total, nil
 }
 
+//nolint
 func (s *CoinGas) queryFromConds(conds cruder.Conds) (*ent.CoinGasQuery, error) {
 	stm := s.Tx.CoinGas.Query()
 	for k, v := range conds {
@@ -179,17 +185,34 @@ func (s *CoinGas) queryFromConds(conds cruder.Conds) (*ent.CoinGasQuery, error) 
 			}
 			stm = stm.Where(coingas.CoinTypeID(cointypeid))
 		case constant.FieldDepositThresholdLow:
-			depositThreshold, err := cruder.AnyTypeUint64(v.Val)
+			_depositThresholdLow, err := cruder.AnyTypeFloat64(v.Val)
 			if err != nil {
 				return nil, fmt.Errorf("invalid DepositThresholdLow: %v", err)
 			}
+			depositThresholdLow := price.VisualPriceToDBPrice(_depositThresholdLow)
+
 			switch v.Op {
 			case cruder.EQ:
-				stm = stm.Where(coingas.DepositThresholdLowEQ(depositThreshold))
+				stm = stm.Where(coingas.DepositThresholdLowEQ(depositThresholdLow))
 			case cruder.GT:
-				stm = stm.Where(coingas.DepositThresholdLowGT(depositThreshold))
+				stm = stm.Where(coingas.DepositThresholdLowGT(depositThresholdLow))
 			case cruder.LT:
-				stm = stm.Where(coingas.DepositThresholdLowLT(depositThreshold))
+				stm = stm.Where(coingas.DepositThresholdLowLT(depositThresholdLow))
+			}
+		case constant.FieldDepositAmount:
+			_depositAmount, err := cruder.AnyTypeFloat64(v.Val)
+			if err != nil {
+				return nil, fmt.Errorf("invalid DepositAmount: %v", err)
+			}
+			depositAmount := price.VisualPriceToDBPrice(_depositAmount)
+
+			switch v.Op {
+			case cruder.EQ:
+				stm = stm.Where(coingas.DepositAmountEQ(depositAmount))
+			case cruder.GT:
+				stm = stm.Where(coingas.DepositAmountGT(depositAmount))
+			case cruder.LT:
+				stm = stm.Where(coingas.DepositAmountLT(depositAmount))
 			}
 		default:
 			return nil, fmt.Errorf("invalid CoinGas field")

@@ -6,7 +6,7 @@ require (
 	entgo.io/ent v0.10.1
 	github.com/NpoolPlatform/api-manager v0.0.0-20220121051827-18c807c114dc
 	github.com/NpoolPlatform/go-service-framework v0.0.0-20220120091626-4e8035637592
-	github.com/NpoolPlatform/libent-cruder v0.0.0-20220501160538-4d73846f01f1
+	github.com/NpoolPlatform/libent-cruder v0.0.0-20220526050249-956b54fac9f1
 	github.com/NpoolPlatform/message v0.0.0-20220607041858-89beb5910e27
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/google/uuid v1.3.0
@@ -70,6 +70,7 @@ require (
 	github.com/prometheus/common v0.30.0 // indirect
 	github.com/prometheus/procfs v0.7.3 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
+	github.com/shopspring/decimal v1.3.1 // indirect
 	github.com/spf13/afero v1.6.0 // indirect
 	github.com/spf13/cast v1.4.1 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect

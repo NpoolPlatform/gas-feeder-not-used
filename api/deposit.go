@@ -60,6 +60,12 @@ func (s *Server) UpdateDeposit(ctx context.Context, in *npool.UpdateDepositReque
 		return nil, err
 	}
 
+	_, err := uuid.Parse(info.GetID())
+	if err != nil {
+		logger.Sugar().Errorf("parse ID: %s invalid", info.GetID())
+		return nil, status.Error(codes.InvalidArgument, "ID invalid")
+	}
+
 	ctx, cancel := context.WithTimeout(ctx, ccoin.GrpcTimeout)
 	defer cancel()
 
@@ -126,6 +132,8 @@ func depositCondsToConds(conds cruder.FilterConds) (cruder.Conds, error) {
 		case constant.FieldAccountID:
 			newConds = newConds.WithCond(k, v.Op, v.Val.GetStringValue())
 		case constant.FieldDepositAmount:
+			newConds = newConds.WithCond(k, v.Op, v.Val.GetNumberValue())
+		case constant.FieldCreatedAt:
 			newConds = newConds.WithCond(k, v.Op, v.Val.GetNumberValue())
 		default:
 			return nil, fmt.Errorf("invalid Deposit field")
