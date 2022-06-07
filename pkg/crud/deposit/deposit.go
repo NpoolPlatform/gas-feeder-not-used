@@ -6,9 +6,13 @@ import (
 	"time"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	constant "github.com/NpoolPlatform/gas-feeder/pkg/const"
 =======
 >>>>>>> api done
+=======
+	constant "github.com/NpoolPlatform/gas-feeder/pkg/const"
+>>>>>>> current constant
 	"github.com/NpoolPlatform/gas-feeder/pkg/db"
 	"github.com/NpoolPlatform/gas-feeder/pkg/db/ent"
 	"github.com/NpoolPlatform/gas-feeder/pkg/db/ent/deposit"
@@ -159,30 +163,42 @@ func (s *Deposit) queryFromConds(conds cruder.Conds) (*ent.DepositQuery, error) 
 	for k, v := range conds {
 		switch k {
 <<<<<<< HEAD
+<<<<<<< HEAD
 		case constant.FieldID:
 =======
 		case deposit.FieldID:
 >>>>>>> api done
+=======
+		case constant.FieldID:
+>>>>>>> current constant
 			id, err := cruder.AnyTypeUUID(v.Val)
 			if err != nil {
 				return nil, fmt.Errorf("invalid ID: %v", err)
 			}
 			stm = stm.Where(deposit.ID(id))
 <<<<<<< HEAD
+<<<<<<< HEAD
 		case constant.FieldAccountID:
 =======
 		case deposit.FieldAccountID:
 >>>>>>> api done
+=======
+		case constant.FieldAccountID:
+>>>>>>> current constant
 			id, err := cruder.AnyTypeUUID(v.Val)
 			if err != nil {
 				return nil, fmt.Errorf("invalid AccountID: %v", err)
 			}
 			stm = stm.Where(deposit.AccountID(id))
 <<<<<<< HEAD
+<<<<<<< HEAD
 		case constant.FieldDepositAmount:
 =======
 		case deposit.FieldDepositAmount:
 >>>>>>> api done
+=======
+		case constant.FieldDepositAmount:
+>>>>>>> current constant
 			depositThreshold, err := cruder.AnyTypeUint64(v.Val)
 			if err != nil {
 				return nil, fmt.Errorf("invalid DepositAmount: %v", err)
