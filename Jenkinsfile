@@ -85,7 +85,11 @@ pipeline {
       }
       steps {
         sh (returnStdout: false, script: '''
+<<<<<<< HEAD
           devboxpod=`kubectl get pods -A  | head -n1 | awk '{print $2}'`
+=======
+          devboxpod=`kubectl get pods -A | grep development-box | head -n1 | awk '{print $2}'`
+>>>>>>> fix version_test.go
           servicename="gas-feeder"
 
           kubectl exec --namespace kube-system $devboxpod -- make -C /tmp/$servicename after-test || true
