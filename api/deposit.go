@@ -5,18 +5,8 @@ import (
 	"context"
 	"fmt"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 	constant "github.com/NpoolPlatform/gas-feeder/pkg/const"
 	crud "github.com/NpoolPlatform/gas-feeder/pkg/crud/deposit"
-=======
-	crud "github.com/NpoolPlatform/gas-feeder/pkg/crud/deposit"
-	constant "github.com/NpoolPlatform/gas-feeder/pkg/db/ent/deposit"
->>>>>>> api done
-=======
-	constant "github.com/NpoolPlatform/gas-feeder/pkg/const"
-	crud "github.com/NpoolPlatform/gas-feeder/pkg/crud/deposit"
->>>>>>> current constant
 	ccoin "github.com/NpoolPlatform/gas-feeder/pkg/message/const"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
@@ -231,15 +221,7 @@ func (s *Server) ExistDepositConds(ctx context.Context, in *npool.ExistDepositCo
 
 	if len(conds) == 0 {
 		logger.Sugar().Errorf("empty deposit fields: %v", err)
-<<<<<<< HEAD
-<<<<<<< HEAD
 		return &npool.ExistDepositCondsResponse{}, status.Error(codes.Internal, "empty deposit fields")
-=======
-		return &npool.ExistDepositCondsResponse{}, status.Error(codes.Internal, "empty stock fields")
->>>>>>> api done
-=======
-		return &npool.ExistDepositCondsResponse{}, status.Error(codes.Internal, "empty deposit fields")
->>>>>>> fix version_test.go
 	}
 
 	schema, err := crud.New(ctx, nil)

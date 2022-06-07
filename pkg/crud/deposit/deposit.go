@@ -5,14 +5,7 @@ import (
 	"fmt"
 	"time"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 	constant "github.com/NpoolPlatform/gas-feeder/pkg/const"
-=======
->>>>>>> api done
-=======
-	constant "github.com/NpoolPlatform/gas-feeder/pkg/const"
->>>>>>> current constant
 	"github.com/NpoolPlatform/gas-feeder/pkg/db"
 	"github.com/NpoolPlatform/gas-feeder/pkg/db/ent"
 	"github.com/NpoolPlatform/gas-feeder/pkg/db/ent/deposit"
@@ -164,6 +157,7 @@ func (s *Deposit) queryFromConds(conds cruder.Conds) (*ent.DepositQuery, error) 
 		switch k {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 		case constant.FieldID:
 =======
 		case deposit.FieldID:
@@ -171,11 +165,15 @@ func (s *Deposit) queryFromConds(conds cruder.Conds) (*ent.DepositQuery, error) 
 =======
 		case constant.FieldID:
 >>>>>>> current constant
+=======
+		case constant.FieldID:
+>>>>>>> 11e61bed5f1d2b6773ea1788f35a53bcf5437b45
 			id, err := cruder.AnyTypeUUID(v.Val)
 			if err != nil {
 				return nil, fmt.Errorf("invalid ID: %v", err)
 			}
 			stm = stm.Where(deposit.ID(id))
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 		case constant.FieldAccountID:
@@ -185,11 +183,15 @@ func (s *Deposit) queryFromConds(conds cruder.Conds) (*ent.DepositQuery, error) 
 =======
 		case constant.FieldAccountID:
 >>>>>>> current constant
+=======
+		case constant.FieldAccountID:
+>>>>>>> 11e61bed5f1d2b6773ea1788f35a53bcf5437b45
 			id, err := cruder.AnyTypeUUID(v.Val)
 			if err != nil {
 				return nil, fmt.Errorf("invalid AccountID: %v", err)
 			}
 			stm = stm.Where(deposit.AccountID(id))
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 		case constant.FieldDepositAmount:
@@ -199,6 +201,9 @@ func (s *Deposit) queryFromConds(conds cruder.Conds) (*ent.DepositQuery, error) 
 =======
 		case constant.FieldDepositAmount:
 >>>>>>> current constant
+=======
+		case constant.FieldDepositAmount:
+>>>>>>> 11e61bed5f1d2b6773ea1788f35a53bcf5437b45
 			depositThreshold, err := cruder.AnyTypeUint64(v.Val)
 			if err != nil {
 				return nil, fmt.Errorf("invalid DepositAmount: %v", err)
