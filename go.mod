@@ -6,7 +6,7 @@ require (
 	entgo.io/ent v0.10.1
 	github.com/NpoolPlatform/api-manager v0.0.0-20220121051827-18c807c114dc
 	github.com/NpoolPlatform/go-service-framework v0.0.0-20220120091626-4e8035637592
-	github.com/NpoolPlatform/libent-cruder v0.0.0-20220501160538-4d73846f01f1
+	github.com/NpoolPlatform/libent-cruder v0.0.0-20220606031915-f9665b4ff898
 	github.com/NpoolPlatform/message v0.0.0-20220607035241-b02ae508c0c3
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/google/uuid v1.3.0
