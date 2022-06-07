@@ -71,6 +71,12 @@ func (dc *DepositCreate) SetAccountID(u uuid.UUID) *DepositCreate {
 	return dc
 }
 
+// SetTransactionID sets the "transaction_id" field.
+func (dc *DepositCreate) SetTransactionID(u uuid.UUID) *DepositCreate {
+	dc.mutation.SetTransactionID(u)
+	return dc
+}
+
 // SetDepositAmount sets the "deposit_amount" field.
 func (dc *DepositCreate) SetDepositAmount(u uint64) *DepositCreate {
 	dc.mutation.SetDepositAmount(u)
@@ -209,6 +215,9 @@ func (dc *DepositCreate) check() error {
 	if _, ok := dc.mutation.AccountID(); !ok {
 		return &ValidationError{Name: "account_id", err: errors.New(`ent: missing required field "Deposit.account_id"`)}
 	}
+	if _, ok := dc.mutation.TransactionID(); !ok {
+		return &ValidationError{Name: "transaction_id", err: errors.New(`ent: missing required field "Deposit.transaction_id"`)}
+	}
 	if _, ok := dc.mutation.DepositAmount(); !ok {
 		return &ValidationError{Name: "deposit_amount", err: errors.New(`ent: missing required field "Deposit.deposit_amount"`)}
 	}
@@ -280,6 +289,14 @@ func (dc *DepositCreate) createSpec() (*Deposit, *sqlgraph.CreateSpec) {
 			Column: deposit.FieldAccountID,
 		})
 		_node.AccountID = value
+	}
+	if value, ok := dc.mutation.TransactionID(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
+			Value:  value,
+			Column: deposit.FieldTransactionID,
+		})
+		_node.TransactionID = value
 	}
 	if value, ok := dc.mutation.DepositAmount(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
@@ -406,6 +423,18 @@ func (u *DepositUpsert) SetAccountID(v uuid.UUID) *DepositUpsert {
 // UpdateAccountID sets the "account_id" field to the value that was provided on create.
 func (u *DepositUpsert) UpdateAccountID() *DepositUpsert {
 	u.SetExcluded(deposit.FieldAccountID)
+	return u
+}
+
+// SetTransactionID sets the "transaction_id" field.
+func (u *DepositUpsert) SetTransactionID(v uuid.UUID) *DepositUpsert {
+	u.Set(deposit.FieldTransactionID, v)
+	return u
+}
+
+// UpdateTransactionID sets the "transaction_id" field to the value that was provided on create.
+func (u *DepositUpsert) UpdateTransactionID() *DepositUpsert {
+	u.SetExcluded(deposit.FieldTransactionID)
 	return u
 }
 
@@ -551,6 +580,20 @@ func (u *DepositUpsertOne) SetAccountID(v uuid.UUID) *DepositUpsertOne {
 func (u *DepositUpsertOne) UpdateAccountID() *DepositUpsertOne {
 	return u.Update(func(s *DepositUpsert) {
 		s.UpdateAccountID()
+	})
+}
+
+// SetTransactionID sets the "transaction_id" field.
+func (u *DepositUpsertOne) SetTransactionID(v uuid.UUID) *DepositUpsertOne {
+	return u.Update(func(s *DepositUpsert) {
+		s.SetTransactionID(v)
+	})
+}
+
+// UpdateTransactionID sets the "transaction_id" field to the value that was provided on create.
+func (u *DepositUpsertOne) UpdateTransactionID() *DepositUpsertOne {
+	return u.Update(func(s *DepositUpsert) {
+		s.UpdateTransactionID()
 	})
 }
 
@@ -865,6 +908,20 @@ func (u *DepositUpsertBulk) SetAccountID(v uuid.UUID) *DepositUpsertBulk {
 func (u *DepositUpsertBulk) UpdateAccountID() *DepositUpsertBulk {
 	return u.Update(func(s *DepositUpsert) {
 		s.UpdateAccountID()
+	})
+}
+
+// SetTransactionID sets the "transaction_id" field.
+func (u *DepositUpsertBulk) SetTransactionID(v uuid.UUID) *DepositUpsertBulk {
+	return u.Update(func(s *DepositUpsert) {
+		s.SetTransactionID(v)
+	})
+}
+
+// UpdateTransactionID sets the "transaction_id" field to the value that was provided on create.
+func (u *DepositUpsertBulk) UpdateTransactionID() *DepositUpsertBulk {
+	return u.Update(func(s *DepositUpsert) {
+		s.UpdateTransactionID()
 	})
 }
 

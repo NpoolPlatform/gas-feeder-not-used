@@ -31,6 +31,7 @@ func init() {
 func TestCRUD(t *testing.T) {
 	deposit := npool.Deposit{
 		AccountID:     uuid.New().String(),
+		TransactionID: uuid.New().String(),
 		DepositAmount: float64(1.1),
 	}
 
@@ -109,10 +110,12 @@ func TestCRUD(t *testing.T) {
 
 	deposit1 := &npool.Deposit{
 		AccountID:     uuid.New().String(),
+		TransactionID: uuid.New().String(),
 		DepositAmount: float64(11111),
 	}
 	deposit2 := &npool.Deposit{
 		AccountID:     uuid.New().String(),
+		TransactionID: uuid.New().String(),
 		DepositAmount: float64(222),
 	}
 

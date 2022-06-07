@@ -20,6 +20,8 @@ const (
 	FieldDeletedAt = "deleted_at"
 	// FieldAccountID holds the string denoting the account_id field in the database.
 	FieldAccountID = "account_id"
+	// FieldTransactionID holds the string denoting the transaction_id field in the database.
+	FieldTransactionID = "transaction_id"
 	// FieldDepositAmount holds the string denoting the deposit_amount field in the database.
 	FieldDepositAmount = "deposit_amount"
 	// Table holds the table name of the deposit in the database.
@@ -33,6 +35,7 @@ var Columns = []string{
 	FieldUpdatedAt,
 	FieldDeletedAt,
 	FieldAccountID,
+	FieldTransactionID,
 	FieldDepositAmount,
 }
 

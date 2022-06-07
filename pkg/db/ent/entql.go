@@ -50,6 +50,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			deposit.FieldUpdatedAt:     {Type: field.TypeUint32, Column: deposit.FieldUpdatedAt},
 			deposit.FieldDeletedAt:     {Type: field.TypeUint32, Column: deposit.FieldDeletedAt},
 			deposit.FieldAccountID:     {Type: field.TypeUUID, Column: deposit.FieldAccountID},
+			deposit.FieldTransactionID: {Type: field.TypeUUID, Column: deposit.FieldTransactionID},
 			deposit.FieldDepositAmount: {Type: field.TypeUint64, Column: deposit.FieldDepositAmount},
 		},
 	}
@@ -193,6 +194,11 @@ func (f *DepositFilter) WhereDeletedAt(p entql.Uint32P) {
 // WhereAccountID applies the entql [16]byte predicate on the account_id field.
 func (f *DepositFilter) WhereAccountID(p entql.ValueP) {
 	f.Where(p.Field(deposit.FieldAccountID))
+}
+
+// WhereTransactionID applies the entql [16]byte predicate on the transaction_id field.
+func (f *DepositFilter) WhereTransactionID(p entql.ValueP) {
+	f.Where(p.Field(deposit.FieldTransactionID))
 }
 
 // WhereDepositAmount applies the entql uint64 predicate on the deposit_amount field.

@@ -23,6 +23,12 @@ func checkFeildsInDeposit(info *npool.Deposit) error {
 		logger.Sugar().Errorf("parse AccountID: %s invalid", info.GetAccountID())
 		return status.Error(codes.InvalidArgument, "AccountID invalid")
 	}
+
+	_, err = uuid.Parse(info.GetTransactionID())
+	if err != nil {
+		logger.Sugar().Errorf("parse TransactionID: %s invalid", info.GetTransactionID())
+		return status.Error(codes.InvalidArgument, "TransactionID invalid")
+	}
 	return nil
 }
 
@@ -42,6 +48,7 @@ func (s *Server) CreateDeposit(ctx context.Context, in *npool.CreateDepositReque
 	}
 	cInfo, err := schema.Create(ctx, &npool.Deposit{
 		AccountID:     info.GetAccountID(),
+		TransactionID: info.GetTransactionID(),
 		DepositAmount: info.GetDepositAmount(),
 	})
 	if err != nil {
@@ -130,6 +137,8 @@ func depositCondsToConds(conds cruder.FilterConds) (cruder.Conds, error) {
 		case constant.FieldID:
 			fallthrough //nolint
 		case constant.FieldAccountID:
+			newConds = newConds.WithCond(k, v.Op, v.Val.GetStringValue())
+		case constant.FieldTransactionID:
 			newConds = newConds.WithCond(k, v.Op, v.Val.GetStringValue())
 		case constant.FieldDepositAmount:
 			newConds = newConds.WithCond(k, v.Op, v.Val.GetNumberValue())

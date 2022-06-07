@@ -36,6 +36,7 @@ func (s *Deposit) rowToObject(row *ent.Deposit) *npool.Deposit {
 	return &npool.Deposit{
 		ID:            row.ID.String(),
 		AccountID:     row.AccountID.String(),
+		TransactionID: row.TransactionID.String(),
 		DepositAmount: price.DBPriceToVisualPrice(row.DepositAmount),
 		CreatedAt:     row.CreatedAt,
 	}
@@ -48,6 +49,7 @@ func (s *Deposit) Create(ctx context.Context, in *npool.Deposit) (*npool.Deposit
 	err = db.WithTx(ctx, s.Tx, func(_ctx context.Context) error {
 		info, err = s.Tx.Deposit.Create().
 			SetAccountID(uuid.MustParse(in.AccountID)).
+			SetTransactionID(uuid.MustParse(in.TransactionID)).
 			SetDepositAmount(price.VisualPriceToDBPrice(in.DepositAmount)).
 			Save(_ctx)
 		return err
@@ -68,6 +70,7 @@ func (s *Deposit) CreateBulk(ctx context.Context, in []*npool.Deposit) ([]*npool
 		for i, info := range in {
 			bulk[i] = s.Tx.Deposit.Create().
 				SetAccountID(uuid.MustParse(info.AccountID)).
+				SetTransactionID(uuid.MustParse(info.TransactionID)).
 				SetDepositAmount(price.VisualPriceToDBPrice(info.DepositAmount))
 		}
 		rows, err = s.Tx.Deposit.CreateBulk(bulk...).Save(_ctx)
@@ -108,6 +111,7 @@ func (s *Deposit) Update(ctx context.Context, in *npool.Deposit) (*npool.Deposit
 	err = db.WithTx(ctx, s.Tx, func(_ctx context.Context) error {
 		info, err = s.Tx.Deposit.UpdateOneID(uuid.MustParse(in.GetID())).
 			SetAccountID(uuid.MustParse(in.GetAccountID())).
+			SetTransactionID(uuid.MustParse(in.GetTransactionID())).
 			SetDepositAmount(price.VisualPriceToDBPrice(in.GetDepositAmount())).
 			Save(_ctx)
 		return err
@@ -168,6 +172,12 @@ func (s *Deposit) queryFromConds(conds cruder.Conds) (*ent.DepositQuery, error) 
 			id, err := cruder.AnyTypeUUID(v.Val)
 			if err != nil {
 				return nil, fmt.Errorf("invalid AccountID: %v", err)
+			}
+			stm = stm.Where(deposit.AccountID(id))
+		case constant.FieldTransactionID:
+			id, err := cruder.AnyTypeUUID(v.Val)
+			if err != nil {
+				return nil, fmt.Errorf("invalid TransactionID: %v", err)
 			}
 			stm = stm.Where(deposit.AccountID(id))
 		case constant.FieldDepositAmount:

@@ -119,6 +119,13 @@ func AccountID(v uuid.UUID) predicate.Deposit {
 	})
 }
 
+// TransactionID applies equality check predicate on the "transaction_id" field. It's identical to TransactionIDEQ.
+func TransactionID(v uuid.UUID) predicate.Deposit {
+	return predicate.Deposit(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldTransactionID), v))
+	})
+}
+
 // DepositAmount applies equality check predicate on the "deposit_amount" field. It's identical to DepositAmountEQ.
 func DepositAmount(v uint64) predicate.Deposit {
 	return predicate.Deposit(func(s *sql.Selector) {
@@ -427,6 +434,82 @@ func AccountIDLT(v uuid.UUID) predicate.Deposit {
 func AccountIDLTE(v uuid.UUID) predicate.Deposit {
 	return predicate.Deposit(func(s *sql.Selector) {
 		s.Where(sql.LTE(s.C(FieldAccountID), v))
+	})
+}
+
+// TransactionIDEQ applies the EQ predicate on the "transaction_id" field.
+func TransactionIDEQ(v uuid.UUID) predicate.Deposit {
+	return predicate.Deposit(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldTransactionID), v))
+	})
+}
+
+// TransactionIDNEQ applies the NEQ predicate on the "transaction_id" field.
+func TransactionIDNEQ(v uuid.UUID) predicate.Deposit {
+	return predicate.Deposit(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldTransactionID), v))
+	})
+}
+
+// TransactionIDIn applies the In predicate on the "transaction_id" field.
+func TransactionIDIn(vs ...uuid.UUID) predicate.Deposit {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Deposit(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldTransactionID), v...))
+	})
+}
+
+// TransactionIDNotIn applies the NotIn predicate on the "transaction_id" field.
+func TransactionIDNotIn(vs ...uuid.UUID) predicate.Deposit {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Deposit(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldTransactionID), v...))
+	})
+}
+
+// TransactionIDGT applies the GT predicate on the "transaction_id" field.
+func TransactionIDGT(v uuid.UUID) predicate.Deposit {
+	return predicate.Deposit(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldTransactionID), v))
+	})
+}
+
+// TransactionIDGTE applies the GTE predicate on the "transaction_id" field.
+func TransactionIDGTE(v uuid.UUID) predicate.Deposit {
+	return predicate.Deposit(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldTransactionID), v))
+	})
+}
+
+// TransactionIDLT applies the LT predicate on the "transaction_id" field.
+func TransactionIDLT(v uuid.UUID) predicate.Deposit {
+	return predicate.Deposit(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldTransactionID), v))
+	})
+}
+
+// TransactionIDLTE applies the LTE predicate on the "transaction_id" field.
+func TransactionIDLTE(v uuid.UUID) predicate.Deposit {
+	return predicate.Deposit(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldTransactionID), v))
 	})
 }
 

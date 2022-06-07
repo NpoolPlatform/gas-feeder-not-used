@@ -15,6 +15,7 @@ import (
 	coininfocli "github.com/NpoolPlatform/sphinx-coininfo/pkg/client"
 
 	coingascrud "github.com/NpoolPlatform/gas-feeder/pkg/crud/coingas"
+	depositcrud "github.com/NpoolPlatform/gas-feeder/pkg/crud/deposit"
 	npool "github.com/NpoolPlatform/message/npool/gasfeeder"
 
 	sphinxproxypb "github.com/NpoolPlatform/message/npool/sphinxproxy"
@@ -25,8 +26,16 @@ import (
 	"github.com/google/uuid"
 )
 
-func withCRUD(ctx context.Context, fn func(schema *coingascrud.CoinGas) error) error {
+func withCoinGasCRUD(ctx context.Context, fn func(schema *coingascrud.CoinGas) error) error {
 	schema, err := coingascrud.New(ctx, nil)
+	if err != nil {
+		return err
+	}
+	return fn(schema)
+}
+
+func withDepositCurd(ctx context.Context, fn func(schema *depositcrud.Deposit) error) error {
+	schema, err := depositcrud.New(ctx, nil)
 	if err != nil {
 		return err
 	}
@@ -59,6 +68,7 @@ func (f *Feeder) GetGasAccountID(coinTypeID string) (string, error) {
 	return "", fmt.Errorf("invalid coin setting")
 }
 
+//nolint
 func (f *Feeder) FeedGas(ctx context.Context, gas *npool.CoinGas) error {
 	for _, acc := range f.accounts {
 		if acc.PaymentCoinTypeID != gas.CoinTypeID {
@@ -125,7 +135,7 @@ func (f *Feeder) FeedGas(ctx context.Context, gas *npool.CoinGas) error {
 			continue
 		}
 
-		_, err = billingcli.CreateTransaction(ctx, &billingpb.CoinAccountTransaction{
+		transaction, err := billingcli.CreateTransaction(ctx, &billingpb.CoinAccountTransaction{
 			AppID:              uuid.UUID{}.String(),
 			UserID:             uuid.UUID{}.String(),
 			GoodID:             uuid.UUID{}.String(),
@@ -140,7 +150,17 @@ func (f *Feeder) FeedGas(ctx context.Context, gas *npool.CoinGas) error {
 			return fmt.Errorf("fail create transaction: %v", err)
 		}
 
-		// Record to deposit
+		err = withDepositCurd(ctx, func(schema *depositcrud.Deposit) error {
+			_, err := schema.Create(ctx, &npool.Deposit{
+				AccountID:     acc.GetAccountID(),
+				TransactionID: transaction.GetID(),
+				DepositAmount: gas.GetDepositAmount(),
+			})
+			return err
+		})
+		if err != nil {
+			return fmt.Errorf("fail create deposit: %v", err)
+		}
 	}
 	return nil
 }
@@ -179,7 +199,7 @@ func Run(ctx context.Context) {
 		}
 
 		gases := []*npool.CoinGas{}
-		err = withCRUD(ctx, func(schema *coingascrud.CoinGas) error {
+		err = withCoinGasCRUD(ctx, func(schema *coingascrud.CoinGas) error {
 			gases, _, err = schema.Rows(ctx, cruder.NewConds(), 0, 0)
 			return err
 		})

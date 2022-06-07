@@ -851,6 +851,7 @@ type DepositMutation struct {
 	deleted_at        *uint32
 	adddeleted_at     *int32
 	account_id        *uuid.UUID
+	transaction_id    *uuid.UUID
 	deposit_amount    *uint64
 	adddeposit_amount *int64
 	clearedFields     map[string]struct{}
@@ -1167,6 +1168,42 @@ func (m *DepositMutation) ResetAccountID() {
 	m.account_id = nil
 }
 
+// SetTransactionID sets the "transaction_id" field.
+func (m *DepositMutation) SetTransactionID(u uuid.UUID) {
+	m.transaction_id = &u
+}
+
+// TransactionID returns the value of the "transaction_id" field in the mutation.
+func (m *DepositMutation) TransactionID() (r uuid.UUID, exists bool) {
+	v := m.transaction_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTransactionID returns the old "transaction_id" field's value of the Deposit entity.
+// If the Deposit object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DepositMutation) OldTransactionID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTransactionID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTransactionID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTransactionID: %w", err)
+	}
+	return oldValue.TransactionID, nil
+}
+
+// ResetTransactionID resets all changes to the "transaction_id" field.
+func (m *DepositMutation) ResetTransactionID() {
+	m.transaction_id = nil
+}
+
 // SetDepositAmount sets the "deposit_amount" field.
 func (m *DepositMutation) SetDepositAmount(u uint64) {
 	m.deposit_amount = &u
@@ -1242,7 +1279,7 @@ func (m *DepositMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *DepositMutation) Fields() []string {
-	fields := make([]string, 0, 5)
+	fields := make([]string, 0, 6)
 	if m.created_at != nil {
 		fields = append(fields, deposit.FieldCreatedAt)
 	}
@@ -1254,6 +1291,9 @@ func (m *DepositMutation) Fields() []string {
 	}
 	if m.account_id != nil {
 		fields = append(fields, deposit.FieldAccountID)
+	}
+	if m.transaction_id != nil {
+		fields = append(fields, deposit.FieldTransactionID)
 	}
 	if m.deposit_amount != nil {
 		fields = append(fields, deposit.FieldDepositAmount)
@@ -1274,6 +1314,8 @@ func (m *DepositMutation) Field(name string) (ent.Value, bool) {
 		return m.DeletedAt()
 	case deposit.FieldAccountID:
 		return m.AccountID()
+	case deposit.FieldTransactionID:
+		return m.TransactionID()
 	case deposit.FieldDepositAmount:
 		return m.DepositAmount()
 	}
@@ -1293,6 +1335,8 @@ func (m *DepositMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldDeletedAt(ctx)
 	case deposit.FieldAccountID:
 		return m.OldAccountID(ctx)
+	case deposit.FieldTransactionID:
+		return m.OldTransactionID(ctx)
 	case deposit.FieldDepositAmount:
 		return m.OldDepositAmount(ctx)
 	}
@@ -1331,6 +1375,13 @@ func (m *DepositMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetAccountID(v)
+		return nil
+	case deposit.FieldTransactionID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTransactionID(v)
 		return nil
 	case deposit.FieldDepositAmount:
 		v, ok := value.(uint64)
@@ -1450,6 +1501,9 @@ func (m *DepositMutation) ResetField(name string) error {
 		return nil
 	case deposit.FieldAccountID:
 		m.ResetAccountID()
+		return nil
+	case deposit.FieldTransactionID:
+		m.ResetTransactionID()
 		return nil
 	case deposit.FieldDepositAmount:
 		m.ResetDepositAmount()

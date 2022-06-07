@@ -32,6 +32,7 @@ var (
 		{Name: "updated_at", Type: field.TypeUint32},
 		{Name: "deleted_at", Type: field.TypeUint32},
 		{Name: "account_id", Type: field.TypeUUID},
+		{Name: "transaction_id", Type: field.TypeUUID},
 		{Name: "deposit_amount", Type: field.TypeUint64},
 	}
 	// DepositsTable holds the schema information for the "deposits" table.

@@ -24,6 +24,8 @@ type Deposit struct {
 	DeletedAt uint32 `json:"deleted_at,omitempty"`
 	// AccountID holds the value of the "account_id" field.
 	AccountID uuid.UUID `json:"account_id,omitempty"`
+	// TransactionID holds the value of the "transaction_id" field.
+	TransactionID uuid.UUID `json:"transaction_id,omitempty"`
 	// DepositAmount holds the value of the "deposit_amount" field.
 	DepositAmount uint64 `json:"deposit_amount,omitempty"`
 }
@@ -35,7 +37,7 @@ func (*Deposit) scanValues(columns []string) ([]interface{}, error) {
 		switch columns[i] {
 		case deposit.FieldCreatedAt, deposit.FieldUpdatedAt, deposit.FieldDeletedAt, deposit.FieldDepositAmount:
 			values[i] = new(sql.NullInt64)
-		case deposit.FieldID, deposit.FieldAccountID:
+		case deposit.FieldID, deposit.FieldAccountID, deposit.FieldTransactionID:
 			values[i] = new(uuid.UUID)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type Deposit", columns[i])
@@ -82,6 +84,12 @@ func (d *Deposit) assignValues(columns []string, values []interface{}) error {
 			} else if value != nil {
 				d.AccountID = *value
 			}
+		case deposit.FieldTransactionID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field transaction_id", values[i])
+			} else if value != nil {
+				d.TransactionID = *value
+			}
 		case deposit.FieldDepositAmount:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field deposit_amount", values[i])
@@ -124,6 +132,8 @@ func (d *Deposit) String() string {
 	builder.WriteString(fmt.Sprintf("%v", d.DeletedAt))
 	builder.WriteString(", account_id=")
 	builder.WriteString(fmt.Sprintf("%v", d.AccountID))
+	builder.WriteString(", transaction_id=")
+	builder.WriteString(fmt.Sprintf("%v", d.TransactionID))
 	builder.WriteString(", deposit_amount=")
 	builder.WriteString(fmt.Sprintf("%v", d.DepositAmount))
 	builder.WriteByte(')')

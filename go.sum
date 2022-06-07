@@ -130,8 +130,8 @@ github.com/NpoolPlatform/message v0.0.0-20220225131542-e01fa173e718/go.mod h1:r9
 github.com/NpoolPlatform/message v0.0.0-20220501030927-34f296682c0c/go.mod h1:i/F/sQWjQk44RGvfgEB0zH0oAK/0qLvgJ1AsJDZQDkk=
 github.com/NpoolPlatform/message v0.0.0-20220501143407-c230f4ca021b/go.mod h1:i/F/sQWjQk44RGvfgEB0zH0oAK/0qLvgJ1AsJDZQDkk=
 github.com/NpoolPlatform/message v0.0.0-20220606130737-824c3198b695/go.mod h1:3Enb49K3JrhlSwA+6bcsBuTdTzVxVKhdkllDGgv0n3M=
-github.com/NpoolPlatform/message v0.0.0-20220607091058-c3ab98a45e05 h1:WsWE1P4fQUfUHHXShdtHCNmIL9BJD9spvCxgDEoyiPQ=
-github.com/NpoolPlatform/message v0.0.0-20220607091058-c3ab98a45e05/go.mod h1:3Enb49K3JrhlSwA+6bcsBuTdTzVxVKhdkllDGgv0n3M=
+github.com/NpoolPlatform/message v0.0.0-20220607133726-3154653152fd h1:7YUwjhSviLTJC31wgBFi348owGSNQNJc/DKm1+llSGk=
+github.com/NpoolPlatform/message v0.0.0-20220607133726-3154653152fd/go.mod h1:3Enb49K3JrhlSwA+6bcsBuTdTzVxVKhdkllDGgv0n3M=
 github.com/NpoolPlatform/oracle-manager v0.0.0-20220606135947-0f09e9f3818a/go.mod h1:f9Seypsw5N+Kc0P13IurAD/WNHXhzYsBt+d/R17oLfA=
 github.com/NpoolPlatform/sphinx-coininfo v0.0.0-20211206035652-888de6e20996/go.mod h1:w203lHGAaRvZqEMLxJI8wBxAoVvE3RHMU3jtwN/AdgE=
 github.com/NpoolPlatform/sphinx-coininfo v0.0.0-20211208035009-5ad2768d2290/go.mod h1:bTUqQx4IRCf+o6B6jvdMmsiKfjmCc16swwBza7DVZuA=

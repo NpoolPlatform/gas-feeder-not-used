@@ -23,6 +23,7 @@ func (Deposit) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("id", uuid.UUID{}).Default(uuid.New).Unique(),
 		field.UUID("account_id", uuid.UUID{}),
+		field.UUID("transaction_id", uuid.UUID{}),
 		field.Uint64("deposit_amount"),
 	}
 }

@@ -8,4 +8,5 @@ const (
 	FieldDepositAmount       = "DepositAmount"
 	FieldCreatedAt           = "CreatedAt"
 	FieldAccountID           = "AccountID"
+	FieldTransactionID       = "TransactionID"
 )

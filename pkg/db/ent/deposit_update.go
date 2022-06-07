@@ -89,6 +89,12 @@ func (du *DepositUpdate) SetAccountID(u uuid.UUID) *DepositUpdate {
 	return du
 }
 
+// SetTransactionID sets the "transaction_id" field.
+func (du *DepositUpdate) SetTransactionID(u uuid.UUID) *DepositUpdate {
+	du.mutation.SetTransactionID(u)
+	return du
+}
+
 // SetDepositAmount sets the "deposit_amount" field.
 func (du *DepositUpdate) SetDepositAmount(u uint64) *DepositUpdate {
 	du.mutation.ResetDepositAmount()
@@ -243,6 +249,13 @@ func (du *DepositUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: deposit.FieldAccountID,
 		})
 	}
+	if value, ok := du.mutation.TransactionID(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
+			Value:  value,
+			Column: deposit.FieldTransactionID,
+		})
+	}
 	if value, ok := du.mutation.DepositAmount(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeUint64,
@@ -334,6 +347,12 @@ func (duo *DepositUpdateOne) AddDeletedAt(u int32) *DepositUpdateOne {
 // SetAccountID sets the "account_id" field.
 func (duo *DepositUpdateOne) SetAccountID(u uuid.UUID) *DepositUpdateOne {
 	duo.mutation.SetAccountID(u)
+	return duo
+}
+
+// SetTransactionID sets the "transaction_id" field.
+func (duo *DepositUpdateOne) SetTransactionID(u uuid.UUID) *DepositUpdateOne {
+	duo.mutation.SetTransactionID(u)
 	return duo
 }
 
@@ -513,6 +532,13 @@ func (duo *DepositUpdateOne) sqlSave(ctx context.Context) (_node *Deposit, err e
 			Type:   field.TypeUUID,
 			Value:  value,
 			Column: deposit.FieldAccountID,
+		})
+	}
+	if value, ok := duo.mutation.TransactionID(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
+			Value:  value,
+			Column: deposit.FieldTransactionID,
 		})
 	}
 	if value, ok := duo.mutation.DepositAmount(); ok {
