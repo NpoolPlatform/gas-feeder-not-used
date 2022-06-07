@@ -19,6 +19,10 @@ import (
 
 	sphinxproxypb "github.com/NpoolPlatform/message/npool/sphinxproxy"
 	sphinxproxycli "github.com/NpoolPlatform/sphinx-proxy/pkg/client"
+
+	accountlock "github.com/NpoolPlatform/staker-manager/pkg/middleware/account"
+
+	"github.com/google/uuid"
 )
 
 func withCRUD(ctx context.Context, fn func(schema *coingascrud.CoinGas) error) error {
@@ -30,10 +34,11 @@ func withCRUD(ctx context.Context, fn func(schema *coingascrud.CoinGas) error) e
 }
 
 type Feeder struct {
-	coins     []*coininfopb.CoinInfo
-	accounts  []*billingpb.GoodPayment
-	gases     []*npool.CoinGas
-	addresses map[string]string
+	coins        []*coininfopb.CoinInfo
+	accounts     []*billingpb.GoodPayment
+	gases        []*npool.CoinGas
+	coinsettings []*billingpb.CoinSetting
+	addresses    map[string]string
 }
 
 func (f *Feeder) GetCoin(coinTypeID string) (*coininfopb.CoinInfo, error) {
@@ -43,6 +48,15 @@ func (f *Feeder) GetCoin(coinTypeID string) (*coininfopb.CoinInfo, error) {
 		}
 	}
 	return nil, fmt.Errorf("invalid coin type id")
+}
+
+func (f *Feeder) GetGasAccountID(coinTypeID string) (string, error) {
+	for _, setting := range f.coinsettings {
+		if setting.CoinTypeID == coinTypeID {
+			return setting.CoinTypeID, nil
+		}
+	}
+	return "", fmt.Errorf("invalid coin setting")
 }
 
 func (f *Feeder) FeedGas(ctx context.Context, gas *npool.CoinGas) error {
@@ -56,20 +70,19 @@ func (f *Feeder) FeedGas(ctx context.Context, gas *npool.CoinGas) error {
 			return fmt.Errorf("fail get coin: %v", err)
 		}
 
-		address, ok := f.addresses[acc.AccountID]
+		to, ok := f.addresses[acc.AccountID]
 		if !ok {
 			account, err := billingcli.GetAccount(ctx, acc.AccountID)
 			if err != nil {
 				return fmt.Errorf("fail get account: %v", err)
 			}
-			address = account.Address
-			f.addresses[acc.AccountID] = address
+			to = account.Address
+			f.addresses[acc.AccountID] = to
 		}
 
-		// Check balance
 		balance, err := sphinxproxycli.GetBalance(ctx, &sphinxproxypb.GetBalanceRequest{
 			Name:    coin.Name,
-			Address: address,
+			Address: to,
 		})
 		if err != nil {
 			return fmt.Errorf("fail check balance: %v", err)
@@ -78,12 +91,55 @@ func (f *Feeder) FeedGas(ctx context.Context, gas *npool.CoinGas) error {
 		if gas.DepositThresholdLow < balance.Balance {
 			continue
 		}
+
+		gasAccountID, err := f.GetGasAccountID(gas.GasCoinTypeID)
+		if err != nil {
+			return fmt.Errorf("invalid gas coin type: %v", err)
+		}
+
+		from, ok := f.addresses[gasAccountID]
+		if !ok {
+			account, err := billingcli.GetAccount(ctx, gasAccountID)
+			if err != nil {
+				return fmt.Errorf("fail get account: %v", err)
+			}
+			from = account.Address
+			f.addresses[acc.AccountID] = from
+		}
+
+		balance, err = sphinxproxycli.GetBalance(ctx, &sphinxproxypb.GetBalanceRequest{
+			Name:    coin.Name,
+			Address: from,
+		})
+		if err != nil {
+			return fmt.Errorf("fail check balance: %v", err)
+		}
+
 		if balance.Balance <= coin.ReservedAmount+gas.DepositAmount {
 			logger.Sugar().Infof("insufficient amount for gas")
 			continue
 		}
 
-		// Wait gas account release, lock gas account, create transaction
+		err = accountlock.Lock(gasAccountID)
+		if err != nil {
+			continue
+		}
+
+		_, err = billingcli.CreateTransaction(ctx, &billingpb.CoinAccountTransaction{
+			AppID:              uuid.UUID{}.String(),
+			UserID:             uuid.UUID{}.String(),
+			GoodID:             uuid.UUID{}.String(),
+			FromAddressID:      gasAccountID,
+			ToAddressID:        acc.AccountID,
+			CoinTypeID:         gas.GasCoinTypeID,
+			Amount:             gas.DepositAmount,
+			Message:            fmt.Sprintf("transfer gas at %v", time.Now()),
+			ChainTransactionID: uuid.New().String(),
+		})
+		if err != nil {
+			return fmt.Errorf("fail create transaction: %v", err)
+		}
+
 		// Record to deposit
 	}
 	return nil
@@ -132,10 +188,17 @@ func Run(ctx context.Context) {
 			continue
 		}
 
+		settings, err := billingcli.GetCoinSettings(ctx)
+		if err != nil {
+			logger.Sugar().Errorf("fail get coin settings: %v", err)
+			continue
+		}
+
 		_feeder := &Feeder{
-			coins:    coins,
-			accounts: accounts,
-			gases:    gases,
+			coins:        coins,
+			accounts:     accounts,
+			gases:        gases,
+			coinsettings: settings,
 		}
 		err = _feeder.FeedAll(ctx)
 		if err != nil {

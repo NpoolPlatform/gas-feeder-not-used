@@ -5,12 +5,13 @@ go 1.17
 require (
 	entgo.io/ent v0.10.1
 	github.com/NpoolPlatform/api-manager v0.0.0-20220328101926-8907b2f76c6d
-	github.com/NpoolPlatform/cloud-hashing-billing v0.0.0-20220607121844-69d1233cc70a
+	github.com/NpoolPlatform/cloud-hashing-billing v0.0.0-20220607125219-860b93705279
 	github.com/NpoolPlatform/go-service-framework v0.0.0-20220404143809-82c40930388a
 	github.com/NpoolPlatform/libent-cruder v0.0.0-20220526050249-956b54fac9f1
 	github.com/NpoolPlatform/message v0.0.0-20220607091058-c3ab98a45e05
 	github.com/NpoolPlatform/sphinx-coininfo v0.0.0-20220607105540-81705a8baf95
 	github.com/NpoolPlatform/sphinx-proxy v0.0.0-20220607121257-901a7180f914
+	github.com/NpoolPlatform/staker-manager v0.0.0-20220607085246-f8891c8a1b32
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/google/uuid v1.3.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.10.0
