@@ -34,7 +34,7 @@ func withCoinGasCRUD(ctx context.Context, fn func(schema *coingascrud.CoinGas) e
 	return fn(schema)
 }
 
-func withDepositCurd(ctx context.Context, fn func(schema *depositcrud.Deposit) error) error {
+func withDepositCRUD(ctx context.Context, fn func(schema *depositcrud.Deposit) error) error {
 	schema, err := depositcrud.New(ctx, nil)
 	if err != nil {
 		return err
@@ -150,7 +150,7 @@ func (f *Feeder) FeedGas(ctx context.Context, gas *npool.CoinGas) error {
 			return fmt.Errorf("fail create transaction: %v", err)
 		}
 
-		err = withDepositCurd(ctx, func(schema *depositcrud.Deposit) error {
+		err = withDepositCRUD(ctx, func(schema *depositcrud.Deposit) error {
 			_, err := schema.Create(ctx, &npool.Deposit{
 				AccountID:     acc.GetAccountID(),
 				TransactionID: transaction.GetID(),
