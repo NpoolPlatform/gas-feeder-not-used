@@ -44,7 +44,7 @@ var runCmd = &cli.Command{
 
 		// go msglistener.Listen()
 		// go msgSender()
-		go feeder.Run(c.Context)
+		go feeder.Run()
 
 		return grpc2.RunGRPCGateWay(rpcGatewayRegister)
 	},

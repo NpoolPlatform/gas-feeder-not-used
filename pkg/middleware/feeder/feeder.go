@@ -62,7 +62,7 @@ func (f *Feeder) GetCoin(coinTypeID string) (*coininfopb.CoinInfo, error) {
 func (f *Feeder) GetGasAccountID(coinTypeID string) (string, error) {
 	for _, setting := range f.coinsettings {
 		if setting.CoinTypeID == coinTypeID {
-			return setting.CoinTypeID, nil
+			return setting.GasProviderAccountID, nil
 		}
 	}
 	return "", fmt.Errorf("invalid coin setting")
@@ -76,15 +76,16 @@ func (f *Feeder) FeedGas(ctx context.Context, gas *npool.CoinGas) error {
 		}
 
 		coin, err := f.GetCoin(gas.GasCoinTypeID)
-		if err != nil {
+		if err != nil || coin == nil {
 			return fmt.Errorf("fail get coin: %v", err)
 		}
 
 		to, ok := f.addresses[acc.AccountID]
 		if !ok {
 			account, err := billingcli.GetAccount(ctx, acc.AccountID)
-			if err != nil {
-				return fmt.Errorf("fail get account: %v", err)
+			if err != nil || account == nil {
+				logger.Sugar().Errorf("fail get account %v: %v", acc.AccountID, err)
+				continue
 			}
 			to = account.Address
 			f.addresses[acc.AccountID] = to
@@ -94,7 +95,7 @@ func (f *Feeder) FeedGas(ctx context.Context, gas *npool.CoinGas) error {
 			Name:    coin.Name,
 			Address: to,
 		})
-		if err != nil {
+		if err != nil || balance == nil {
 			return fmt.Errorf("fail check balance: %v", err)
 		}
 
@@ -110,8 +111,8 @@ func (f *Feeder) FeedGas(ctx context.Context, gas *npool.CoinGas) error {
 		from, ok := f.addresses[gasAccountID]
 		if !ok {
 			account, err := billingcli.GetAccount(ctx, gasAccountID)
-			if err != nil {
-				return fmt.Errorf("fail get account: %v", err)
+			if err != nil || account == nil {
+				return fmt.Errorf("fail get gas account %v: %v", gasAccountID, err)
 			}
 			from = account.Address
 			f.addresses[acc.AccountID] = from
@@ -121,7 +122,7 @@ func (f *Feeder) FeedGas(ctx context.Context, gas *npool.CoinGas) error {
 			Name:    coin.Name,
 			Address: from,
 		})
-		if err != nil {
+		if err != nil || balance == nil {
 			return fmt.Errorf("fail check balance: %v", err)
 		}
 
@@ -176,14 +177,12 @@ func (f *Feeder) FeedAll(ctx context.Context) error {
 }
 
 const (
-	GasFeedInterval = 12 * time.Hour
-	ActTimeout      = 30 * time.Second
+	GasFeedInterval = 10 * time.Second
 )
 
-func Run(ctx context.Context) {
+func Run() {
 	ticker := time.NewTicker(GasFeedInterval)
-	ctx, cancel := context.WithTimeout(ctx, ActTimeout)
-	defer cancel()
+	ctx := context.Background()
 
 	for range ticker.C {
 		coins, err := coininfocli.GetCoinInfos(ctx, cruder.NewFilterConds())
@@ -219,6 +218,7 @@ func Run(ctx context.Context) {
 			accounts:     accounts,
 			gases:        gases,
 			coinsettings: settings,
+			addresses:    map[string]string{},
 		}
 		err = _feeder.FeedAll(ctx)
 		if err != nil {

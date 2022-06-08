@@ -14,6 +14,7 @@ import (
 	mysqlconst "github.com/NpoolPlatform/go-service-framework/pkg/mysql/const"
 	rabbitmqconst "github.com/NpoolPlatform/go-service-framework/pkg/rabbitmq/const"
 	redisconst "github.com/NpoolPlatform/go-service-framework/pkg/redis/const"
+	coininfoconst "github.com/NpoolPlatform/sphinx-coininfo/pkg/message/const"
 )
 
 func Init() error {
@@ -36,6 +37,7 @@ func Init() error {
 		mysqlconst.MysqlServiceName,
 		rabbitmqconst.RabbitMQServiceName,
 		redisconst.RedisServiceName,
+		coininfoconst.ServiceName,
 	)
 	if err != nil {
 		return fmt.Errorf("cannot init app stub: %v", err)
