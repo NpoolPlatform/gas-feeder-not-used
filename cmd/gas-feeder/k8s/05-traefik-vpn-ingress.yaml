@@ -1,60 +1,26 @@
 apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
-  name: gas-feeder-traefik-app-ingress
+  name: gas-feeder-traefik-vpn-ingress
   namespace: kube-system
   annotations:
-    k8s.kuboard.cn/displayName: gas-feeder-traefik-app
-    k8s.kuboard.cn/workload: gas-feeder-traefik-app
-    kubernetes.io/ingress.class: "traefik-internet"
+    k8s.kuboard.cn/displayName: gas-feeder-traefik-vpn
+    k8s.kuboard.cn/workload: gas-feeder-traefik-vpn
+    kubernetes.io/ingress.class: "traefik-internet-vpn"
     traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
-    traefik.ingress.kubernetes.io/router.middlewares:
-      kube-system-strip-gas-feeder-prefix@kubernetescrd,
-      kube-system-common-headers@kubernetescrd,
-      kube-system-headers-appid-to-body@kubernetescrd,
-      kube-system-headers-userid-to-body@kubernetescrd,
-      kube-system-headers-app-login-token-to-body@kubernetescrd,
-      kube-system-app-rbac-auth@kubernetescrd
+    traefik.ingress.kubernetes.io/router.middlewares: kube-system-strip-cloud-hashing-apis-v2-prefix@kubernetescrd,
+                                                      kube-system-common-headers@kubernetescrd,
+                                                      kube-system-headers-appid-to-body@kubernetescrd,
+                                                      kube-system-headers-userid-to-body@kubernetescrd,
+                                                      kube-system-headers-app-login-token-to-body@kubernetescrd,
+                                                      kube-system-app-rbac-auth@kubernetescrd
 
 spec:
   rules:
     - host: api.npool.top
       http: &http_rules
         paths:
-          - path: /api/gas-feeder/version
-            backend:
-              serviceName: gas-feeder
-              servicePort: 50320
-    - host: api.procyon.vip
-      http: *http_rules
-    - host: api.xpool.top
-      http: *http_rules
-
-
-apiVersion: networking.k8s.io/v1beta1
-kind: Ingress
-metadata:
-  name: gas-feeder-traefik-app-user-ingress
-  namespace: kube-system
-  annotations:
-    k8s.kuboard.cn/displayName: gas-feeder-traefik-app-user
-    k8s.kuboard.cn/workload: gas-feeder-traefik-app-user
-    kubernetes.io/ingress.class: "traefik-internet"
-    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
-    traefik.ingress.kubernetes.io/router.middlewares:
-      kube-system-strip-gas-feeder-prefix@kubernetescrd,
-      kube-system-common-headers@kubernetescrd,
-      kube-system-headers-appid-to-body@kubernetescrd,
-      kube-system-headers-userid-to-body@kubernetescrd,
-      kube-system-headers-app-login-token-to-body@kubernetescrd,
-      kube-system-app user-role-rbac-auth@kubernetescrd
-
-spec:
-  rules:
-    - host: api.npool.top
-      http: &http_rules
-        paths:
-          - path: /api/gas-feeder/v1
+          - path: /api/gas-feeder
             backend:
               serviceName: gas-feeder
               servicePort: 50320
