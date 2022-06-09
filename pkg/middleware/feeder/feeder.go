@@ -177,7 +177,7 @@ func (f *Feeder) FeedAll(ctx context.Context) error {
 }
 
 const (
-	GasFeedInterval = 12 * time.Hour
+	GasFeedInterval = 60 * time.Second
 )
 
 func Run() {
