@@ -70,6 +70,10 @@ func (f *Feeder) GetGasAccountID(coinTypeID string) (string, error) {
 
 //nolint
 func (f *Feeder) FeedGas(ctx context.Context, gas *npool.CoinGas) error {
+	invalid := 0
+	ignore := 0
+	insufficient := 0
+
 	for _, acc := range f.accounts {
 		if acc.PaymentCoinTypeID != gas.CoinTypeID {
 			continue
@@ -77,14 +81,14 @@ func (f *Feeder) FeedGas(ctx context.Context, gas *npool.CoinGas) error {
 
 		coin, err := f.GetCoin(gas.GasCoinTypeID)
 		if err != nil || coin == nil {
-			return fmt.Errorf("fail get coin: %v", err)
+			return fmt.Errorf("fail get coin: %v %v", err, gas.GasCoinTypeID)
 		}
 
 		to, ok := f.addresses[acc.AccountID]
 		if !ok {
 			account, err := billingcli.GetAccount(ctx, acc.AccountID)
 			if err != nil || account == nil {
-				logger.Sugar().Errorf("fail get account %v: %v", acc.AccountID, err)
+				invalid ++
 				continue
 			}
 			to = account.Address
@@ -100,12 +104,13 @@ func (f *Feeder) FeedGas(ctx context.Context, gas *npool.CoinGas) error {
 		}
 
 		if gas.DepositThresholdLow < balance.Balance {
+			ignore ++
 			continue
 		}
 
 		gasAccountID, err := f.GetGasAccountID(gas.GasCoinTypeID)
 		if err != nil {
-			return fmt.Errorf("invalid gas coin type: %v", err)
+			return fmt.Errorf("invalid gas coin type: %v: %v :%v", err, gasAccountID, gas.GasCoinTypeID)
 		}
 
 		from, ok := f.addresses[gasAccountID]
@@ -127,13 +132,18 @@ func (f *Feeder) FeedGas(ctx context.Context, gas *npool.CoinGas) error {
 		}
 
 		if balance.Balance <= coin.ReservedAmount+gas.DepositAmount {
-			logger.Sugar().Infof("insufficient amount for gas")
+			insufficient ++
 			continue
 		}
 
-		err = accountlock.Lock(gasAccountID)
-		if err != nil {
-			continue
+		for {
+			err = accountlock.Lock(gasAccountID)
+			if err != nil {
+				logger.Sugar().Infof("wait for %v gas account %v: %v", coin.Name, gasAccountID, err)
+				time.Sleep(30 * time.Second)
+				continue
+			}
+			break
 		}
 
 		transaction, err := billingcli.CreateTransaction(ctx, &billingpb.CoinAccountTransaction{
@@ -163,6 +173,8 @@ func (f *Feeder) FeedGas(ctx context.Context, gas *npool.CoinGas) error {
 			return fmt.Errorf("fail create deposit: %v", err)
 		}
 	}
+
+	logger.Sugar().Infof("feed gas invalid %v ignore %v insufficient %v", invalid, ignore, insufficient)
 	return nil
 }
 
@@ -222,7 +234,7 @@ func Run() {
 		}
 		err = _feeder.FeedAll(ctx)
 		if err != nil {
-			logger.Sugar().Errorf("fail feed gases: %v", err)
+			logger.Sugar().Errorf("fail feed gases: %v: %v", err, accounts)
 		}
 	}
 }

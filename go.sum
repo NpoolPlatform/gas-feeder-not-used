@@ -135,8 +135,8 @@ github.com/NpoolPlatform/message v0.0.0-20220607133726-3154653152fd/go.mod h1:3E
 github.com/NpoolPlatform/oracle-manager v0.0.0-20220606135947-0f09e9f3818a/go.mod h1:f9Seypsw5N+Kc0P13IurAD/WNHXhzYsBt+d/R17oLfA=
 github.com/NpoolPlatform/sphinx-coininfo v0.0.0-20211206035652-888de6e20996/go.mod h1:w203lHGAaRvZqEMLxJI8wBxAoVvE3RHMU3jtwN/AdgE=
 github.com/NpoolPlatform/sphinx-coininfo v0.0.0-20211208035009-5ad2768d2290/go.mod h1:bTUqQx4IRCf+o6B6jvdMmsiKfjmCc16swwBza7DVZuA=
-github.com/NpoolPlatform/sphinx-coininfo v0.0.0-20220607105540-81705a8baf95 h1:YRtoTOzlYnIrEnzNz4kIe5xb1lH2S8Pvco2JCxl7xG0=
-github.com/NpoolPlatform/sphinx-coininfo v0.0.0-20220607105540-81705a8baf95/go.mod h1:6x2MevuQNEWnB/uJl8REgHUH2F+mBadmMtexHDO1/NA=
+github.com/NpoolPlatform/sphinx-coininfo v0.0.0-20220609081233-38be02268858 h1:prakxo7sVinqjPxh2sx2m8ngv43cVQkSqYtCR+Bgc+0=
+github.com/NpoolPlatform/sphinx-coininfo v0.0.0-20220609081233-38be02268858/go.mod h1:6x2MevuQNEWnB/uJl8REgHUH2F+mBadmMtexHDO1/NA=
 github.com/NpoolPlatform/sphinx-plugin v0.0.0-20220520120116-d577edac7325 h1:Tz5gfoEEN2hxxRVcDI+suLAefWbMyeh1UI0ur19deiM=
 github.com/NpoolPlatform/sphinx-proxy v0.0.0-20211209140052-de1778e36e36/go.mod h1:VwKb8MFR8zJ7sULoVan/YRluZFDds2uJpinP4kQv9tY=
 github.com/NpoolPlatform/sphinx-proxy v0.0.0-20220607121257-901a7180f914 h1:Hh9Ta6ozsDq5FaHryNhLNv0nqvRGoKFTvl/ABqDqnYk=
