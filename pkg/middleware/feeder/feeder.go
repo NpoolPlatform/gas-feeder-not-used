@@ -79,20 +79,20 @@ func (f *Feeder) FeedGas(ctx context.Context, gas *npool.CoinGas) error {
 			continue
 		}
 
-		coin, err := f.GetCoin(gas.GasCoinTypeID)
-		if err != nil || coin == nil {
-			return fmt.Errorf("fail get coin: %v %v", err, gas.GasCoinTypeID)
-		}
-
 		to, ok := f.addresses[acc.AccountID]
 		if !ok {
 			account, err := billingcli.GetAccount(ctx, acc.AccountID)
 			if err != nil || account == nil {
-				invalid ++
+				invalid++
 				continue
 			}
 			to = account.Address
 			f.addresses[acc.AccountID] = to
+		}
+
+		coin, err := f.GetCoin(gas.CoinTypeID)
+		if err != nil || coin == nil {
+			return fmt.Errorf("fail get coin: %v %v", err, gas.CoinTypeID)
 		}
 
 		balance, err := sphinxproxycli.GetBalance(ctx, &sphinxproxypb.GetBalanceRequest{
@@ -102,9 +102,25 @@ func (f *Feeder) FeedGas(ctx context.Context, gas *npool.CoinGas) error {
 		if err != nil || balance == nil {
 			return fmt.Errorf("fail check balance: %v", err)
 		}
+		if balance.Balance <= coin.ReservedAmount {
+			continue
+		}
+
+		coin, err = f.GetCoin(gas.GasCoinTypeID)
+		if err != nil || coin == nil {
+			return fmt.Errorf("fail get gas coin: %v %v", err, gas.GasCoinTypeID)
+		}
+
+		balance, err = sphinxproxycli.GetBalance(ctx, &sphinxproxypb.GetBalanceRequest{
+			Name:    coin.Name,
+			Address: to,
+		})
+		if err != nil || balance == nil {
+			return fmt.Errorf("fail check balance: %v", err)
+		}
 
 		if gas.DepositThresholdLow < balance.Balance {
-			ignore ++
+			ignore++
 			continue
 		}
 
@@ -132,7 +148,7 @@ func (f *Feeder) FeedGas(ctx context.Context, gas *npool.CoinGas) error {
 		}
 
 		if balance.Balance <= coin.ReservedAmount+gas.DepositAmount {
-			insufficient ++
+			insufficient++
 			continue
 		}
 
