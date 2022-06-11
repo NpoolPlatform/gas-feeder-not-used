@@ -23,6 +23,8 @@ import (
 
 	accountlock "github.com/NpoolPlatform/staker-manager/pkg/middleware/account"
 
+	constant "github.com/NpoolPlatform/gas-feeder/pkg/const"
+
 	"github.com/google/uuid"
 )
 
@@ -111,17 +113,29 @@ func (f *Feeder) FeedGas(ctx context.Context, gas *npool.CoinGas) error {
 			return fmt.Errorf("fail get gas coin: %v %v", err, gas.GasCoinTypeID)
 		}
 
-		balance, err = sphinxproxycli.GetBalance(ctx, &sphinxproxypb.GetBalanceRequest{
-			Name:    coin.Name,
-			Address: to,
+		exist := false
+		err = withDepositCRUD(ctx, func(schema *depositcrud.Deposit) error {
+			exist, err = schema.ExistConds(ctx, cruder.NewConds().
+				WithCond(constant.FieldAccountID, cruder.EQ, acc.AccountID))
+			return err
 		})
-		if err != nil || balance == nil {
-			return fmt.Errorf("fail check balance: %v", err)
+		if err != nil {
+			return fmt.Errorf("fail create deposit: %v", err)
 		}
 
-		if gas.DepositThresholdLow < balance.Balance {
-			ignore++
-			continue
+		if exist {
+			balance, err = sphinxproxycli.GetBalance(ctx, &sphinxproxypb.GetBalanceRequest{
+				Name:    coin.Name,
+				Address: to,
+			})
+			if err != nil || balance == nil {
+				return fmt.Errorf("fail check balance: %v", err)
+			}
+
+			if gas.DepositThresholdLow < balance.Balance {
+				ignore++
+				continue
+			}
 		}
 
 		gasAccountID, err := f.GetGasAccountID(gas.GasCoinTypeID)
