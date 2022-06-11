@@ -45,8 +45,9 @@ func withDepositCRUD(ctx context.Context, fn func(schema *depositcrud.Deposit) e
 }
 
 type account struct {
-	coinTypeID string
-	accountID  string
+	coinTypeID  string
+	accountID   string
+	amountScale int
 }
 
 type Feeder struct {
@@ -166,7 +167,8 @@ func (f *Feeder) FeedGas(ctx context.Context, gas *npool.CoinGas) error {
 			return fmt.Errorf("fail check balance: %v", err)
 		}
 
-		if balance.Balance <= coin.ReservedAmount+gas.DepositAmount {
+		amount := gas.DepositAmount * float64(acc.amountScale)
+		if balance.Balance <= coin.ReservedAmount+amount {
 			insufficient++
 			continue
 		}
@@ -188,8 +190,8 @@ func (f *Feeder) FeedGas(ctx context.Context, gas *npool.CoinGas) error {
 			FromAddressID:      gasAccountID,
 			ToAddressID:        acc.accountID,
 			CoinTypeID:         gas.GasCoinTypeID,
-			Amount:             gas.DepositAmount,
-			Message:            fmt.Sprintf("transfer gas at %v", time.Now()),
+			Amount:             amount,
+			Message:            fmt.Sprintf("transfer gas at %v scale %v", time.Now(), acc.amountScale),
 			ChainTransactionID: uuid.New().String(),
 		})
 		if err != nil {
@@ -199,8 +201,8 @@ func (f *Feeder) FeedGas(ctx context.Context, gas *npool.CoinGas) error {
 		err = withDepositCRUD(ctx, func(schema *depositcrud.Deposit) error {
 			_, err := schema.Create(ctx, &npool.Deposit{
 				AccountID:     acc.accountID,
-				TransactionID: transaction.GetID(),
-				DepositAmount: gas.GetDepositAmount(),
+				TransactionID: transaction.ID,
+				DepositAmount: amount,
 			})
 			return err
 		})
@@ -250,6 +252,11 @@ func (f *Feeder) update(ctx context.Context) error {
 	return nil
 }
 
+const (
+	PaymentAmountScale = 1
+	OnlineAmountScale  = 20
+)
+
 func (f *Feeder) paymentFeeder(ctx context.Context) {
 	payments, err := billingcli.GetGoodPayments(ctx, cruder.NewFilterConds())
 	if err != nil {
@@ -260,8 +267,9 @@ func (f *Feeder) paymentFeeder(ctx context.Context) {
 	accounts := []*account{}
 	for _, payment := range payments {
 		accounts = append(accounts, &account{
-			accountID:  payment.AccountID,
-			coinTypeID: payment.PaymentCoinTypeID,
+			accountID:   payment.AccountID,
+			coinTypeID:  payment.PaymentCoinTypeID,
+			amountScale: PaymentAmountScale,
 		})
 	}
 
@@ -277,8 +285,9 @@ func (f *Feeder) onlineFeeder(ctx context.Context) {
 	accounts := []*account{}
 	for _, setting := range f.coinsettings {
 		accounts = append(accounts, &account{
-			accountID:  setting.UserOnlineAccountID,
-			coinTypeID: setting.CoinTypeID,
+			accountID:   setting.UserOnlineAccountID,
+			coinTypeID:  setting.CoinTypeID,
+			amountScale: OnlineAmountScale,
 		})
 	}
 
