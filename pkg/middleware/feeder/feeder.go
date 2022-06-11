@@ -82,7 +82,7 @@ func (f *Feeder) FeedGas(ctx context.Context, gas *npool.CoinGas) error {
 	ignore := 0
 	insufficient := 0
 	lowBalance := 0
-	transfered := 0
+	transferred := 0
 
 	for _, acc := range f.accounts {
 		if acc.coinTypeID != gas.CoinTypeID {
@@ -201,7 +201,7 @@ func (f *Feeder) FeedGas(ctx context.Context, gas *npool.CoinGas) error {
 			return fmt.Errorf("fail create transaction: %v", err)
 		}
 
-		transfered++
+		transferred++
 
 		err = withDepositCRUD(ctx, func(schema *depositcrud.Deposit) error {
 			_, err := schema.Create(ctx, &npool.Deposit{
@@ -216,8 +216,8 @@ func (f *Feeder) FeedGas(ctx context.Context, gas *npool.CoinGas) error {
 		}
 	}
 
-	logger.Sugar().Infof("feed gas invalid %v ignore %v insufficient %v low balance %v transfered %v coin %v gas coin %v",
-		invalid, ignore, insufficient, lowBalance, transfered, gas.CoinTypeID, gas.GasCoinTypeID)
+	logger.Sugar().Infof("feed gas invalid %v ignore %v insufficient %v low balance %v transferred %v coin %v gas coin %v",
+		invalid, ignore, insufficient, lowBalance, transferred, gas.CoinTypeID, gas.GasCoinTypeID)
 	return nil
 }
 
