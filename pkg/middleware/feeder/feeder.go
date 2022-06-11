@@ -44,9 +44,14 @@ func withDepositCRUD(ctx context.Context, fn func(schema *depositcrud.Deposit) e
 	return fn(schema)
 }
 
+type account struct {
+	coinTypeID string
+	accountID  string
+}
+
 type Feeder struct {
 	coins        []*coininfopb.CoinInfo
-	accounts     []*billingpb.GoodPayment
+	accounts     []*account
 	gases        []*npool.CoinGas
 	coinsettings []*billingpb.CoinSetting
 	addresses    map[string]string
@@ -77,19 +82,19 @@ func (f *Feeder) FeedGas(ctx context.Context, gas *npool.CoinGas) error {
 	insufficient := 0
 
 	for _, acc := range f.accounts {
-		if acc.PaymentCoinTypeID != gas.CoinTypeID {
+		if acc.coinTypeID != gas.CoinTypeID {
 			continue
 		}
 
-		to, ok := f.addresses[acc.AccountID]
+		to, ok := f.addresses[acc.accountID]
 		if !ok {
-			account, err := billingcli.GetAccount(ctx, acc.AccountID)
+			account, err := billingcli.GetAccount(ctx, acc.accountID)
 			if err != nil || account == nil {
 				invalid++
 				continue
 			}
 			to = account.Address
-			f.addresses[acc.AccountID] = to
+			f.addresses[acc.accountID] = to
 		}
 
 		coin, err := f.GetCoin(gas.CoinTypeID)
@@ -116,11 +121,11 @@ func (f *Feeder) FeedGas(ctx context.Context, gas *npool.CoinGas) error {
 		exist := false
 		err = withDepositCRUD(ctx, func(schema *depositcrud.Deposit) error {
 			exist, err = schema.ExistConds(ctx, cruder.NewConds().
-				WithCond(constant.FieldAccountID, cruder.EQ, acc.AccountID))
+				WithCond(constant.FieldAccountID, cruder.EQ, acc.accountID))
 			return err
 		})
 		if err != nil {
-			return fmt.Errorf("fail create deposit: %v", err)
+			return fmt.Errorf("fail exist deposit: %v", err)
 		}
 
 		if exist {
@@ -150,7 +155,7 @@ func (f *Feeder) FeedGas(ctx context.Context, gas *npool.CoinGas) error {
 				return fmt.Errorf("fail get gas account %v: %v", gasAccountID, err)
 			}
 			from = account.Address
-			f.addresses[acc.AccountID] = from
+			f.addresses[acc.accountID] = from
 		}
 
 		balance, err = sphinxproxycli.GetBalance(ctx, &sphinxproxypb.GetBalanceRequest{
@@ -181,7 +186,7 @@ func (f *Feeder) FeedGas(ctx context.Context, gas *npool.CoinGas) error {
 			UserID:             uuid.UUID{}.String(),
 			GoodID:             uuid.UUID{}.String(),
 			FromAddressID:      gasAccountID,
-			ToAddressID:        acc.AccountID,
+			ToAddressID:        acc.accountID,
 			CoinTypeID:         gas.GasCoinTypeID,
 			Amount:             gas.DepositAmount,
 			Message:            fmt.Sprintf("transfer gas at %v", time.Now()),
@@ -193,7 +198,7 @@ func (f *Feeder) FeedGas(ctx context.Context, gas *npool.CoinGas) error {
 
 		err = withDepositCRUD(ctx, func(schema *depositcrud.Deposit) error {
 			_, err := schema.Create(ctx, &npool.Deposit{
-				AccountID:     acc.GetAccountID(),
+				AccountID:     acc.accountID,
 				TransactionID: transaction.GetID(),
 				DepositAmount: gas.GetDepositAmount(),
 			})
@@ -218,21 +223,10 @@ func (f *Feeder) FeedAll(ctx context.Context) error {
 	return nil
 }
 
-const (
-	GasFeedInterval = 4 * time.Hour
-)
-
-func feeder(ctx context.Context) {
+func (f *Feeder) update(ctx context.Context) error {
 	coins, err := coininfocli.GetCoinInfos(ctx, cruder.NewFilterConds())
 	if err != nil {
-		logger.Sugar().Errorf("fail get coininfos: %v", err)
-		return
-	}
-
-	accounts, err := billingcli.GetGoodPayments(ctx, cruder.NewFilterConds())
-	if err != nil {
-		logger.Sugar().Errorf("fail get good payments: %v", err)
-		return
+		return fmt.Errorf("fail get coininfos: %v", err)
 	}
 
 	gases := []*npool.CoinGas{}
@@ -241,35 +235,99 @@ func feeder(ctx context.Context) {
 		return err
 	})
 	if err != nil {
-		logger.Sugar().Errorf("fail get coin gases: %v", err)
-		return
+		return fmt.Errorf("fail get coin gases: %v", err)
 	}
 
 	settings, err := billingcli.GetCoinSettings(ctx)
 	if err != nil {
-		logger.Sugar().Errorf("fail get coin settings: %v", err)
+		return fmt.Errorf("fail get coin settings: %v", err)
+	}
+
+	f.coins = coins
+	f.gases = gases
+	f.coinsettings = settings
+
+	return nil
+}
+
+func (f *Feeder) paymentFeeder(ctx context.Context) {
+	payments, err := billingcli.GetGoodPayments(ctx, cruder.NewFilterConds())
+	if err != nil {
+		logger.Sugar().Errorf("fail get good payments: %v", err)
 		return
 	}
 
-	_feeder := &Feeder{
-		coins:        coins,
-		accounts:     accounts,
-		gases:        gases,
-		coinsettings: settings,
-		addresses:    map[string]string{},
+	accounts := []*account{}
+	for _, payment := range payments {
+		accounts = append(accounts, &account{
+			accountID:  payment.AccountID,
+			coinTypeID: payment.PaymentCoinTypeID,
+		})
 	}
-	err = _feeder.FeedAll(ctx)
+
+	f.accounts = accounts
+
+	err = f.FeedAll(ctx)
 	if err != nil {
-		logger.Sugar().Errorf("fail feed gases: %v: %v", err, accounts)
+		logger.Sugar().Errorf("fail feed gases: %v", err)
 	}
 }
 
-func Run() {
-	ticker := time.NewTicker(GasFeedInterval)
-	ctx := context.Background()
+func (f *Feeder) onlineFeeder(ctx context.Context) {
+	accounts := []*account{}
+	for _, setting := range f.coinsettings {
+		accounts = append(accounts, &account{
+			accountID:  setting.UserOnlineAccountID,
+			coinTypeID: setting.CoinTypeID,
+		})
+	}
 
-	feeder(ctx)
-	for range ticker.C {
-		feeder(ctx)
+	f.accounts = accounts
+
+	err := f.FeedAll(ctx)
+	if err != nil {
+		logger.Sugar().Errorf("fail feed gases: %v", err)
+	}
+}
+
+const (
+	PaymentGasFeedInterval = 4 * time.Hour
+	HotGasFeedInterval     = 10 * time.Minute
+)
+
+func Run() {
+	paymentTicker := time.NewTicker(PaymentGasFeedInterval)
+	onlineTicker := time.NewTicker(HotGasFeedInterval)
+
+	ctx := context.Background()
+	_feeder := &Feeder{
+		addresses: map[string]string{},
+	}
+
+	err := _feeder.update(ctx)
+	if err != nil {
+		logger.Sugar().Errorf("fail update feeder: %v", err)
+		return
+	}
+
+	_feeder.paymentFeeder(ctx)
+
+	for {
+		select {
+		case <-paymentTicker.C:
+			err := _feeder.update(ctx)
+			if err != nil {
+				logger.Sugar().Errorf("fail update feeder: %v", err)
+				continue
+			}
+			_feeder.paymentFeeder(ctx)
+		case <-onlineTicker.C:
+			err := _feeder.update(ctx)
+			if err != nil {
+				logger.Sugar().Errorf("fail update feeder: %v", err)
+				continue
+			}
+			_feeder.onlineFeeder(ctx)
+		}
 	}
 }
