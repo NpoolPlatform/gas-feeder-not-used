@@ -222,49 +222,54 @@ const (
 	GasFeedInterval = 4 * time.Hour
 )
 
+func feeder(ctx context.Context) {
+	coins, err := coininfocli.GetCoinInfos(ctx, cruder.NewFilterConds())
+	if err != nil {
+		logger.Sugar().Errorf("fail get coininfos: %v", err)
+		return
+	}
+
+	accounts, err := billingcli.GetGoodPayments(ctx, cruder.NewFilterConds())
+	if err != nil {
+		logger.Sugar().Errorf("fail get good payments: %v", err)
+		return
+	}
+
+	gases := []*npool.CoinGas{}
+	err = withCoinGasCRUD(ctx, func(schema *coingascrud.CoinGas) error {
+		gases, _, err = schema.Rows(ctx, cruder.NewConds(), 0, 0)
+		return err
+	})
+	if err != nil {
+		logger.Sugar().Errorf("fail get coin gases: %v", err)
+		return
+	}
+
+	settings, err := billingcli.GetCoinSettings(ctx)
+	if err != nil {
+		logger.Sugar().Errorf("fail get coin settings: %v", err)
+		return
+	}
+
+	_feeder := &Feeder{
+		coins:        coins,
+		accounts:     accounts,
+		gases:        gases,
+		coinsettings: settings,
+		addresses:    map[string]string{},
+	}
+	err = _feeder.FeedAll(ctx)
+	if err != nil {
+		logger.Sugar().Errorf("fail feed gases: %v: %v", err, accounts)
+	}
+}
+
 func Run() {
 	ticker := time.NewTicker(GasFeedInterval)
 	ctx := context.Background()
 
+	feeder(ctx)
 	for range ticker.C {
-		coins, err := coininfocli.GetCoinInfos(ctx, cruder.NewFilterConds())
-		if err != nil {
-			logger.Sugar().Errorf("fail get coininfos: %v", err)
-			continue
-		}
-
-		accounts, err := billingcli.GetGoodPayments(ctx, cruder.NewFilterConds())
-		if err != nil {
-			logger.Sugar().Errorf("fail get good payments: %v", err)
-			continue
-		}
-
-		gases := []*npool.CoinGas{}
-		err = withCoinGasCRUD(ctx, func(schema *coingascrud.CoinGas) error {
-			gases, _, err = schema.Rows(ctx, cruder.NewConds(), 0, 0)
-			return err
-		})
-		if err != nil {
-			logger.Sugar().Errorf("fail get coin gases: %v", err)
-			continue
-		}
-
-		settings, err := billingcli.GetCoinSettings(ctx)
-		if err != nil {
-			logger.Sugar().Errorf("fail get coin settings: %v", err)
-			continue
-		}
-
-		_feeder := &Feeder{
-			coins:        coins,
-			accounts:     accounts,
-			gases:        gases,
-			coinsettings: settings,
-			addresses:    map[string]string{},
-		}
-		err = _feeder.FeedAll(ctx)
-		if err != nil {
-			logger.Sugar().Errorf("fail feed gases: %v: %v", err, accounts)
-		}
+		feeder(ctx)
 	}
 }
