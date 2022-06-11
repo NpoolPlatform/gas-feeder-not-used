@@ -81,6 +81,8 @@ func (f *Feeder) FeedGas(ctx context.Context, gas *npool.CoinGas) error {
 	invalid := 0
 	ignore := 0
 	insufficient := 0
+	lowBalance := 0
+	transfered := 0
 
 	for _, acc := range f.accounts {
 		if acc.coinTypeID != gas.CoinTypeID {
@@ -111,6 +113,7 @@ func (f *Feeder) FeedGas(ctx context.Context, gas *npool.CoinGas) error {
 			return fmt.Errorf("fail check %v | %v balance: %v", coin.Name, to, err)
 		}
 		if balance.Balance <= coin.ReservedAmount {
+			lowBalance++
 			continue
 		}
 
@@ -156,7 +159,7 @@ func (f *Feeder) FeedGas(ctx context.Context, gas *npool.CoinGas) error {
 				return fmt.Errorf("fail get gas account %v: %v", gasAccountID, err)
 			}
 			from = account.Address
-			f.addresses[acc.accountID] = from
+			f.addresses[gasAccountID] = from
 		}
 
 		balance, err = sphinxproxycli.GetBalance(ctx, &sphinxproxypb.GetBalanceRequest{
@@ -198,6 +201,8 @@ func (f *Feeder) FeedGas(ctx context.Context, gas *npool.CoinGas) error {
 			return fmt.Errorf("fail create transaction: %v", err)
 		}
 
+		transfered++
+
 		err = withDepositCRUD(ctx, func(schema *depositcrud.Deposit) error {
 			_, err := schema.Create(ctx, &npool.Deposit{
 				AccountID:     acc.accountID,
@@ -211,7 +216,8 @@ func (f *Feeder) FeedGas(ctx context.Context, gas *npool.CoinGas) error {
 		}
 	}
 
-	logger.Sugar().Infof("feed gas invalid %v ignore %v insufficient %v", invalid, ignore, insufficient)
+	logger.Sugar().Infof("feed gas invalid %v ignore %v insufficient %v low balance %v transfered %v coin %v gas coin %v",
+		invalid, ignore, insufficient, lowBalance, transfered, gas.CoinTypeID, gas.GasCoinTypeID)
 	return nil
 }
 
