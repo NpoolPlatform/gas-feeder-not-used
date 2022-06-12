@@ -110,7 +110,7 @@ func (f *Feeder) FeedGas(ctx context.Context, gas *npool.CoinGas) error {
 			Address: to,
 		})
 		if err != nil || balance == nil {
-			return fmt.Errorf("fail check %v | %v balance: %v", coin.Name, to, err)
+			return fmt.Errorf("fail check coin %v | %v balance: %v", coin.Name, to, err)
 		}
 		if balance.Balance <= coin.ReservedAmount {
 			lowBalance++
@@ -138,7 +138,8 @@ func (f *Feeder) FeedGas(ctx context.Context, gas *npool.CoinGas) error {
 				Address: to,
 			})
 			if err != nil || balance == nil {
-				return fmt.Errorf("fail check %v | %v balance: %v", coin.Name, to, err)
+				logger.Sugar().Errorf("fail check gas %v | %v | %v balance: %v", coin.Name, to, acc.accountID, err)
+				continue
 			}
 
 			if gas.DepositThresholdLow < balance.Balance {
@@ -180,7 +181,7 @@ func (f *Feeder) FeedGas(ctx context.Context, gas *npool.CoinGas) error {
 			err = accountlock.Lock(gasAccountID)
 			if err != nil {
 				logger.Sugar().Infof("wait for %v gas account %v: %v", coin.Name, gasAccountID, err)
-				time.Sleep(30 * time.Second)
+				time.Sleep(5 * time.Minute)
 				continue
 			}
 			break
