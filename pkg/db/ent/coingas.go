@@ -30,6 +30,8 @@ type CoinGas struct {
 	DepositThresholdLow uint64 `json:"deposit_threshold_low,omitempty"`
 	// DepositAmount holds the value of the "deposit_amount" field.
 	DepositAmount uint64 `json:"deposit_amount,omitempty"`
+	// OnlineScale holds the value of the "online_scale" field.
+	OnlineScale int32 `json:"online_scale,omitempty"`
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -37,7 +39,7 @@ func (*CoinGas) scanValues(columns []string) ([]interface{}, error) {
 	values := make([]interface{}, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case coingas.FieldCreatedAt, coingas.FieldUpdatedAt, coingas.FieldDeletedAt, coingas.FieldDepositThresholdLow, coingas.FieldDepositAmount:
+		case coingas.FieldCreatedAt, coingas.FieldUpdatedAt, coingas.FieldDeletedAt, coingas.FieldDepositThresholdLow, coingas.FieldDepositAmount, coingas.FieldOnlineScale:
 			values[i] = new(sql.NullInt64)
 		case coingas.FieldID, coingas.FieldCoinTypeID, coingas.FieldGasCoinTypeID:
 			values[i] = new(uuid.UUID)
@@ -104,6 +106,12 @@ func (cg *CoinGas) assignValues(columns []string, values []interface{}) error {
 			} else if value.Valid {
 				cg.DepositAmount = uint64(value.Int64)
 			}
+		case coingas.FieldOnlineScale:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field online_scale", values[i])
+			} else if value.Valid {
+				cg.OnlineScale = int32(value.Int64)
+			}
 		}
 	}
 	return nil
@@ -146,6 +154,8 @@ func (cg *CoinGas) String() string {
 	builder.WriteString(fmt.Sprintf("%v", cg.DepositThresholdLow))
 	builder.WriteString(", deposit_amount=")
 	builder.WriteString(fmt.Sprintf("%v", cg.DepositAmount))
+	builder.WriteString(", online_scale=")
+	builder.WriteString(fmt.Sprintf("%v", cg.OnlineScale))
 	builder.WriteByte(')')
 	return builder.String()
 }

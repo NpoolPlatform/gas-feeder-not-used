@@ -45,9 +45,9 @@ func withDepositCRUD(ctx context.Context, fn func(schema *depositcrud.Deposit) e
 }
 
 type account struct {
-	coinTypeID  string
-	accountID   string
-	amountScale int
+	coinTypeID    string
+	accountID     string
+	onlineAccount bool
 }
 
 type Feeder struct {
@@ -170,7 +170,12 @@ func (f *Feeder) FeedGas(ctx context.Context, gas *npool.CoinGas) error {
 			return fmt.Errorf("fail check balance: %v", err)
 		}
 
-		amount := gas.DepositAmount * float64(acc.amountScale)
+		scale := int32(1)
+		if acc.onlineAccount && gas.OnlineScale > 0 {
+			scale = gas.OnlineScale
+		}
+
+		amount := gas.DepositAmount * float64(scale)
 		if balance.Balance <= coin.ReservedAmount+amount {
 			insufficient++
 			continue
@@ -194,7 +199,7 @@ func (f *Feeder) FeedGas(ctx context.Context, gas *npool.CoinGas) error {
 			ToAddressID:        acc.accountID,
 			CoinTypeID:         gas.GasCoinTypeID,
 			Amount:             amount,
-			Message:            fmt.Sprintf("transfer gas at %v scale %v", time.Now(), acc.amountScale),
+			Message:            fmt.Sprintf("transfer gas at %v scale %v", time.Now(), scale),
 			ChainTransactionID: uuid.New().String(),
 		})
 		if err != nil {
@@ -258,11 +263,6 @@ func (f *Feeder) update(ctx context.Context) error {
 	return nil
 }
 
-const (
-	PaymentAmountScale = 1
-	OnlineAmountScale  = 20
-)
-
 func (f *Feeder) paymentFeeder(ctx context.Context) {
 	payments, err := billingcli.GetGoodPayments(ctx, cruder.NewFilterConds())
 	if err != nil {
@@ -273,9 +273,9 @@ func (f *Feeder) paymentFeeder(ctx context.Context) {
 	accounts := []*account{}
 	for _, payment := range payments {
 		accounts = append(accounts, &account{
-			accountID:   payment.AccountID,
-			coinTypeID:  payment.PaymentCoinTypeID,
-			amountScale: PaymentAmountScale,
+			accountID:     payment.AccountID,
+			coinTypeID:    payment.PaymentCoinTypeID,
+			onlineAccount: false,
 		})
 	}
 
@@ -291,9 +291,9 @@ func (f *Feeder) onlineFeeder(ctx context.Context) {
 	accounts := []*account{}
 	for _, setting := range f.coinsettings {
 		accounts = append(accounts, &account{
-			accountID:   setting.UserOnlineAccountID,
-			coinTypeID:  setting.CoinTypeID,
-			amountScale: OnlineAmountScale,
+			accountID:     setting.UserOnlineAccountID,
+			coinTypeID:    setting.CoinTypeID,
+			onlineAccount: true,
 		})
 	}
 

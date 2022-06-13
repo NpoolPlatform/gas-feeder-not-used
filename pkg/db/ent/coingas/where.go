@@ -140,6 +140,13 @@ func DepositAmount(v uint64) predicate.CoinGas {
 	})
 }
 
+// OnlineScale applies equality check predicate on the "online_scale" field. It's identical to OnlineScaleEQ.
+func OnlineScale(v int32) predicate.CoinGas {
+	return predicate.CoinGas(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldOnlineScale), v))
+	})
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v uint32) predicate.CoinGas {
 	return predicate.CoinGas(func(s *sql.Selector) {
@@ -669,6 +676,82 @@ func DepositAmountLT(v uint64) predicate.CoinGas {
 func DepositAmountLTE(v uint64) predicate.CoinGas {
 	return predicate.CoinGas(func(s *sql.Selector) {
 		s.Where(sql.LTE(s.C(FieldDepositAmount), v))
+	})
+}
+
+// OnlineScaleEQ applies the EQ predicate on the "online_scale" field.
+func OnlineScaleEQ(v int32) predicate.CoinGas {
+	return predicate.CoinGas(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldOnlineScale), v))
+	})
+}
+
+// OnlineScaleNEQ applies the NEQ predicate on the "online_scale" field.
+func OnlineScaleNEQ(v int32) predicate.CoinGas {
+	return predicate.CoinGas(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldOnlineScale), v))
+	})
+}
+
+// OnlineScaleIn applies the In predicate on the "online_scale" field.
+func OnlineScaleIn(vs ...int32) predicate.CoinGas {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.CoinGas(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldOnlineScale), v...))
+	})
+}
+
+// OnlineScaleNotIn applies the NotIn predicate on the "online_scale" field.
+func OnlineScaleNotIn(vs ...int32) predicate.CoinGas {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.CoinGas(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldOnlineScale), v...))
+	})
+}
+
+// OnlineScaleGT applies the GT predicate on the "online_scale" field.
+func OnlineScaleGT(v int32) predicate.CoinGas {
+	return predicate.CoinGas(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldOnlineScale), v))
+	})
+}
+
+// OnlineScaleGTE applies the GTE predicate on the "online_scale" field.
+func OnlineScaleGTE(v int32) predicate.CoinGas {
+	return predicate.CoinGas(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldOnlineScale), v))
+	})
+}
+
+// OnlineScaleLT applies the LT predicate on the "online_scale" field.
+func OnlineScaleLT(v int32) predicate.CoinGas {
+	return predicate.CoinGas(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldOnlineScale), v))
+	})
+}
+
+// OnlineScaleLTE applies the LTE predicate on the "online_scale" field.
+func OnlineScaleLTE(v int32) predicate.CoinGas {
+	return predicate.CoinGas(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldOnlineScale), v))
 	})
 }
 

@@ -40,6 +40,7 @@ func (s *CoinGas) rowToObject(row *ent.CoinGas) *npool.CoinGas {
 		CoinTypeID:          row.CoinTypeID.String(),
 		DepositThresholdLow: price.DBPriceToVisualPrice(row.DepositThresholdLow),
 		DepositAmount:       price.DBPriceToVisualPrice(row.DepositAmount),
+		OnlineScale:         row.OnlineScale,
 	}
 }
 
@@ -53,6 +54,7 @@ func (s *CoinGas) Create(ctx context.Context, in *npool.CoinGas) (*npool.CoinGas
 			SetGasCoinTypeID(uuid.MustParse(in.GasCoinTypeID)).
 			SetDepositThresholdLow(price.VisualPriceToDBPrice(in.GetDepositThresholdLow())).
 			SetDepositAmount(price.VisualPriceToDBPrice(in.GetDepositAmount())).
+			SetOnlineScale(in.GetOnlineScale()).
 			Save(_ctx)
 		return err
 	})
@@ -74,7 +76,8 @@ func (s *CoinGas) CreateBulk(ctx context.Context, in []*npool.CoinGas) ([]*npool
 				SetCoinTypeID(uuid.MustParse(info.CoinTypeID)).
 				SetGasCoinTypeID(uuid.MustParse(info.GasCoinTypeID)).
 				SetDepositThresholdLow(price.VisualPriceToDBPrice(info.DepositThresholdLow)).
-				SetDepositAmount(price.VisualPriceToDBPrice(info.DepositAmount))
+				SetDepositAmount(price.VisualPriceToDBPrice(info.DepositAmount)).
+				SetOnlineScale(info.GetOnlineScale())
 		}
 		rows, err = s.Tx.CoinGas.CreateBulk(bulk...).Save(_ctx)
 		return err
@@ -117,6 +120,7 @@ func (s *CoinGas) Update(ctx context.Context, in *npool.CoinGas) (*npool.CoinGas
 			SetGasCoinTypeID(uuid.MustParse(in.GetGasCoinTypeID())).
 			SetDepositThresholdLow(price.VisualPriceToDBPrice(in.GetDepositThresholdLow())).
 			SetDepositAmount(price.VisualPriceToDBPrice(in.GetDepositAmount())).
+			SetOnlineScale(in.GetOnlineScale()).
 			Save(_ctx)
 		return err
 	})

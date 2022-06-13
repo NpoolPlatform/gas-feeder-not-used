@@ -121,6 +121,27 @@ func (cgu *CoinGasUpdate) AddDepositAmount(u int64) *CoinGasUpdate {
 	return cgu
 }
 
+// SetOnlineScale sets the "online_scale" field.
+func (cgu *CoinGasUpdate) SetOnlineScale(i int32) *CoinGasUpdate {
+	cgu.mutation.ResetOnlineScale()
+	cgu.mutation.SetOnlineScale(i)
+	return cgu
+}
+
+// SetNillableOnlineScale sets the "online_scale" field if the given value is not nil.
+func (cgu *CoinGasUpdate) SetNillableOnlineScale(i *int32) *CoinGasUpdate {
+	if i != nil {
+		cgu.SetOnlineScale(*i)
+	}
+	return cgu
+}
+
+// AddOnlineScale adds i to the "online_scale" field.
+func (cgu *CoinGasUpdate) AddOnlineScale(i int32) *CoinGasUpdate {
+	cgu.mutation.AddOnlineScale(i)
+	return cgu
+}
+
 // Mutation returns the CoinGasMutation object of the builder.
 func (cgu *CoinGasUpdate) Mutation() *CoinGasMutation {
 	return cgu.mutation
@@ -297,6 +318,20 @@ func (cgu *CoinGasUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: coingas.FieldDepositAmount,
 		})
 	}
+	if value, ok := cgu.mutation.OnlineScale(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt32,
+			Value:  value,
+			Column: coingas.FieldOnlineScale,
+		})
+	}
+	if value, ok := cgu.mutation.AddedOnlineScale(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt32,
+			Value:  value,
+			Column: coingas.FieldOnlineScale,
+		})
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, cgu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{coingas.Label}
@@ -406,6 +441,27 @@ func (cguo *CoinGasUpdateOne) SetDepositAmount(u uint64) *CoinGasUpdateOne {
 // AddDepositAmount adds u to the "deposit_amount" field.
 func (cguo *CoinGasUpdateOne) AddDepositAmount(u int64) *CoinGasUpdateOne {
 	cguo.mutation.AddDepositAmount(u)
+	return cguo
+}
+
+// SetOnlineScale sets the "online_scale" field.
+func (cguo *CoinGasUpdateOne) SetOnlineScale(i int32) *CoinGasUpdateOne {
+	cguo.mutation.ResetOnlineScale()
+	cguo.mutation.SetOnlineScale(i)
+	return cguo
+}
+
+// SetNillableOnlineScale sets the "online_scale" field if the given value is not nil.
+func (cguo *CoinGasUpdateOne) SetNillableOnlineScale(i *int32) *CoinGasUpdateOne {
+	if i != nil {
+		cguo.SetOnlineScale(*i)
+	}
+	return cguo
+}
+
+// AddOnlineScale adds i to the "online_scale" field.
+func (cguo *CoinGasUpdateOne) AddOnlineScale(i int32) *CoinGasUpdateOne {
+	cguo.mutation.AddOnlineScale(i)
 	return cguo
 }
 
@@ -607,6 +663,20 @@ func (cguo *CoinGasUpdateOne) sqlSave(ctx context.Context) (_node *CoinGas, err 
 			Type:   field.TypeUint64,
 			Value:  value,
 			Column: coingas.FieldDepositAmount,
+		})
+	}
+	if value, ok := cguo.mutation.OnlineScale(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt32,
+			Value:  value,
+			Column: coingas.FieldOnlineScale,
+		})
+	}
+	if value, ok := cguo.mutation.AddedOnlineScale(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt32,
+			Value:  value,
+			Column: coingas.FieldOnlineScale,
 		})
 	}
 	_node = &CoinGas{config: cguo.config}

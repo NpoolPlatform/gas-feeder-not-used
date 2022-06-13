@@ -89,6 +89,20 @@ func (cgc *CoinGasCreate) SetDepositAmount(u uint64) *CoinGasCreate {
 	return cgc
 }
 
+// SetOnlineScale sets the "online_scale" field.
+func (cgc *CoinGasCreate) SetOnlineScale(i int32) *CoinGasCreate {
+	cgc.mutation.SetOnlineScale(i)
+	return cgc
+}
+
+// SetNillableOnlineScale sets the "online_scale" field if the given value is not nil.
+func (cgc *CoinGasCreate) SetNillableOnlineScale(i *int32) *CoinGasCreate {
+	if i != nil {
+		cgc.SetOnlineScale(*i)
+	}
+	return cgc
+}
+
 // SetID sets the "id" field.
 func (cgc *CoinGasCreate) SetID(u uuid.UUID) *CoinGasCreate {
 	cgc.mutation.SetID(u)
@@ -197,6 +211,10 @@ func (cgc *CoinGasCreate) defaults() error {
 		v := coingas.DefaultDeletedAt()
 		cgc.mutation.SetDeletedAt(v)
 	}
+	if _, ok := cgc.mutation.OnlineScale(); !ok {
+		v := coingas.DefaultOnlineScale
+		cgc.mutation.SetOnlineScale(v)
+	}
 	if _, ok := cgc.mutation.ID(); !ok {
 		if coingas.DefaultID == nil {
 			return fmt.Errorf("ent: uninitialized coingas.DefaultID (forgotten import ent/runtime?)")
@@ -229,6 +247,9 @@ func (cgc *CoinGasCreate) check() error {
 	}
 	if _, ok := cgc.mutation.DepositAmount(); !ok {
 		return &ValidationError{Name: "deposit_amount", err: errors.New(`ent: missing required field "CoinGas.deposit_amount"`)}
+	}
+	if _, ok := cgc.mutation.OnlineScale(); !ok {
+		return &ValidationError{Name: "online_scale", err: errors.New(`ent: missing required field "CoinGas.online_scale"`)}
 	}
 	return nil
 }
@@ -322,6 +343,14 @@ func (cgc *CoinGasCreate) createSpec() (*CoinGas, *sqlgraph.CreateSpec) {
 			Column: coingas.FieldDepositAmount,
 		})
 		_node.DepositAmount = value
+	}
+	if value, ok := cgc.mutation.OnlineScale(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt32,
+			Value:  value,
+			Column: coingas.FieldOnlineScale,
+		})
+		_node.OnlineScale = value
 	}
 	return _node, _spec
 }
@@ -488,6 +517,24 @@ func (u *CoinGasUpsert) UpdateDepositAmount() *CoinGasUpsert {
 // AddDepositAmount adds v to the "deposit_amount" field.
 func (u *CoinGasUpsert) AddDepositAmount(v uint64) *CoinGasUpsert {
 	u.Add(coingas.FieldDepositAmount, v)
+	return u
+}
+
+// SetOnlineScale sets the "online_scale" field.
+func (u *CoinGasUpsert) SetOnlineScale(v int32) *CoinGasUpsert {
+	u.Set(coingas.FieldOnlineScale, v)
+	return u
+}
+
+// UpdateOnlineScale sets the "online_scale" field to the value that was provided on create.
+func (u *CoinGasUpsert) UpdateOnlineScale() *CoinGasUpsert {
+	u.SetExcluded(coingas.FieldOnlineScale)
+	return u
+}
+
+// AddOnlineScale adds v to the "online_scale" field.
+func (u *CoinGasUpsert) AddOnlineScale(v int32) *CoinGasUpsert {
+	u.Add(coingas.FieldOnlineScale, v)
 	return u
 }
 
@@ -671,6 +718,27 @@ func (u *CoinGasUpsertOne) AddDepositAmount(v uint64) *CoinGasUpsertOne {
 func (u *CoinGasUpsertOne) UpdateDepositAmount() *CoinGasUpsertOne {
 	return u.Update(func(s *CoinGasUpsert) {
 		s.UpdateDepositAmount()
+	})
+}
+
+// SetOnlineScale sets the "online_scale" field.
+func (u *CoinGasUpsertOne) SetOnlineScale(v int32) *CoinGasUpsertOne {
+	return u.Update(func(s *CoinGasUpsert) {
+		s.SetOnlineScale(v)
+	})
+}
+
+// AddOnlineScale adds v to the "online_scale" field.
+func (u *CoinGasUpsertOne) AddOnlineScale(v int32) *CoinGasUpsertOne {
+	return u.Update(func(s *CoinGasUpsert) {
+		s.AddOnlineScale(v)
+	})
+}
+
+// UpdateOnlineScale sets the "online_scale" field to the value that was provided on create.
+func (u *CoinGasUpsertOne) UpdateOnlineScale() *CoinGasUpsertOne {
+	return u.Update(func(s *CoinGasUpsert) {
+		s.UpdateOnlineScale()
 	})
 }
 
@@ -1020,6 +1088,27 @@ func (u *CoinGasUpsertBulk) AddDepositAmount(v uint64) *CoinGasUpsertBulk {
 func (u *CoinGasUpsertBulk) UpdateDepositAmount() *CoinGasUpsertBulk {
 	return u.Update(func(s *CoinGasUpsert) {
 		s.UpdateDepositAmount()
+	})
+}
+
+// SetOnlineScale sets the "online_scale" field.
+func (u *CoinGasUpsertBulk) SetOnlineScale(v int32) *CoinGasUpsertBulk {
+	return u.Update(func(s *CoinGasUpsert) {
+		s.SetOnlineScale(v)
+	})
+}
+
+// AddOnlineScale adds v to the "online_scale" field.
+func (u *CoinGasUpsertBulk) AddOnlineScale(v int32) *CoinGasUpsertBulk {
+	return u.Update(func(s *CoinGasUpsert) {
+		s.AddOnlineScale(v)
+	})
+}
+
+// UpdateOnlineScale sets the "online_scale" field to the value that was provided on create.
+func (u *CoinGasUpsertBulk) UpdateOnlineScale() *CoinGasUpsertBulk {
+	return u.Update(func(s *CoinGasUpsert) {
+		s.UpdateOnlineScale()
 	})
 }
 

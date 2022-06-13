@@ -47,6 +47,8 @@ type CoinGasMutation struct {
 	adddeposit_threshold_low *int64
 	deposit_amount           *uint64
 	adddeposit_amount        *int64
+	online_scale             *int32
+	addonline_scale          *int32
 	clearedFields            map[string]struct{}
 	done                     bool
 	oldValue                 func(context.Context) (*CoinGas, error)
@@ -509,6 +511,62 @@ func (m *CoinGasMutation) ResetDepositAmount() {
 	m.adddeposit_amount = nil
 }
 
+// SetOnlineScale sets the "online_scale" field.
+func (m *CoinGasMutation) SetOnlineScale(i int32) {
+	m.online_scale = &i
+	m.addonline_scale = nil
+}
+
+// OnlineScale returns the value of the "online_scale" field in the mutation.
+func (m *CoinGasMutation) OnlineScale() (r int32, exists bool) {
+	v := m.online_scale
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldOnlineScale returns the old "online_scale" field's value of the CoinGas entity.
+// If the CoinGas object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CoinGasMutation) OldOnlineScale(ctx context.Context) (v int32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldOnlineScale is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldOnlineScale requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldOnlineScale: %w", err)
+	}
+	return oldValue.OnlineScale, nil
+}
+
+// AddOnlineScale adds i to the "online_scale" field.
+func (m *CoinGasMutation) AddOnlineScale(i int32) {
+	if m.addonline_scale != nil {
+		*m.addonline_scale += i
+	} else {
+		m.addonline_scale = &i
+	}
+}
+
+// AddedOnlineScale returns the value that was added to the "online_scale" field in this mutation.
+func (m *CoinGasMutation) AddedOnlineScale() (r int32, exists bool) {
+	v := m.addonline_scale
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetOnlineScale resets all changes to the "online_scale" field.
+func (m *CoinGasMutation) ResetOnlineScale() {
+	m.online_scale = nil
+	m.addonline_scale = nil
+}
+
 // Where appends a list predicates to the CoinGasMutation builder.
 func (m *CoinGasMutation) Where(ps ...predicate.CoinGas) {
 	m.predicates = append(m.predicates, ps...)
@@ -528,7 +586,7 @@ func (m *CoinGasMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *CoinGasMutation) Fields() []string {
-	fields := make([]string, 0, 7)
+	fields := make([]string, 0, 8)
 	if m.created_at != nil {
 		fields = append(fields, coingas.FieldCreatedAt)
 	}
@@ -549,6 +607,9 @@ func (m *CoinGasMutation) Fields() []string {
 	}
 	if m.deposit_amount != nil {
 		fields = append(fields, coingas.FieldDepositAmount)
+	}
+	if m.online_scale != nil {
+		fields = append(fields, coingas.FieldOnlineScale)
 	}
 	return fields
 }
@@ -572,6 +633,8 @@ func (m *CoinGasMutation) Field(name string) (ent.Value, bool) {
 		return m.DepositThresholdLow()
 	case coingas.FieldDepositAmount:
 		return m.DepositAmount()
+	case coingas.FieldOnlineScale:
+		return m.OnlineScale()
 	}
 	return nil, false
 }
@@ -595,6 +658,8 @@ func (m *CoinGasMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldDepositThresholdLow(ctx)
 	case coingas.FieldDepositAmount:
 		return m.OldDepositAmount(ctx)
+	case coingas.FieldOnlineScale:
+		return m.OldOnlineScale(ctx)
 	}
 	return nil, fmt.Errorf("unknown CoinGas field %s", name)
 }
@@ -653,6 +718,13 @@ func (m *CoinGasMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetDepositAmount(v)
 		return nil
+	case coingas.FieldOnlineScale:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetOnlineScale(v)
+		return nil
 	}
 	return fmt.Errorf("unknown CoinGas field %s", name)
 }
@@ -676,6 +748,9 @@ func (m *CoinGasMutation) AddedFields() []string {
 	if m.adddeposit_amount != nil {
 		fields = append(fields, coingas.FieldDepositAmount)
 	}
+	if m.addonline_scale != nil {
+		fields = append(fields, coingas.FieldOnlineScale)
+	}
 	return fields
 }
 
@@ -694,6 +769,8 @@ func (m *CoinGasMutation) AddedField(name string) (ent.Value, bool) {
 		return m.AddedDepositThresholdLow()
 	case coingas.FieldDepositAmount:
 		return m.AddedDepositAmount()
+	case coingas.FieldOnlineScale:
+		return m.AddedOnlineScale()
 	}
 	return nil, false
 }
@@ -737,6 +814,13 @@ func (m *CoinGasMutation) AddField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddDepositAmount(v)
+		return nil
+	case coingas.FieldOnlineScale:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddOnlineScale(v)
 		return nil
 	}
 	return fmt.Errorf("unknown CoinGas numeric field %s", name)
@@ -785,6 +869,9 @@ func (m *CoinGasMutation) ResetField(name string) error {
 		return nil
 	case coingas.FieldDepositAmount:
 		m.ResetDepositAmount()
+		return nil
+	case coingas.FieldOnlineScale:
+		m.ResetOnlineScale()
 		return nil
 	}
 	return fmt.Errorf("unknown CoinGas field %s", name)

@@ -33,6 +33,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			coingas.FieldGasCoinTypeID:       {Type: field.TypeUUID, Column: coingas.FieldGasCoinTypeID},
 			coingas.FieldDepositThresholdLow: {Type: field.TypeUint64, Column: coingas.FieldDepositThresholdLow},
 			coingas.FieldDepositAmount:       {Type: field.TypeUint64, Column: coingas.FieldDepositAmount},
+			coingas.FieldOnlineScale:         {Type: field.TypeInt32, Column: coingas.FieldOnlineScale},
 		},
 	}
 	graph.Nodes[1] = &sqlgraph.Node{
@@ -135,6 +136,11 @@ func (f *CoinGasFilter) WhereDepositThresholdLow(p entql.Uint64P) {
 // WhereDepositAmount applies the entql uint64 predicate on the deposit_amount field.
 func (f *CoinGasFilter) WhereDepositAmount(p entql.Uint64P) {
 	f.Where(p.Field(coingas.FieldDepositAmount))
+}
+
+// WhereOnlineScale applies the entql int32 predicate on the online_scale field.
+func (f *CoinGasFilter) WhereOnlineScale(p entql.Int32P) {
+	f.Where(p.Field(coingas.FieldOnlineScale))
 }
 
 // addPredicate implements the predicateAdder interface.

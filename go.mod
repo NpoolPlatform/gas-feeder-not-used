@@ -8,7 +8,7 @@ require (
 	github.com/NpoolPlatform/cloud-hashing-billing v0.0.0-20220607125219-860b93705279
 	github.com/NpoolPlatform/go-service-framework v0.0.0-20220404143809-82c40930388a
 	github.com/NpoolPlatform/libent-cruder v0.0.0-20220526050249-956b54fac9f1
-	github.com/NpoolPlatform/message v0.0.0-20220607133726-3154653152fd
+	github.com/NpoolPlatform/message v0.0.0-20220613074611-63b5c41e14cd
 	github.com/NpoolPlatform/sphinx-coininfo v0.0.0-20220609081233-38be02268858
 	github.com/NpoolPlatform/sphinx-proxy v0.0.0-20220607121257-901a7180f914
 	github.com/NpoolPlatform/staker-manager v0.0.0-20220607085246-f8891c8a1b32

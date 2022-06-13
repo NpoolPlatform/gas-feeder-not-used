@@ -26,6 +26,8 @@ const (
 	FieldDepositThresholdLow = "deposit_threshold_low"
 	// FieldDepositAmount holds the string denoting the deposit_amount field in the database.
 	FieldDepositAmount = "deposit_amount"
+	// FieldOnlineScale holds the string denoting the online_scale field in the database.
+	FieldOnlineScale = "online_scale"
 	// Table holds the table name of the coingas in the database.
 	Table = "coin_gas"
 )
@@ -40,6 +42,7 @@ var Columns = []string{
 	FieldGasCoinTypeID,
 	FieldDepositThresholdLow,
 	FieldDepositAmount,
+	FieldOnlineScale,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -69,6 +72,8 @@ var (
 	UpdateDefaultUpdatedAt func() uint32
 	// DefaultDeletedAt holds the default value on creation for the "deleted_at" field.
 	DefaultDeletedAt func() uint32
+	// DefaultOnlineScale holds the default value on creation for the "online_scale" field.
+	DefaultOnlineScale int32
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )
