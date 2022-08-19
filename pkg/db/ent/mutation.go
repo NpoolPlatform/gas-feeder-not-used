@@ -43,6 +43,7 @@ type CoinGasMutation struct {
 	adddeleted_at            *int32
 	coin_type_id             *uuid.UUID
 	gas_coin_type_id         *uuid.UUID
+	feeding_tid              *uuid.UUID
 	deposit_threshold_low    *uint64
 	adddeposit_threshold_low *int64
 	deposit_amount           *uint64
@@ -399,6 +400,42 @@ func (m *CoinGasMutation) ResetGasCoinTypeID() {
 	m.gas_coin_type_id = nil
 }
 
+// SetFeedingTid sets the "feeding_tid" field.
+func (m *CoinGasMutation) SetFeedingTid(u uuid.UUID) {
+	m.feeding_tid = &u
+}
+
+// FeedingTid returns the value of the "feeding_tid" field in the mutation.
+func (m *CoinGasMutation) FeedingTid() (r uuid.UUID, exists bool) {
+	v := m.feeding_tid
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldFeedingTid returns the old "feeding_tid" field's value of the CoinGas entity.
+// If the CoinGas object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CoinGasMutation) OldFeedingTid(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldFeedingTid is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldFeedingTid requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldFeedingTid: %w", err)
+	}
+	return oldValue.FeedingTid, nil
+}
+
+// ResetFeedingTid resets all changes to the "feeding_tid" field.
+func (m *CoinGasMutation) ResetFeedingTid() {
+	m.feeding_tid = nil
+}
+
 // SetDepositThresholdLow sets the "deposit_threshold_low" field.
 func (m *CoinGasMutation) SetDepositThresholdLow(u uint64) {
 	m.deposit_threshold_low = &u
@@ -586,7 +623,7 @@ func (m *CoinGasMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *CoinGasMutation) Fields() []string {
-	fields := make([]string, 0, 8)
+	fields := make([]string, 0, 9)
 	if m.created_at != nil {
 		fields = append(fields, coingas.FieldCreatedAt)
 	}
@@ -601,6 +638,9 @@ func (m *CoinGasMutation) Fields() []string {
 	}
 	if m.gas_coin_type_id != nil {
 		fields = append(fields, coingas.FieldGasCoinTypeID)
+	}
+	if m.feeding_tid != nil {
+		fields = append(fields, coingas.FieldFeedingTid)
 	}
 	if m.deposit_threshold_low != nil {
 		fields = append(fields, coingas.FieldDepositThresholdLow)
@@ -629,6 +669,8 @@ func (m *CoinGasMutation) Field(name string) (ent.Value, bool) {
 		return m.CoinTypeID()
 	case coingas.FieldGasCoinTypeID:
 		return m.GasCoinTypeID()
+	case coingas.FieldFeedingTid:
+		return m.FeedingTid()
 	case coingas.FieldDepositThresholdLow:
 		return m.DepositThresholdLow()
 	case coingas.FieldDepositAmount:
@@ -654,6 +696,8 @@ func (m *CoinGasMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldCoinTypeID(ctx)
 	case coingas.FieldGasCoinTypeID:
 		return m.OldGasCoinTypeID(ctx)
+	case coingas.FieldFeedingTid:
+		return m.OldFeedingTid(ctx)
 	case coingas.FieldDepositThresholdLow:
 		return m.OldDepositThresholdLow(ctx)
 	case coingas.FieldDepositAmount:
@@ -703,6 +747,13 @@ func (m *CoinGasMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetGasCoinTypeID(v)
+		return nil
+	case coingas.FieldFeedingTid:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetFeedingTid(v)
 		return nil
 	case coingas.FieldDepositThresholdLow:
 		v, ok := value.(uint64)
@@ -863,6 +914,9 @@ func (m *CoinGasMutation) ResetField(name string) error {
 		return nil
 	case coingas.FieldGasCoinTypeID:
 		m.ResetGasCoinTypeID()
+		return nil
+	case coingas.FieldFeedingTid:
+		m.ResetFeedingTid()
 		return nil
 	case coingas.FieldDepositThresholdLow:
 		m.ResetDepositThresholdLow()

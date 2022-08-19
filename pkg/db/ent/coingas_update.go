@@ -95,6 +95,20 @@ func (cgu *CoinGasUpdate) SetGasCoinTypeID(u uuid.UUID) *CoinGasUpdate {
 	return cgu
 }
 
+// SetFeedingTid sets the "feeding_tid" field.
+func (cgu *CoinGasUpdate) SetFeedingTid(u uuid.UUID) *CoinGasUpdate {
+	cgu.mutation.SetFeedingTid(u)
+	return cgu
+}
+
+// SetNillableFeedingTid sets the "feeding_tid" field if the given value is not nil.
+func (cgu *CoinGasUpdate) SetNillableFeedingTid(u *uuid.UUID) *CoinGasUpdate {
+	if u != nil {
+		cgu.SetFeedingTid(*u)
+	}
+	return cgu
+}
+
 // SetDepositThresholdLow sets the "deposit_threshold_low" field.
 func (cgu *CoinGasUpdate) SetDepositThresholdLow(u uint64) *CoinGasUpdate {
 	cgu.mutation.ResetDepositThresholdLow()
@@ -290,6 +304,13 @@ func (cgu *CoinGasUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: coingas.FieldGasCoinTypeID,
 		})
 	}
+	if value, ok := cgu.mutation.FeedingTid(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
+			Value:  value,
+			Column: coingas.FieldFeedingTid,
+		})
+	}
 	if value, ok := cgu.mutation.DepositThresholdLow(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeUint64,
@@ -415,6 +436,20 @@ func (cguo *CoinGasUpdateOne) SetCoinTypeID(u uuid.UUID) *CoinGasUpdateOne {
 // SetGasCoinTypeID sets the "gas_coin_type_id" field.
 func (cguo *CoinGasUpdateOne) SetGasCoinTypeID(u uuid.UUID) *CoinGasUpdateOne {
 	cguo.mutation.SetGasCoinTypeID(u)
+	return cguo
+}
+
+// SetFeedingTid sets the "feeding_tid" field.
+func (cguo *CoinGasUpdateOne) SetFeedingTid(u uuid.UUID) *CoinGasUpdateOne {
+	cguo.mutation.SetFeedingTid(u)
+	return cguo
+}
+
+// SetNillableFeedingTid sets the "feeding_tid" field if the given value is not nil.
+func (cguo *CoinGasUpdateOne) SetNillableFeedingTid(u *uuid.UUID) *CoinGasUpdateOne {
+	if u != nil {
+		cguo.SetFeedingTid(*u)
+	}
 	return cguo
 }
 
@@ -635,6 +670,13 @@ func (cguo *CoinGasUpdateOne) sqlSave(ctx context.Context) (_node *CoinGas, err 
 			Type:   field.TypeUUID,
 			Value:  value,
 			Column: coingas.FieldGasCoinTypeID,
+		})
+	}
+	if value, ok := cguo.mutation.FeedingTid(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
+			Value:  value,
+			Column: coingas.FieldFeedingTid,
 		})
 	}
 	if value, ok := cguo.mutation.DepositThresholdLow(); ok {

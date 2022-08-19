@@ -126,6 +126,13 @@ func GasCoinTypeID(v uuid.UUID) predicate.CoinGas {
 	})
 }
 
+// FeedingTid applies equality check predicate on the "feeding_tid" field. It's identical to FeedingTidEQ.
+func FeedingTid(v uuid.UUID) predicate.CoinGas {
+	return predicate.CoinGas(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldFeedingTid), v))
+	})
+}
+
 // DepositThresholdLow applies equality check predicate on the "deposit_threshold_low" field. It's identical to DepositThresholdLowEQ.
 func DepositThresholdLow(v uint64) predicate.CoinGas {
 	return predicate.CoinGas(func(s *sql.Selector) {
@@ -524,6 +531,82 @@ func GasCoinTypeIDLT(v uuid.UUID) predicate.CoinGas {
 func GasCoinTypeIDLTE(v uuid.UUID) predicate.CoinGas {
 	return predicate.CoinGas(func(s *sql.Selector) {
 		s.Where(sql.LTE(s.C(FieldGasCoinTypeID), v))
+	})
+}
+
+// FeedingTidEQ applies the EQ predicate on the "feeding_tid" field.
+func FeedingTidEQ(v uuid.UUID) predicate.CoinGas {
+	return predicate.CoinGas(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldFeedingTid), v))
+	})
+}
+
+// FeedingTidNEQ applies the NEQ predicate on the "feeding_tid" field.
+func FeedingTidNEQ(v uuid.UUID) predicate.CoinGas {
+	return predicate.CoinGas(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldFeedingTid), v))
+	})
+}
+
+// FeedingTidIn applies the In predicate on the "feeding_tid" field.
+func FeedingTidIn(vs ...uuid.UUID) predicate.CoinGas {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.CoinGas(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldFeedingTid), v...))
+	})
+}
+
+// FeedingTidNotIn applies the NotIn predicate on the "feeding_tid" field.
+func FeedingTidNotIn(vs ...uuid.UUID) predicate.CoinGas {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.CoinGas(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldFeedingTid), v...))
+	})
+}
+
+// FeedingTidGT applies the GT predicate on the "feeding_tid" field.
+func FeedingTidGT(v uuid.UUID) predicate.CoinGas {
+	return predicate.CoinGas(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldFeedingTid), v))
+	})
+}
+
+// FeedingTidGTE applies the GTE predicate on the "feeding_tid" field.
+func FeedingTidGTE(v uuid.UUID) predicate.CoinGas {
+	return predicate.CoinGas(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldFeedingTid), v))
+	})
+}
+
+// FeedingTidLT applies the LT predicate on the "feeding_tid" field.
+func FeedingTidLT(v uuid.UUID) predicate.CoinGas {
+	return predicate.CoinGas(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldFeedingTid), v))
+	})
+}
+
+// FeedingTidLTE applies the LTE predicate on the "feeding_tid" field.
+func FeedingTidLTE(v uuid.UUID) predicate.CoinGas {
+	return predicate.CoinGas(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldFeedingTid), v))
 	})
 }
 

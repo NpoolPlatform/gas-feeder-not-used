@@ -38,6 +38,7 @@ func (s *CoinGas) rowToObject(row *ent.CoinGas) *npool.CoinGas {
 		ID:                  row.ID.String(),
 		GasCoinTypeID:       row.GasCoinTypeID.String(),
 		CoinTypeID:          row.CoinTypeID.String(),
+		FeedingTID:          row.FeedingTid.String(),
 		DepositThresholdLow: price.DBPriceToVisualPrice(row.DepositThresholdLow),
 		DepositAmount:       price.DBPriceToVisualPrice(row.DepositAmount),
 		OnlineScale:         row.OnlineScale,
@@ -118,6 +119,7 @@ func (s *CoinGas) Update(ctx context.Context, in *npool.CoinGas) (*npool.CoinGas
 		info, err = s.Tx.CoinGas.UpdateOneID(uuid.MustParse(in.GetID())).
 			SetCoinTypeID(uuid.MustParse(in.GetCoinTypeID())).
 			SetGasCoinTypeID(uuid.MustParse(in.GetGasCoinTypeID())).
+			SetFeedingTid(uuid.MustParse(in.GetFeedingTID())).
 			SetDepositThresholdLow(price.VisualPriceToDBPrice(in.GetDepositThresholdLow())).
 			SetDepositAmount(price.VisualPriceToDBPrice(in.GetDepositAmount())).
 			SetOnlineScale(in.GetOnlineScale()).

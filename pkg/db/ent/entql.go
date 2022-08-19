@@ -31,6 +31,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			coingas.FieldDeletedAt:           {Type: field.TypeUint32, Column: coingas.FieldDeletedAt},
 			coingas.FieldCoinTypeID:          {Type: field.TypeUUID, Column: coingas.FieldCoinTypeID},
 			coingas.FieldGasCoinTypeID:       {Type: field.TypeUUID, Column: coingas.FieldGasCoinTypeID},
+			coingas.FieldFeedingTid:          {Type: field.TypeUUID, Column: coingas.FieldFeedingTid},
 			coingas.FieldDepositThresholdLow: {Type: field.TypeUint64, Column: coingas.FieldDepositThresholdLow},
 			coingas.FieldDepositAmount:       {Type: field.TypeUint64, Column: coingas.FieldDepositAmount},
 			coingas.FieldOnlineScale:         {Type: field.TypeInt32, Column: coingas.FieldOnlineScale},
@@ -126,6 +127,11 @@ func (f *CoinGasFilter) WhereCoinTypeID(p entql.ValueP) {
 // WhereGasCoinTypeID applies the entql [16]byte predicate on the gas_coin_type_id field.
 func (f *CoinGasFilter) WhereGasCoinTypeID(p entql.ValueP) {
 	f.Where(p.Field(coingas.FieldGasCoinTypeID))
+}
+
+// WhereFeedingTid applies the entql [16]byte predicate on the feeding_tid field.
+func (f *CoinGasFilter) WhereFeedingTid(p entql.ValueP) {
+	f.Where(p.Field(coingas.FieldFeedingTid))
 }
 
 // WhereDepositThresholdLow applies the entql uint64 predicate on the deposit_threshold_low field.

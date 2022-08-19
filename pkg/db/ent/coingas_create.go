@@ -77,6 +77,20 @@ func (cgc *CoinGasCreate) SetGasCoinTypeID(u uuid.UUID) *CoinGasCreate {
 	return cgc
 }
 
+// SetFeedingTid sets the "feeding_tid" field.
+func (cgc *CoinGasCreate) SetFeedingTid(u uuid.UUID) *CoinGasCreate {
+	cgc.mutation.SetFeedingTid(u)
+	return cgc
+}
+
+// SetNillableFeedingTid sets the "feeding_tid" field if the given value is not nil.
+func (cgc *CoinGasCreate) SetNillableFeedingTid(u *uuid.UUID) *CoinGasCreate {
+	if u != nil {
+		cgc.SetFeedingTid(*u)
+	}
+	return cgc
+}
+
 // SetDepositThresholdLow sets the "deposit_threshold_low" field.
 func (cgc *CoinGasCreate) SetDepositThresholdLow(u uint64) *CoinGasCreate {
 	cgc.mutation.SetDepositThresholdLow(u)
@@ -211,6 +225,13 @@ func (cgc *CoinGasCreate) defaults() error {
 		v := coingas.DefaultDeletedAt()
 		cgc.mutation.SetDeletedAt(v)
 	}
+	if _, ok := cgc.mutation.FeedingTid(); !ok {
+		if coingas.DefaultFeedingTid == nil {
+			return fmt.Errorf("ent: uninitialized coingas.DefaultFeedingTid (forgotten import ent/runtime?)")
+		}
+		v := coingas.DefaultFeedingTid()
+		cgc.mutation.SetFeedingTid(v)
+	}
 	if _, ok := cgc.mutation.OnlineScale(); !ok {
 		v := coingas.DefaultOnlineScale
 		cgc.mutation.SetOnlineScale(v)
@@ -241,6 +262,9 @@ func (cgc *CoinGasCreate) check() error {
 	}
 	if _, ok := cgc.mutation.GasCoinTypeID(); !ok {
 		return &ValidationError{Name: "gas_coin_type_id", err: errors.New(`ent: missing required field "CoinGas.gas_coin_type_id"`)}
+	}
+	if _, ok := cgc.mutation.FeedingTid(); !ok {
+		return &ValidationError{Name: "feeding_tid", err: errors.New(`ent: missing required field "CoinGas.feeding_tid"`)}
 	}
 	if _, ok := cgc.mutation.DepositThresholdLow(); !ok {
 		return &ValidationError{Name: "deposit_threshold_low", err: errors.New(`ent: missing required field "CoinGas.deposit_threshold_low"`)}
@@ -327,6 +351,14 @@ func (cgc *CoinGasCreate) createSpec() (*CoinGas, *sqlgraph.CreateSpec) {
 			Column: coingas.FieldGasCoinTypeID,
 		})
 		_node.GasCoinTypeID = value
+	}
+	if value, ok := cgc.mutation.FeedingTid(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
+			Value:  value,
+			Column: coingas.FieldFeedingTid,
+		})
+		_node.FeedingTid = value
 	}
 	if value, ok := cgc.mutation.DepositThresholdLow(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
@@ -481,6 +513,18 @@ func (u *CoinGasUpsert) SetGasCoinTypeID(v uuid.UUID) *CoinGasUpsert {
 // UpdateGasCoinTypeID sets the "gas_coin_type_id" field to the value that was provided on create.
 func (u *CoinGasUpsert) UpdateGasCoinTypeID() *CoinGasUpsert {
 	u.SetExcluded(coingas.FieldGasCoinTypeID)
+	return u
+}
+
+// SetFeedingTid sets the "feeding_tid" field.
+func (u *CoinGasUpsert) SetFeedingTid(v uuid.UUID) *CoinGasUpsert {
+	u.Set(coingas.FieldFeedingTid, v)
+	return u
+}
+
+// UpdateFeedingTid sets the "feeding_tid" field to the value that was provided on create.
+func (u *CoinGasUpsert) UpdateFeedingTid() *CoinGasUpsert {
+	u.SetExcluded(coingas.FieldFeedingTid)
 	return u
 }
 
@@ -676,6 +720,20 @@ func (u *CoinGasUpsertOne) SetGasCoinTypeID(v uuid.UUID) *CoinGasUpsertOne {
 func (u *CoinGasUpsertOne) UpdateGasCoinTypeID() *CoinGasUpsertOne {
 	return u.Update(func(s *CoinGasUpsert) {
 		s.UpdateGasCoinTypeID()
+	})
+}
+
+// SetFeedingTid sets the "feeding_tid" field.
+func (u *CoinGasUpsertOne) SetFeedingTid(v uuid.UUID) *CoinGasUpsertOne {
+	return u.Update(func(s *CoinGasUpsert) {
+		s.SetFeedingTid(v)
+	})
+}
+
+// UpdateFeedingTid sets the "feeding_tid" field to the value that was provided on create.
+func (u *CoinGasUpsertOne) UpdateFeedingTid() *CoinGasUpsertOne {
+	return u.Update(func(s *CoinGasUpsert) {
+		s.UpdateFeedingTid()
 	})
 }
 
@@ -1046,6 +1104,20 @@ func (u *CoinGasUpsertBulk) SetGasCoinTypeID(v uuid.UUID) *CoinGasUpsertBulk {
 func (u *CoinGasUpsertBulk) UpdateGasCoinTypeID() *CoinGasUpsertBulk {
 	return u.Update(func(s *CoinGasUpsert) {
 		s.UpdateGasCoinTypeID()
+	})
+}
+
+// SetFeedingTid sets the "feeding_tid" field.
+func (u *CoinGasUpsertBulk) SetFeedingTid(v uuid.UUID) *CoinGasUpsertBulk {
+	return u.Update(func(s *CoinGasUpsert) {
+		s.SetFeedingTid(v)
+	})
+}
+
+// UpdateFeedingTid sets the "feeding_tid" field to the value that was provided on create.
+func (u *CoinGasUpsertBulk) UpdateFeedingTid() *CoinGasUpsertBulk {
+	return u.Update(func(s *CoinGasUpsert) {
+		s.UpdateFeedingTid()
 	})
 }
 
