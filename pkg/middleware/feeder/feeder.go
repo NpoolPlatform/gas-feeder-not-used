@@ -169,6 +169,17 @@ func (f *Feeder) FeedGas(ctx context.Context, gas *npool.CoinGas) error {
 			scale = gas.OnlineScale
 		}
 
+		logger.Sugar().Infow(
+			"FeedAll",
+			"From", from,
+			"To", to,
+			"CoinName", coin.Name,
+			"Balance", balance.Balance,
+			"Scale", scale,
+			"DepositAmount", gas.DepositAmount,
+			"Reserved", coin.ReservedAmount,
+		)
+
 		amount := gas.DepositAmount * float64(scale)
 		if balance.Balance <= coin.ReservedAmount+amount {
 			insufficient++
@@ -280,7 +291,7 @@ func (f *Feeder) getAddress(ctx context.Context, accountID string) (string, erro
 			return "", err
 		}
 		if account == nil {
-			return "", fmt.Errorf("invaoid account")
+			return "", fmt.Errorf("invalid account")
 		}
 		to = account.Address
 		f.addresses[accountID] = to
@@ -290,6 +301,8 @@ func (f *Feeder) getAddress(ctx context.Context, accountID string) (string, erro
 }
 
 func (f *Feeder) paymentFeeder(ctx context.Context) {
+	logger.Sugar().Infow("paymentFeeder", "Start", "...")
+
 	payments, err := billingcli.GetGoodPayments(ctx, cruder.NewFilterConds())
 	if err != nil {
 		logger.Sugar().Errorf("fail get good payments: %v", err)
@@ -300,6 +313,7 @@ func (f *Feeder) paymentFeeder(ctx context.Context) {
 	for _, payment := range payments {
 		address, err := f.getAddress(ctx, payment.AccountID)
 		if err != nil {
+			logger.Sugar().Errorw("paymentFeeder", "AccountID", payment.AccountID, "error", err)
 			return
 		}
 
@@ -317,13 +331,18 @@ func (f *Feeder) paymentFeeder(ctx context.Context) {
 	if err != nil {
 		logger.Sugar().Errorf("fail feed gases: %v", err)
 	}
+
+	logger.Sugar().Infow("paymentFeeder", "Done", "...")
 }
 
 func (f *Feeder) onlineFeeder(ctx context.Context) {
+	logger.Sugar().Infow("onlineFeeder", "Start", "...")
+
 	accounts := []*account{}
 	for _, setting := range f.coinsettings {
 		address, err := f.getAddress(ctx, setting.UserOnlineAccountID)
 		if err != nil {
+			logger.Sugar().Errorw("onlineFeeder", "AccountID", setting.UserOnlineAccountID, "error", err)
 			return
 		}
 
@@ -341,6 +360,8 @@ func (f *Feeder) onlineFeeder(ctx context.Context) {
 	if err != nil {
 		logger.Sugar().Errorf("fail feed gases: %v", err)
 	}
+
+	logger.Sugar().Infow("onlineFeeder", "Done", "...")
 }
 
 func (f *Feeder) depositFeeder(ctx context.Context) {
@@ -348,12 +369,16 @@ func (f *Feeder) depositFeeder(ctx context.Context) {
 	offset := int32(0)
 	limit := int32(1000) //nolint
 
+	logger.Sugar().Infow("depositFeeder", "Start", "...")
+
 	for {
 		accs, err := depositcli.GetAccounts(ctx, &depositpb.Conds{}, offset, limit)
 		if err != nil {
+			logger.Sugar().Infow("depositFeeder", "error", err)
 			return
 		}
 		if len(accs) == 0 {
+			logger.Sugar().Infow("depositFeeder", "Done", "...")
 			return
 		}
 
@@ -400,6 +425,8 @@ func Run() {
 	}
 
 	_feeder.paymentFeeder(ctx)
+	_feeder.onlineFeeder(ctx)
+	_feeder.depositFeeder(ctx)
 
 	for {
 		select {
