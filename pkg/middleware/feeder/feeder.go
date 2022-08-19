@@ -22,6 +22,9 @@ import (
 	sphinxproxypb "github.com/NpoolPlatform/message/npool/sphinxproxy"
 	sphinxproxycli "github.com/NpoolPlatform/sphinx-proxy/pkg/client"
 
+	depositcli "github.com/NpoolPlatform/account-middleware/pkg/client/deposit"
+	depositpb "github.com/NpoolPlatform/message/npool/account/mw/v1/deposit"
+
 	constant "github.com/NpoolPlatform/gas-feeder/pkg/const"
 
 	"github.com/google/uuid"
@@ -269,7 +272,7 @@ func (f *Feeder) update(ctx context.Context) error {
 	return nil
 }
 
-func (f *Feeder) getAddress(ctx context.Context, accountID string, legacy bool) (string, error) {
+func (f *Feeder) getAddress(ctx context.Context, accountID string) (string, error) {
 	to, ok := f.addresses[accountID]
 	if !ok {
 		account, err := billingcli.GetAccount(ctx, accountID)
@@ -295,7 +298,7 @@ func (f *Feeder) paymentFeeder(ctx context.Context) {
 
 	accounts := []*account{}
 	for _, payment := range payments {
-		address, err := f.getAddress(ctx, payment.AccountID, true)
+		address, err := f.getAddress(ctx, payment.AccountID)
 		if err != nil {
 			return
 		}
@@ -319,7 +322,7 @@ func (f *Feeder) paymentFeeder(ctx context.Context) {
 func (f *Feeder) onlineFeeder(ctx context.Context) {
 	accounts := []*account{}
 	for _, setting := range f.coinsettings {
-		address, err := f.getAddress(ctx, setting.UserOnlineAccountID, true)
+		address, err := f.getAddress(ctx, setting.UserOnlineAccountID)
 		if err != nil {
 			return
 		}
@@ -341,6 +344,37 @@ func (f *Feeder) onlineFeeder(ctx context.Context) {
 }
 
 func (f *Feeder) depositFeeder(ctx context.Context) {
+	accounts := []*account{}
+	offset := int32(0)
+	limit := int32(1000) //nolint
+
+	for {
+		accs, err := depositcli.GetAccounts(ctx, &depositpb.Conds{}, offset, limit)
+		if err != nil {
+			return
+		}
+		if len(accs) == 0 {
+			return
+		}
+
+		for _, acc := range accs {
+			accounts = append(accounts, &account{
+				accountID:     acc.AccountID,
+				coinTypeID:    acc.CoinTypeID,
+				address:       acc.Address,
+				onlineAccount: false,
+			})
+		}
+
+		f.accounts = accounts
+
+		err = f.FeedAll(ctx)
+		if err != nil {
+			logger.Sugar().Errorf("fail feed gases: %v", err)
+		}
+
+		offset += limit
+	}
 }
 
 const (
