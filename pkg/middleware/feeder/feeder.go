@@ -125,6 +125,7 @@ func (f *Feeder) FeedGas(ctx context.Context, gas *npool.CoinGas) error {
 			return fmt.Errorf("fail exist deposit: %v", err)
 		}
 
+		toGasBalance := 0.0
 		if exist {
 			balance, err = sphinxproxycli.GetBalance(ctx, &sphinxproxypb.GetBalanceRequest{
 				Name:    coin.Name,
@@ -134,6 +135,8 @@ func (f *Feeder) FeedGas(ctx context.Context, gas *npool.CoinGas) error {
 				logger.Sugar().Errorf("fail check gas %v | %v | %v balance: %v", coin.Name, to, acc.accountID, err)
 				continue
 			}
+
+			toGasBalance = balance.Balance
 
 			if gas.DepositThresholdLow < balance.Balance {
 				ignore++
@@ -169,18 +172,22 @@ func (f *Feeder) FeedGas(ctx context.Context, gas *npool.CoinGas) error {
 			scale = gas.OnlineScale
 		}
 
+		amount := gas.DepositAmount * float64(scale)
+
 		logger.Sugar().Infow(
 			"FeedAll",
 			"From", from,
 			"To", to,
 			"CoinName", coin.Name,
-			"Balance", balance.Balance,
+			"GasProviderBalance", balance.Balance,
 			"Scale", scale,
 			"DepositAmount", gas.DepositAmount,
 			"Reserved", coin.ReservedAmount,
+			"TargetGasAmount", amount,
+			"GasBalance", toGasBalance,
+			"AccountID", acc.accountID,
 		)
 
-		amount := gas.DepositAmount * float64(scale)
 		if balance.Balance <= coin.ReservedAmount+amount {
 			insufficient++
 			continue
@@ -343,7 +350,7 @@ func (f *Feeder) onlineFeeder(ctx context.Context) {
 		address, err := f.getAddress(ctx, setting.UserOnlineAccountID)
 		if err != nil {
 			logger.Sugar().Errorw("onlineFeeder", "AccountID", setting.UserOnlineAccountID, "error", err)
-			return
+			continue
 		}
 
 		accounts = append(accounts, &account{
@@ -403,9 +410,9 @@ func (f *Feeder) depositFeeder(ctx context.Context) {
 }
 
 const (
-	PaymentGasFeedInterval = 4 * time.Hour
-	HotGasFeedInterval     = 10 * time.Minute
-	DepositFeedInterval    = 4 * time.Hour
+	PaymentGasFeedInterval = 1 * time.Minute
+	HotGasFeedInterval     = 1 * time.Minute
+	DepositFeedInterval    = 1 * time.Minute
 )
 
 func Run() {
