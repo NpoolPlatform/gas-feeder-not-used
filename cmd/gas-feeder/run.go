@@ -3,8 +3,6 @@ package main
 import (
 	"github.com/NpoolPlatform/gas-feeder/api"
 	db "github.com/NpoolPlatform/gas-feeder/pkg/db"
-	msgcli "github.com/NpoolPlatform/gas-feeder/pkg/message/client"
-	msgsrv "github.com/NpoolPlatform/gas-feeder/pkg/message/server"
 
 	grpc2 "github.com/NpoolPlatform/go-service-framework/pkg/grpc"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
@@ -35,15 +33,6 @@ var runCmd = &cli.Command{
 			}
 		}()
 
-		if err := msgsrv.Init(); err != nil {
-			return err
-		}
-		if err := msgcli.Init(); err != nil {
-			return err
-		}
-
-		// go msglistener.Listen()
-		// go msgSender()
 		go feeder.Run()
 
 		return grpc2.RunGRPCGateWay(rpcGatewayRegister)

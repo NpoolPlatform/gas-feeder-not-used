@@ -22,6 +22,8 @@ const (
 	FieldCoinTypeID = "coin_type_id"
 	// FieldGasCoinTypeID holds the string denoting the gas_coin_type_id field in the database.
 	FieldGasCoinTypeID = "gas_coin_type_id"
+	// FieldFeedingTid holds the string denoting the feeding_tid field in the database.
+	FieldFeedingTid = "feeding_tid"
 	// FieldDepositThresholdLow holds the string denoting the deposit_threshold_low field in the database.
 	FieldDepositThresholdLow = "deposit_threshold_low"
 	// FieldDepositAmount holds the string denoting the deposit_amount field in the database.
@@ -40,6 +42,7 @@ var Columns = []string{
 	FieldDeletedAt,
 	FieldCoinTypeID,
 	FieldGasCoinTypeID,
+	FieldFeedingTid,
 	FieldDepositThresholdLow,
 	FieldDepositAmount,
 	FieldOnlineScale,
@@ -72,6 +75,8 @@ var (
 	UpdateDefaultUpdatedAt func() uint32
 	// DefaultDeletedAt holds the default value on creation for the "deleted_at" field.
 	DefaultDeletedAt func() uint32
+	// DefaultFeedingTid holds the default value on creation for the "feeding_tid" field.
+	DefaultFeedingTid func() uuid.UUID
 	// DefaultOnlineScale holds the default value on creation for the "online_scale" field.
 	DefaultOnlineScale int32
 	// DefaultID holds the default value on creation for the "id" field.

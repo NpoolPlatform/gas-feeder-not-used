@@ -26,6 +26,8 @@ type CoinGas struct {
 	CoinTypeID uuid.UUID `json:"coin_type_id,omitempty"`
 	// GasCoinTypeID holds the value of the "gas_coin_type_id" field.
 	GasCoinTypeID uuid.UUID `json:"gas_coin_type_id,omitempty"`
+	// FeedingTid holds the value of the "feeding_tid" field.
+	FeedingTid uuid.UUID `json:"feeding_tid,omitempty"`
 	// DepositThresholdLow holds the value of the "deposit_threshold_low" field.
 	DepositThresholdLow uint64 `json:"deposit_threshold_low,omitempty"`
 	// DepositAmount holds the value of the "deposit_amount" field.
@@ -41,7 +43,7 @@ func (*CoinGas) scanValues(columns []string) ([]interface{}, error) {
 		switch columns[i] {
 		case coingas.FieldCreatedAt, coingas.FieldUpdatedAt, coingas.FieldDeletedAt, coingas.FieldDepositThresholdLow, coingas.FieldDepositAmount, coingas.FieldOnlineScale:
 			values[i] = new(sql.NullInt64)
-		case coingas.FieldID, coingas.FieldCoinTypeID, coingas.FieldGasCoinTypeID:
+		case coingas.FieldID, coingas.FieldCoinTypeID, coingas.FieldGasCoinTypeID, coingas.FieldFeedingTid:
 			values[i] = new(uuid.UUID)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type CoinGas", columns[i])
@@ -93,6 +95,12 @@ func (cg *CoinGas) assignValues(columns []string, values []interface{}) error {
 				return fmt.Errorf("unexpected type %T for field gas_coin_type_id", values[i])
 			} else if value != nil {
 				cg.GasCoinTypeID = *value
+			}
+		case coingas.FieldFeedingTid:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field feeding_tid", values[i])
+			} else if value != nil {
+				cg.FeedingTid = *value
 			}
 		case coingas.FieldDepositThresholdLow:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -150,6 +158,8 @@ func (cg *CoinGas) String() string {
 	builder.WriteString(fmt.Sprintf("%v", cg.CoinTypeID))
 	builder.WriteString(", gas_coin_type_id=")
 	builder.WriteString(fmt.Sprintf("%v", cg.GasCoinTypeID))
+	builder.WriteString(", feeding_tid=")
+	builder.WriteString(fmt.Sprintf("%v", cg.FeedingTid))
 	builder.WriteString(", deposit_threshold_low=")
 	builder.WriteString(fmt.Sprintf("%v", cg.DepositThresholdLow))
 	builder.WriteString(", deposit_amount=")

@@ -46,8 +46,12 @@ func init() {
 	coingasDescDeletedAt := coingasMixinFields0[2].Descriptor()
 	// coingas.DefaultDeletedAt holds the default value on creation for the deleted_at field.
 	coingas.DefaultDeletedAt = coingasDescDeletedAt.Default.(func() uint32)
+	// coingasDescFeedingTid is the schema descriptor for feeding_tid field.
+	coingasDescFeedingTid := coingasFields[3].Descriptor()
+	// coingas.DefaultFeedingTid holds the default value on creation for the feeding_tid field.
+	coingas.DefaultFeedingTid = coingasDescFeedingTid.Default.(func() uuid.UUID)
 	// coingasDescOnlineScale is the schema descriptor for online_scale field.
-	coingasDescOnlineScale := coingasFields[5].Descriptor()
+	coingasDescOnlineScale := coingasFields[6].Descriptor()
 	// coingas.DefaultOnlineScale holds the default value on creation for the online_scale field.
 	coingas.DefaultOnlineScale = coingasDescOnlineScale.Default.(int32)
 	// coingasDescID is the schema descriptor for id field.
