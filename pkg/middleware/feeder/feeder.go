@@ -25,8 +25,6 @@ import (
 	depositcli "github.com/NpoolPlatform/account-middleware/pkg/client/deposit"
 	depositpb "github.com/NpoolPlatform/message/npool/account/mw/v1/deposit"
 
-	constant "github.com/NpoolPlatform/gas-feeder/pkg/const"
-
 	"github.com/google/uuid"
 )
 
@@ -98,6 +96,8 @@ func (f *Feeder) FeedGas(ctx context.Context, gas *npool.CoinGas) error {
 			return fmt.Errorf("fail get coin: %v %v", err, gas.CoinTypeID)
 		}
 
+		toCoinBalance := 0.0
+
 		balance, err := sphinxproxycli.GetBalance(ctx, &sphinxproxypb.GetBalanceRequest{
 			Name:    coin.Name,
 			Address: to,
@@ -110,38 +110,28 @@ func (f *Feeder) FeedGas(ctx context.Context, gas *npool.CoinGas) error {
 			continue
 		}
 
+		toCoinBalance = balance.Balance
+
 		coin, err = f.GetCoin(gas.GasCoinTypeID)
 		if err != nil || coin == nil {
 			return fmt.Errorf("fail get gas coin: %v %v", err, gas.GasCoinTypeID)
 		}
 
-		exist := false
-		err = withDepositCRUD(ctx, func(schema *depositcrud.Deposit) error {
-			exist, err = schema.ExistConds(ctx, cruder.NewConds().
-				WithCond(constant.FieldAccountID, cruder.EQ, acc.accountID))
-			return err
+		toGasBalance := 0.0
+		balance, err = sphinxproxycli.GetBalance(ctx, &sphinxproxypb.GetBalanceRequest{
+			Name:    coin.Name,
+			Address: to,
 		})
-		if err != nil {
-			return fmt.Errorf("fail exist deposit: %v", err)
+		if err != nil || balance == nil {
+			logger.Sugar().Errorf("fail check gas %v | %v | %v balance: %v", coin.Name, to, acc.accountID, err)
+			continue
 		}
 
-		toGasBalance := 0.0
-		if exist {
-			balance, err = sphinxproxycli.GetBalance(ctx, &sphinxproxypb.GetBalanceRequest{
-				Name:    coin.Name,
-				Address: to,
-			})
-			if err != nil || balance == nil {
-				logger.Sugar().Errorf("fail check gas %v | %v | %v balance: %v", coin.Name, to, acc.accountID, err)
-				continue
-			}
+		toGasBalance = balance.Balance
 
-			toGasBalance = balance.Balance
-
-			if gas.DepositThresholdLow < balance.Balance {
-				ignore++
-				continue
-			}
+		if gas.DepositThresholdLow < balance.Balance {
+			ignore++
+			continue
 		}
 
 		gasAccountID, err := f.GetGasAccountID(gas.GasCoinTypeID)
@@ -181,14 +171,15 @@ func (f *Feeder) FeedGas(ctx context.Context, gas *npool.CoinGas) error {
 			"CoinName", coin.Name,
 			"GasProviderBalance", balance.Balance,
 			"Scale", scale,
+			"DepositThresholdLow", gas.DepositThresholdLow,
 			"DepositAmount", gas.DepositAmount,
-			"Reserved", coin.ReservedAmount,
 			"TargetGasAmount", amount,
 			"GasBalance", toGasBalance,
+			"CoinBalance", toCoinBalance,
 			"AccountID", acc.accountID,
 		)
 
-		if balance.Balance <= coin.ReservedAmount+amount {
+		if balance.Balance <= amount {
 			insufficient++
 			continue
 		}
@@ -410,15 +401,11 @@ func (f *Feeder) depositFeeder(ctx context.Context) {
 }
 
 const (
-	PaymentGasFeedInterval = 1 * time.Minute
-	HotGasFeedInterval     = 1 * time.Minute
-	DepositFeedInterval    = 1 * time.Minute
+	GasFeedInterval = 1 * time.Minute
 )
 
 func Run() {
-	paymentTicker := time.NewTicker(PaymentGasFeedInterval)
-	onlineTicker := time.NewTicker(HotGasFeedInterval)
-	depositTicker := time.NewTicker(DepositFeedInterval)
+	ticker := time.NewTicker(GasFeedInterval)
 
 	ctx := context.Background()
 	_feeder := &Feeder{
@@ -435,29 +422,26 @@ func Run() {
 	_feeder.onlineFeeder(ctx)
 	_feeder.depositFeeder(ctx)
 
-	for {
-		select {
-		case <-paymentTicker.C:
-			err := _feeder.update(ctx)
-			if err != nil {
-				logger.Sugar().Errorf("fail update feeder: %v", err)
-				continue
-			}
-			_feeder.paymentFeeder(ctx)
-		case <-onlineTicker.C:
-			err := _feeder.update(ctx)
-			if err != nil {
-				logger.Sugar().Errorf("fail update feeder: %v", err)
-				continue
-			}
-			_feeder.onlineFeeder(ctx)
-		case <-depositTicker.C:
-			err := _feeder.update(ctx)
-			if err != nil {
-				logger.Sugar().Errorf("fail update feeder: %v", err)
-				continue
-			}
-			_feeder.depositFeeder(ctx)
+	for range ticker.C {
+		err := _feeder.update(ctx)
+		if err != nil {
+			logger.Sugar().Errorf("fail update feeder: %v", err)
+			continue
 		}
+		_feeder.paymentFeeder(ctx)
+
+		err = _feeder.update(ctx)
+		if err != nil {
+			logger.Sugar().Errorf("fail update feeder: %v", err)
+			continue
+		}
+		_feeder.onlineFeeder(ctx)
+
+		err = _feeder.update(ctx)
+		if err != nil {
+			logger.Sugar().Errorf("fail update feeder: %v", err)
+			continue
+		}
+		_feeder.depositFeeder(ctx)
 	}
 }
