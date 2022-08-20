@@ -34,7 +34,7 @@ func TestCRUD(t *testing.T) {
 		GasCoinTypeID:       uuid.New().String(),
 		DepositThresholdLow: float64(100.1),
 		DepositAmount:       float64(1.1),
-		CollectingTID:       uuid.UUID{}.String(),
+		FeedingTID:          uuid.UUID{}.String(),
 	}
 
 	schema, err := New(context.Background(), nil)
