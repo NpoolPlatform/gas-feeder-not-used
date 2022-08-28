@@ -3,13 +3,13 @@ module github.com/NpoolPlatform/gas-feeder
 go 1.17
 
 require (
-	entgo.io/ent v0.11.1
+	entgo.io/ent v0.11.2
 	github.com/NpoolPlatform/account-middleware v0.0.0-20220819023858-e279d03408fc
-	github.com/NpoolPlatform/api-manager v0.0.0-20220328101926-8907b2f76c6d
+	github.com/NpoolPlatform/api-manager v0.0.0-20220826022307-d72866fe3ec0
 	github.com/NpoolPlatform/cloud-hashing-billing v0.0.0-20220813100440-8f504162a259
-	github.com/NpoolPlatform/go-service-framework v0.0.0-20220812032117-44ecffa2bb95
+	github.com/NpoolPlatform/go-service-framework v0.0.0-20220818105452-9457611ae070
 	github.com/NpoolPlatform/libent-cruder v0.0.0-20220621110548-8f3f8049ecc5
-	github.com/NpoolPlatform/message v0.0.0-20220819052035-d50042e568f2
+	github.com/NpoolPlatform/message v0.0.0-20220819134247-1dc75c85fe43
 	github.com/NpoolPlatform/sphinx-coininfo v0.0.0-20220609081233-38be02268858
 	github.com/NpoolPlatform/sphinx-proxy v0.0.0-20220607121257-901a7180f914
 	github.com/go-resty/resty/v2 v2.7.0
@@ -23,7 +23,7 @@ require (
 )
 
 require (
-	ariga.io/atlas v0.5.0 // indirect
+	ariga.io/atlas v0.5.1-0.20220717122844-8593d7eb1a8e // indirect
 	github.com/Shonminh/apollo-client v0.4.0 // indirect
 	github.com/agext/levenshtein v1.2.1 // indirect
 	github.com/andres-erbsen/clock v0.0.0-20160526145045-9e14626cd129 // indirect
@@ -94,9 +94,9 @@ require (
 	go.uber.org/multierr v1.8.0 // indirect
 	go.uber.org/ratelimit v0.2.0 // indirect
 	go.uber.org/zap v1.21.0 // indirect
-	golang.org/x/mod v0.6.0-dev.0.20220106191415-9b9b3d81d5e3 // indirect
-	golang.org/x/net v0.0.0-20220418201149-a630d4f3e7a2 // indirect
-	golang.org/x/sys v0.0.0-20220615213510-4f61da869c0c // indirect
+	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
+	golang.org/x/net v0.0.0-20220722155237-a158d28d115b // indirect
+	golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/xerrors v0.0.0-20220411194840-2f41105eb62f // indirect
 	google.golang.org/genproto v0.0.0-20220407144326-9054f6ed7bac // indirect
